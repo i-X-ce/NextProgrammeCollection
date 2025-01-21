@@ -79,10 +79,11 @@ export class HayamojiSearch {
       }
 
       const result = this.map.bfsSearch(
-        startChar === "En" ? "En" : toKatakana(startChar),
+        name.length >= 5 ? "En" : toKatakana(startChar),
         toKatakana(endChar),
         iskata ? "katakana" : "hiragana",
-        changedType
+        changedType,
+        name
       );
       if (endChar === "゛" || endChar === "゜") {
         name = name.substring(0, name.length - 1);
@@ -98,7 +99,7 @@ export class HayamojiSearch {
       if (!result) return null;
       ret.push(result.path);
     }
-    console.log(name);
+    console.log(ret);
     return ret;
   }
 
@@ -187,7 +188,8 @@ class HayamojiMap {
     start: string,
     goal: string,
     type: "katakana" | "hiragana",
-    changedType: boolean
+    changedType: boolean,
+    name: string
   ): {
     cost: number;
     path: { char: string; button: ButtonType }[];
@@ -205,27 +207,53 @@ class HayamojiMap {
       // map(通った場所)に使うデータ型
       type VisitedData = {
         node: Node | null;
-        predata: { node: Node; button: ButtonType } | null; // どのボタンでどのノードから来たか
+        path: { node: Node; button: ButtonType }[]; // どのボタンでどのノードから来たか
         cost: number;
+        name: string;
       };
 
       const queue: VisitedData[] = [
-        { node: startNode, predata: null, cost: 0 },
+        { node: startNode, path: [], cost: 0, name },
       ];
+
       // const queue = new TinyQueue<VisitedData>([], (a, b) => a.cost - b.cost);
-      queue.push({ node: startNode, predata: null, cost: 0 });
+      // queue.push({ node: startNode, predata: null, cost: 0 });
       const visitedData: Map<Node, VisitedData> = new Map();
+
+      if (name.length < 5) {
+        queue.push({
+          node: this.nodeMap.get("En")!,
+          path: Array(5 - name.length)
+            .map(() => {
+              return { node: startNode, button: ButtonType.A };
+            })
+            .concat(
+              Array(5 - name.length - 1).map(() => {
+                return { node: this.nodeMap.get("En")!, button: ButtonType.B };
+              })
+            ),
+          cost: (5 - name.length) * 2 + (5 - name.length - 1) * 2 + 1,
+          name: "",
+        });
+      }
+
       visitedData.set(startNode, {
         cost: 0,
         node: startNode,
-        predata: null,
+        path: [],
+        name,
       });
 
       while (queue.length > 0) {
         const currentData: VisitedData = queue.pop()!;
         const currentNode: Node = currentData.node!;
         const pastData: VisitedData = visitedData.get(currentNode)!;
-        if (pastData && currentData.cost > pastData.cost) continue;
+        if (
+          pastData &&
+          (currentData.cost > pastData.cost ||
+            currentData.path.length > pastData.path.length)
+        )
+          continue;
         visitedData.set(currentNode, currentData);
 
         // if (currentNode === goalNode) break;
@@ -236,15 +264,22 @@ class HayamojiMap {
         children.forEach((child) => {
           const cost =
             currentData.cost +
-            (currentData.predata?.button === child.button ? 2 : 1);
+            (currentData.path.length > 0 &&
+            currentData.path[currentData.path.length - 1].button ===
+              child.button
+              ? 2
+              : 1);
           if (
             !visitedData.has(child.node) ||
             visitedData.get(child.node)!.cost > cost
           ) {
+            const newPath = currentData ? Array.from(currentData.path) : [];
+            newPath.push({ node: currentNode, button: child.button });
             queue.push({
               node: child.node,
-              predata: { node: currentNode, button: child.button },
+              path: newPath,
               cost,
+              name,
             });
           }
         });
@@ -253,25 +288,31 @@ class HayamojiMap {
       {
         let target: VisitedData = visitedData.get(goalNode)!;
         if (!target) return null;
-        let path: { char: string; button: ButtonType }[] = [];
-        while (target.predata) {
-          path.push({
-            char: target.node!.char,
-            button: target.predata.button!,
-          });
-          target = visitedData.get(target.predata.node)!;
-        }
+        let path: { char: string; button: ButtonType }[] = target.path.map(
+          (p) => {
+            return { char: p.node.char, button: p.button };
+          }
+        );
+        // while (target.path) {
+        //   path.push({
+        //     char: target.node!.char,
+        //     button: target.path.button!,
+        //   });
+        //   target = visitedData.get(target.path.node)!;
+        // }
         // ret.push({ char: start, button: ButtonType.A });
 
         const formatKana = (s: string) => {
+          if (s === "En") return "En";
           if (type === "katakana") return toKatakana(s);
           else return toHiragana(s);
         };
+
         path = path.map((p) => {
           return { char: formatKana(p.char), button: p.button };
         });
-        if (changedType) path.push({ char: start, button: ButtonType.Select });
-        path = path.reverse();
+        if (changedType)
+          path = [{ char: start, button: ButtonType.Select }].concat(path);
         path.push({ char: formatKana(goal), button: ButtonType.A });
         return {
           cost: visitedData.get(goalNode)?.cost || -1,
@@ -283,7 +324,9 @@ class HayamojiMap {
     const result = bfs(false);
     const result2 = bfs(true);
     if (!result || !result2) return null;
-    return result.cost < result2.cost ? result : result2;
+    if (result.cost < result2.cost) return result;
+    else if (result.cost > result2.cost) return result2;
+    else return result.path.length < result2.path.length ? result : result2;
   }
 }
 

@@ -220,20 +220,46 @@ class HayamojiMap {
       // queue.push({ node: startNode, predata: null, cost: 0 });
       const visitedData: Map<Node, VisitedData> = new Map();
 
+      // 5文字未満の場合、Aを押してEnに戻った場合のパスまで計算する
       if (name.length < 5) {
-        queue.push({
-          node: this.nodeMap.get("En")!,
-          path: Array(5 - name.length)
-            .map(() => {
-              return { node: startNode, button: ButtonType.A };
+        // ゛か゜かEnだったら、最初に上ボタンを押す
+        const pushNode: Node =
+          start === "゛" || start === "゜" || start === "En"
+            ? startNode.children.find((c) => c.button === ButtonType.Up)!.node
+            : startNode;
+        const prePath: { node: Node; button: ButtonType }[] =
+          start === "゛" || start === "゜" || start === "En"
+            ? [
+                {
+                  node: pushNode,
+                  button: ButtonType.Up,
+                },
+              ]
+            : [];
+        const path = prePath.concat(
+          Array(5 - name.length)
+            .fill({
+              node: pushNode,
+              button: ButtonType.A,
             })
             .concat(
-              Array(5 - name.length - 1).map(() => {
-                return { node: this.nodeMap.get("En")!, button: ButtonType.B };
+              Array(5 - name.length - 1).fill({
+                node: this.nodeMap.get("En")!,
+                button: ButtonType.B,
               })
-            ),
-          cost: (5 - name.length) * 2 + (5 - name.length - 1) * 2 + 1,
-          name: "",
+            )
+        );
+        let preButton: ButtonType | null = null;
+        const cost = path.reduce((acc, cur) => {
+          const add = cur.button === preButton ? 2 : 1;
+          preButton = cur.button;
+          return acc + add;
+        }, 0);
+        queue.push({
+          node: this.nodeMap.get("En")!,
+          path,
+          cost,
+          name,
         });
       }
 
@@ -274,7 +300,7 @@ class HayamojiMap {
             visitedData.get(child.node)!.cost > cost
           ) {
             const newPath = currentData ? Array.from(currentData.path) : [];
-            newPath.push({ node: currentNode, button: child.button });
+            newPath.push({ node: child.node, button: child.button });
             queue.push({
               node: child.node,
               path: newPath,
@@ -302,18 +328,31 @@ class HayamojiMap {
         // }
         // ret.push({ char: start, button: ButtonType.A });
 
-        const formatKana = (s: string) => {
-          if (s === "En") return "En";
-          if (type === "katakana") return toKatakana(s);
+        const formatKana = (s: string, kanatype: "katakana" | "hiragana") => {
+          if (s === "En" || s === "かな") return s;
+          if (kanatype === "katakana") return toKatakana(s);
           else return toHiragana(s);
         };
 
+        // パスの文字を変換する
         path = path.map((p) => {
-          return { char: formatKana(p.char), button: p.button };
+          return { char: formatKana(p.char, type), button: p.button };
         });
+
+        // キーボードの切り替え
         if (changedType)
-          path = [{ char: start, button: ButtonType.Select }].concat(path);
-        path.push({ char: formatKana(goal), button: ButtonType.A });
+          path = [
+            {
+              char: formatKana(
+                start,
+                type === "hiragana" ? "katakana" : "hiragana"
+              ),
+              button: ButtonType.Select,
+            },
+          ].concat(path);
+
+        // 最後にAボタンを押す
+        path.push({ char: formatKana(goal, type), button: ButtonType.A });
         return {
           cost: visitedData.get(goalNode)?.cost || -1,
           path,

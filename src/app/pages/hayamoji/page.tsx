@@ -1,6 +1,6 @@
 "use client";
 import { HayamojiSearch } from "@/app/lib/specific/hayamoji/hayamojiSearch";
-import { Button, TextField } from "@mui/material";
+import { TextField } from "@mui/material";
 import { useState } from "react";
 
 export default function Home() {
@@ -17,8 +17,10 @@ export default function Home() {
       <div>
         {hayamojisearch.search(searchText)?.map((s, i) => (
           <p key={i}>
-            {s.map((ss) => (
-              ss.char
+            {s.map((ss, i) => (
+              <span key={i}>
+                「{ss.char}, {ss.button}」
+              </span>
             ))}
           </p>
         ))}

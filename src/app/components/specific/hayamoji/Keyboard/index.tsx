@@ -8,38 +8,64 @@ export default function Keyboard({
   index,
   name,
 }: {
-  pathList: string[];
+  pathList: { char: string; isKata: boolean }[];
   index: number;
   name: string;
 }) {
+  const includeChar = (char: string): boolean => {
+    return pathList?.some((p) => p.char === char);
+  };
+  const formatedKeyboard = pathList
+    ? pathList[index].isKata
+      ? toKatakana
+      : toHiragana
+    : toKatakana;
+  const unformatKeyboard = pathList
+    ? pathList[index].isKata
+      ? toHiragana
+      : toKatakana
+    : toHiragana;
+
   return (
-    <div className={styles.keyboard}>
-      {HayamojiMap.CHARS.map((s, i) => (
-        <>
-          {s.map((ss, j) => (
+    <div className={styles.keyboardContainer}>
+      <h2 className={styles.nickname}>「{name || ""}」</h2>
+      <div className={styles.keyboard}>
+        {HayamojiMap.CHARS.map((s, i) => (
+          <>
+            {s.map((ss, j) => (
+              <div
+                key={i * 7 + j}
+                className={`${styles.cell} ${
+                  includeChar(toKatakana(ss)) ||
+                  includeChar(toHiragana(ss)) ||
+                  includeChar(ss)
+                    ? styles.includes
+                    : ""
+                } ${
+                  (pathList && toKatakana(pathList[index].char) === ss) ||
+                  (pathList && pathList[index].char === ss)
+                    ? styles.selected
+                    : ""
+                }`}
+              >
+                {ss === "ED" ? ss : formatedKeyboard(ss)}
+              </div>
+            ))}
             <div
-              key={i * 7 + j}
+              key={i * 7 + 6}
               className={`${styles.cell} ${
-                pathList?.includes(toKatakana(ss)) ||
-                pathList?.includes(toHiragana(ss)) ||
-                pathList?.includes(ss)
-                  ? styles.includes
-                  : ""
+                i === 0 && includeChar("かな") ? styles.includes : ""
               } ${
-                (pathList && toKatakana(pathList[index]) === ss) ||
-                pathList && pathList[index] === ss
+                i === 0 && pathList && pathList[index].char === "かな"
                   ? styles.selected
                   : ""
               }`}
             >
-              {ss}
+              {i === 0 ? unformatKeyboard("かな") : ""}
             </div>
-          ))}
-          <div key={i * 7 + 6} className={styles.cell}>
-            {i === 0 ? "かな" : ""}
-          </div>
-        </>
-      ))}
+          </>
+        ))}
+      </div>
     </div>
   );
 }

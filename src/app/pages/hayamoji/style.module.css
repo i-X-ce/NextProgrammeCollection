@@ -1,0 +1,74 @@
+.container {
+  height: 90vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.keyboardContainer {
+  display: flex;
+  justify-content: center;
+}
+
+.toolBox {
+  display: flex;
+  flex-direction: column;
+  min-width: 35vw;
+  padding: 20px;
+  gap: 10px;
+}
+
+.progressBox {
+  display: flex;
+  align-items: center;
+}
+
+.logBox {
+  max-height: 300px;
+  overflow-y: auto;
+  scroll-behavior: smooth;
+
+  :last-child {
+    border-bottom: none;
+  }
+}
+
+.logCell {
+  padding: 10px;
+  border-bottom: 1px solid gray;
+  display: grid;
+  grid-template-columns: 1fr 3fr;
+}
+
+.logCell:hover {
+  background-color: var(--bc-shadow);
+}
+
+.logCellSelected {
+  background-color: var(--bc-shadow);
+}
+
+.logCellGoal {
+  display: flex;
+}
+
+.logCellButtonBox {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.logCellButton {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  aspect-ratio: 1;
+  height: 1.5rem;
+  color: gray;
+  border-radius: 100%;
+  padding: 2px;
+}
+
+.logCellButtonSelected {
+  background-color: blue;
+  color: white;
+}

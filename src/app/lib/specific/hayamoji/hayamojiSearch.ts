@@ -60,9 +60,17 @@ export class HayamojiSearch {
     ほ: "ぽ",
   };
 
-  public search(
-    value: string
-  ): { char: string; button: ButtonType; name: string }[][] | null {
+  public search(value: string):
+    | {
+        goal: string;
+        path: {
+          char: string;
+          button: ButtonType;
+          name: string;
+          isKata: boolean;
+        }[];
+      }[]
+    | null {
     const array = this.string2array(value);
     if (!array) return null;
     const charList = ["ア"].concat(array);
@@ -76,7 +84,8 @@ export class HayamojiSearch {
       let changedType = false;
       if (endChar !== "゛" && endChar !== "゜") {
         const preKata: boolean = iskata;
-        iskata = isKatakana(endChar);
+        if (!["リ", "ヘ", "ベ", "ペ"].includes(toKatakana(endChar)))
+          iskata = isKatakana(endChar);
         if (preKata != iskata) changedType = true;
       }
 
@@ -98,7 +107,7 @@ export class HayamojiSearch {
         name += endChar;
       }
       if (!result) return null;
-      ret.push(result.path);
+      ret.push({ goal: charList[i + 1], path: result.path });
     }
     return ret;
   }
@@ -178,6 +187,9 @@ export class HayamojiMap {
           ButtonType.Right,
           target
         );
+        if (j >= HayamojiMap.CHARS[i].length - 1) {
+          target.addChild(ButtonType.Down, kana);
+        }
       }
     }
     kana.addChild(ButtonType.Down, this.nodeMap.get("ア")!);
@@ -192,14 +204,13 @@ export class HayamojiMap {
     name: string
   ): {
     cost: number;
-    path: { char: string; button: ButtonType; name: string }[];
+    path: { char: string; button: ButtonType; name: string; isKata: boolean }[];
   } | null {
     type PathData = {
       node: Node;
       button: ButtonType;
       name: string;
     };
-    console.log(this.map);
     // map(通った場所)に使うデータ型
     type VisitedData = {
       node: Node | null;
@@ -218,7 +229,12 @@ export class HayamojiMap {
       reverse: boolean
     ): {
       cost: number;
-      path: { char: string; button: ButtonType; name: string }[];
+      path: {
+        char: string;
+        button: ButtonType;
+        name: string;
+        isKata: boolean;
+      }[];
     } | null => {
       const startNode: Node | undefined = this.nodeMap.get(start),
         goalNode: Node | undefined = this.nodeMap.get(goal);
@@ -226,8 +242,6 @@ export class HayamojiMap {
 
       const queue: VisitedData[] = [{ node: startNode, path: [], cost: 0 }];
 
-      // const queue = new TinyQueue<VisitedData>([], (a, b) => a.cost - b.cost);
-      // queue.push({ node: startNode, predata: null, cost: 0 });
       const visitedData: Map<Node, VisitedData> = new Map();
 
       // 5文字未満の場合、Aを押してEnに戻った場合のパスまで計算する
@@ -248,16 +262,15 @@ export class HayamojiMap {
               ]
             : [];
         // namesにはAボタンを押すたびにname + pushNode * 回数の文字が追加される
-        let names: string[];
-        names = Array(5 - name.length)
+        let names: string[] = Array(5 - name.length)
           .fill("")
           .map((_, i) => {
             return name + formatKana(pushNode.char, type).repeat(i + 1);
           });
 
-        const middlePath: PathData[] = names.map((n) => {
+        const middlePath: PathData[] = names.map((n, i) => {
           return {
-            node: pushNode,
+            node: i === names.length - 1 ? this.nodeMap.get("ED")! : pushNode,
             button: ButtonType.A,
             name: n,
           };
@@ -278,7 +291,7 @@ export class HayamojiMap {
           const add = cur.button === preButton ? 2 : 1;
           preButton = cur.button;
           return acc + add;
-        }, 0);
+        }, 1);
         queue.push({
           node: this.nodeMap.get("ED")!,
           path,
@@ -334,27 +347,29 @@ export class HayamojiMap {
       {
         let target: VisitedData = visitedData.get(goalNode)!;
         if (!target) return null;
-        let path: { char: string; button: ButtonType; name: string }[] =
-          target.path.map((p) => {
-            return { char: p.node.char, button: p.button, name: p.name };
-          });
-        // while (target.path) {
-        //   path.push({
-        //     char: target.node!.char,
-        //     button: target.path.button!,
-        //   });
-        //   target = visitedData.get(target.path.node)!;
-        // }
-        // ret.push({ char: start, button: ButtonType.A });
-
         // パスの文字を変換する
-        path = path.map((p) => {
+        let path: {
+          char: string;
+          button: ButtonType;
+          name: string;
+          isKata: boolean;
+        }[] = target.path.map((p) => {
           return {
-            char: formatKana(p.char, type),
+            char: formatKana(p.node.char, type),
             button: p.button,
             name: p.name,
+            isKata: type === "katakana",
           };
         });
+
+        // path = path.map((p) => {
+        //   return {
+        //     char: formatKana(p.char, type),
+        //     button: p.button,
+        //     name: p.name,
+        //     isKata: type === "katakana",
+        //   };
+        // });
 
         // キーボードの切り替え
         if (changedType)
@@ -366,6 +381,7 @@ export class HayamojiMap {
               ),
               button: ButtonType.Select,
               name,
+              isKata: type === "katakana",
             },
           ].concat(path);
 
@@ -384,6 +400,7 @@ export class HayamojiMap {
           char: newChar,
           button: ButtonType.A,
           name: newName,
+          isKata: type === "katakana",
         });
         return {
           cost: visitedData.get(goalNode)?.cost || -1,

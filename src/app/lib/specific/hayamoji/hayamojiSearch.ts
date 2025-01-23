@@ -5,7 +5,7 @@ import { isKatakana, toHiragana, toKatakana } from "wanakana";
 
 export class HayamojiSearch {
   private map: HayamojiMap = new HayamojiMap();
-  static readonly DAKUTEN_CONVERSION: { [key: string]: string } = {
+  public static readonly DAKUTEN_CONVERSION: { [key: string]: string } = {
     カ: "ガ",
     キ: "ギ",
     ク: "グ",
@@ -47,7 +47,7 @@ export class HayamojiSearch {
     へ: "べ",
     ほ: "ぼ",
   };
-  static readonly HANDAKUTEN_CONVERSION: { [key: string]: string } = {
+  public static readonly HANDAKUTEN_CONVERSION: { [key: string]: string } = {
     ハ: "パ",
     ヒ: "ピ",
     フ: "プ",
@@ -60,7 +60,9 @@ export class HayamojiSearch {
     ほ: "ぽ",
   };
 
-  public search(value: string) {
+  public search(
+    value: string
+  ): { char: string; button: ButtonType; name: string }[][] | null {
     const array = this.string2array(value);
     if (!array) return null;
     const charList = ["ア"].concat(array);
@@ -79,7 +81,7 @@ export class HayamojiSearch {
       }
 
       const result = this.map.bfsSearch(
-        name.length >= 5 ? "En" : toKatakana(startChar),
+        name.length >= 5 ? "ED" : toKatakana(startChar),
         toKatakana(endChar),
         iskata ? "katakana" : "hiragana",
         changedType,
@@ -95,11 +97,9 @@ export class HayamojiSearch {
       } else {
         name += endChar;
       }
-      // console.log(startChar, endChar, result);
       if (!result) return null;
       ret.push(result.path);
     }
-    console.log(ret);
     return ret;
   }
 
@@ -135,8 +135,8 @@ export class HayamojiSearch {
   }
 }
 
-class HayamojiMap {
-  static readonly CHARS = [
+export class HayamojiMap {
+  public static readonly CHARS = [
     ["ア", "イ", "ウ", "エ", "オ", "ャ"],
     ["カ", "キ", "ク", "ケ", "コ", "ュ"],
     ["サ", "シ", "ス", "セ", "ソ", "ョ"],
@@ -145,7 +145,7 @@ class HayamojiMap {
     ["ハ", "ヒ", "フ", "ヘ", "ホ", "゜"],
     ["マ", "ミ", "ム", "メ", "モ", "ー"],
     ["ヤ", "ユ", "ヨ", "ワ", "ン", "　"],
-    ["ラ", "リ", "ル", "レ", "ロ", "En"],
+    ["ラ", "リ", "ル", "レ", "ロ", "ED"],
   ];
   private map: Node[][];
   private nodeMap: Map<string, Node> = new Map();
@@ -192,29 +192,39 @@ class HayamojiMap {
     name: string
   ): {
     cost: number;
-    path: { char: string; button: ButtonType }[];
+    path: { char: string; button: ButtonType; name: string }[];
   } | null {
+    type PathData = {
+      node: Node;
+      button: ButtonType;
+      name: string;
+    };
+    console.log(this.map);
+    // map(通った場所)に使うデータ型
+    type VisitedData = {
+      node: Node | null;
+      path: PathData[]; // どのボタンでどのノードから来たか
+      cost: number;
+    };
+
+    // キーボードタイプに合わせて文字を変換する
+    const formatKana = (s: string, kanatype: "katakana" | "hiragana") => {
+      if (s === "ED" || s === "かな") return s;
+      if (kanatype === "katakana") return toKatakana(s);
+      else return toHiragana(s);
+    };
+
     const bfs = (
       reverse: boolean
     ): {
       cost: number;
-      path: { char: string; button: ButtonType }[];
+      path: { char: string; button: ButtonType; name: string }[];
     } | null => {
       const startNode: Node | undefined = this.nodeMap.get(start),
         goalNode: Node | undefined = this.nodeMap.get(goal);
       if (!startNode || !goalNode) return null;
 
-      // map(通った場所)に使うデータ型
-      type VisitedData = {
-        node: Node | null;
-        path: { node: Node; button: ButtonType }[]; // どのボタンでどのノードから来たか
-        cost: number;
-        name: string;
-      };
-
-      const queue: VisitedData[] = [
-        { node: startNode, path: [], cost: 0, name },
-      ];
+      const queue: VisitedData[] = [{ node: startNode, path: [], cost: 0 }];
 
       // const queue = new TinyQueue<VisitedData>([], (a, b) => a.cost - b.cost);
       // queue.push({ node: startNode, predata: null, cost: 0 });
@@ -224,31 +234,45 @@ class HayamojiMap {
       if (name.length < 5) {
         // ゛か゜かEnだったら、最初に上ボタンを押す
         const pushNode: Node =
-          start === "゛" || start === "゜" || start === "En"
+          start === "゛" || start === "゜" || start === "ED"
             ? startNode.children.find((c) => c.button === ButtonType.Up)!.node
             : startNode;
-        const prePath: { node: Node; button: ButtonType }[] =
-          start === "゛" || start === "゜" || start === "En"
+        const beforePath: PathData[] =
+          start === "゛" || start === "゜" || start === "ED"
             ? [
                 {
                   node: pushNode,
                   button: ButtonType.Up,
+                  name,
                 },
               ]
             : [];
-        const path = prePath.concat(
-          Array(5 - name.length)
-            .fill({
-              node: pushNode,
-              button: ButtonType.A,
-            })
-            .concat(
-              Array(5 - name.length - 1).fill({
-                node: this.nodeMap.get("En")!,
-                button: ButtonType.B,
-              })
-            )
-        );
+        // namesにはAボタンを押すたびにname + pushNode * 回数の文字が追加される
+        let names: string[];
+        names = Array(5 - name.length)
+          .fill("")
+          .map((_, i) => {
+            return name + formatKana(pushNode.char, type).repeat(i + 1);
+          });
+
+        const middlePath: PathData[] = names.map((n) => {
+          return {
+            node: pushNode,
+            button: ButtonType.A,
+            name: n,
+          };
+        });
+        names.pop();
+        names = names.reverse();
+        names.push(name);
+        const afterPath: PathData[] = names.map((n) => {
+          return {
+            node: this.nodeMap.get("ED")!,
+            button: ButtonType.B,
+            name: n,
+          };
+        });
+        const path = beforePath.concat(middlePath, afterPath);
         let preButton: ButtonType | null = null;
         const cost = path.reduce((acc, cur) => {
           const add = cur.button === preButton ? 2 : 1;
@@ -256,10 +280,9 @@ class HayamojiMap {
           return acc + add;
         }, 0);
         queue.push({
-          node: this.nodeMap.get("En")!,
+          node: this.nodeMap.get("ED")!,
           path,
           cost,
-          name,
         });
       }
 
@@ -267,26 +290,20 @@ class HayamojiMap {
         cost: 0,
         node: startNode,
         path: [],
-        name,
       });
 
       while (queue.length > 0) {
         const currentData: VisitedData = queue.pop()!;
         const currentNode: Node = currentData.node!;
         const pastData: VisitedData = visitedData.get(currentNode)!;
-        if (
-          pastData &&
-          (currentData.cost > pastData.cost ||
-            currentData.path.length > pastData.path.length)
-        )
-          continue;
+        if (pastData && currentData.cost > pastData.cost) continue;
         visitedData.set(currentNode, currentData);
 
         // if (currentNode === goalNode) break;
 
         const children = reverse
-          ? currentNode.children.reverse()
-          : currentNode.children;
+          ? [...currentNode.children].reverse()
+          : [...currentNode.children];
         children.forEach((child) => {
           const cost =
             currentData.cost +
@@ -300,12 +317,15 @@ class HayamojiMap {
             visitedData.get(child.node)!.cost > cost
           ) {
             const newPath = currentData ? Array.from(currentData.path) : [];
-            newPath.push({ node: child.node, button: child.button });
+            newPath.push({
+              node: child.node,
+              button: child.button,
+              name: currentData.path[currentData.path.length - 1]?.name || name,
+            });
             queue.push({
               node: child.node,
               path: newPath,
               cost,
-              name,
             });
           }
         });
@@ -314,11 +334,10 @@ class HayamojiMap {
       {
         let target: VisitedData = visitedData.get(goalNode)!;
         if (!target) return null;
-        let path: { char: string; button: ButtonType }[] = target.path.map(
-          (p) => {
-            return { char: p.node.char, button: p.button };
-          }
-        );
+        let path: { char: string; button: ButtonType; name: string }[] =
+          target.path.map((p) => {
+            return { char: p.node.char, button: p.button, name: p.name };
+          });
         // while (target.path) {
         //   path.push({
         //     char: target.node!.char,
@@ -328,15 +347,13 @@ class HayamojiMap {
         // }
         // ret.push({ char: start, button: ButtonType.A });
 
-        const formatKana = (s: string, kanatype: "katakana" | "hiragana") => {
-          if (s === "En" || s === "かな") return s;
-          if (kanatype === "katakana") return toKatakana(s);
-          else return toHiragana(s);
-        };
-
         // パスの文字を変換する
         path = path.map((p) => {
-          return { char: formatKana(p.char, type), button: p.button };
+          return {
+            char: formatKana(p.char, type),
+            button: p.button,
+            name: p.name,
+          };
         });
 
         // キーボードの切り替え
@@ -348,11 +365,26 @@ class HayamojiMap {
                 type === "hiragana" ? "katakana" : "hiragana"
               ),
               button: ButtonType.Select,
+              name,
             },
           ].concat(path);
 
         // 最後にAボタンを押す
-        path.push({ char: formatKana(goal, type), button: ButtonType.A });
+        let newName = name + formatKana(goal, type);
+        if (goal === "゛" || goal === "゜") {
+          newName = name.substring(0, name.length - 1);
+          if (goal === "゛") {
+            newName += HayamojiSearch.DAKUTEN_CONVERSION[name.at(-1)!];
+          } else {
+            newName += HayamojiSearch.HANDAKUTEN_CONVERSION[name.at(-1)!];
+          }
+        }
+        let newChar = newName.length >= 5 ? "ED" : formatKana(goal, type);
+        path.push({
+          char: newChar,
+          button: ButtonType.A,
+          name: newName,
+        });
         return {
           cost: visitedData.get(goalNode)?.cost || -1,
           path,
@@ -375,5 +407,6 @@ class Node {
 
   public addChild(button: ButtonType, node: Node) {
     this.children.push({ button, node });
+    this.children.sort((a, b) => b.button - a.button);
   }
 }

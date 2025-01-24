@@ -1,0 +1,32 @@
+.buttonBox {
+  display: flex;
+  width: 100%;
+  overflow-x: hidden;
+  border: 1px solid gray;
+  border-radius: 500px;
+  padding: 10px;
+  min-height: 3.2rem;
+}
+
+.logCellButton {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  aspect-ratio: 1;
+  height: 1.5rem;
+  color: gray;
+  border-radius: 100%;
+  padding: 2px;
+  transition: background-color 0.1s;
+}
+
+.logCellButtonSelected {
+  background-color: var(--bc-primary);
+  color: white;
+}
+
+@media (max-width: 600px) {
+  .buttonBox {
+    padding: 5px;
+  }
+}

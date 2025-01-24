@@ -5,13 +5,27 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  user-select: none;
+  align-self: flex-start;
+}
+
+.topContainer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 0 20px;
+}
+
+.sliderContainer {
+  display: flex;
+  align-items: center;
+  width: 100%;
 }
 
 .nickname {
-  display: inline-flex;
   text-align: center;
   font-size: 1.5rem;
-  border-bottom: 1px solid gray;
   padding: 0 10px;
   font-weight: bold;
 }
@@ -21,8 +35,7 @@
   grid-template-rows: repeat(7, 1fr);
   grid-template-columns: repeat(9, 1fr);
   grid-auto-flow: column;
-  padding: 20px;
-
+  padding: 10px 20px;
   height: 450px;
 }
 
@@ -31,6 +44,16 @@
   justify-content: center;
   align-items: center;
   aspect-ratio: 1;
+  border-radius: 100%;
+  margin: 5px;
+  position: relative;
+  transition: background-color 0.1s;
+  white-space: nowrap;
+}
+
+.includes,
+.selected {
+  box-shadow: 2px 2px 5px 0 var(--bc-shadow);
 }
 
 .includes {
@@ -38,6 +61,59 @@
 }
 
 .selected {
-  background-color: blue;
+  background-color: var(--bc-primary);
   color: white;
+}
+
+.includes::after {
+  content: "";
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 100%;
+  background-color: var(--bc-shadow);
+  opacity: 0.5;
+  z-index: -1;
+  transition: transform 0.2s;
+}
+
+.includes:hover::after {
+  transform: scale(1.2);
+}
+
+.button {
+  position: absolute;
+  color: white;
+  font-size: 1.5rem;
+  font-weight: bold;
+  opacity: 0;
+}
+
+@media (max-width: 1000px) {
+  .keyboard {
+    height: 300px;
+    padding: 0 10px;
+  }
+
+  .cell {
+    margin: 1px;
+  }
+}
+
+@media (max-width: 600px) {
+  .keyboard {
+    height: auto;
+  }
+  .topContainer {
+    padding: 0;
+  }
+  .nickname {
+    font-size: 1rem;
+    padding: 0;
+  }
+  .cell {
+    height: 20px;
+    margin: 0;
+    border-radius: 5px;
+  }
 }

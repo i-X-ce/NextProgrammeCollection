@@ -1,5 +1,5 @@
 // import styles from './style.module.css';
 
-export default function Temp() {
+export default function logBox() {
   return <div>Temp</div>;
 }

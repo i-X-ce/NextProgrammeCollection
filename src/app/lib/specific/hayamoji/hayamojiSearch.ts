@@ -60,7 +60,10 @@ export class HayamojiSearch {
     ほ: "ぽ",
   };
 
-  public search(value: string):
+  public search(
+    value: string,
+    searchType: "HUMAN" | "TAS"
+  ):
     | {
         goal: string;
         path: {
@@ -94,7 +97,8 @@ export class HayamojiSearch {
         toKatakana(endChar),
         iskata ? "katakana" : "hiragana",
         changedType,
-        name
+        name,
+        searchType
       );
       if (endChar === "゛" || endChar === "゜") {
         name = name.substring(0, name.length - 1);
@@ -201,7 +205,8 @@ export class HayamojiMap {
     goal: string,
     type: "katakana" | "hiragana",
     changedType: boolean,
-    name: string
+    name: string,
+    searchType: "HUMAN" | "TAS"
   ): {
     cost: number;
     path: { char: string; button: ButtonType; name: string; isKata: boolean }[];
@@ -224,6 +229,8 @@ export class HayamojiMap {
       if (kanatype === "katakana") return toKatakana(s);
       else return toHiragana(s);
     };
+
+    const addCost = searchType === "TAS" ? 2 : 1;
 
     const bfs = (
       reverse: boolean
@@ -288,7 +295,7 @@ export class HayamojiMap {
         const path = beforePath.concat(middlePath, afterPath);
         let preButton: ButtonType | null = null;
         const cost = path.reduce((acc, cur) => {
-          const add = cur.button === preButton ? 2 : 1;
+          const add = cur.button === preButton ? addCost : 1;
           preButton = cur.button;
           return acc + add;
         }, 1);
@@ -323,7 +330,7 @@ export class HayamojiMap {
             (currentData.path.length > 0 &&
             currentData.path[currentData.path.length - 1].button ===
               child.button
-              ? 2
+              ? addCost
               : 1);
           if (
             !visitedData.has(child.node) ||

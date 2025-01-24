@@ -34,7 +34,7 @@ export const pokemoji = [
   },
   { id: 5, char: "ガ", possible: true, dakuten: "゛", initchar: "カ", type: 1 },
   { id: 6, char: "ギ", possible: true, dakuten: "゛", initchar: "キ", type: 1 },
-  { id: 7, char: "グ", possible: false, initchar: "ク", type: 1 },
+  { id: 7, char: "グ", possible: true, dakuten: "゛", initchar: "ク", type: 1 },
   { id: 8, char: "ゲ", possible: true, dakuten: "゛", initchar: "ケ", type: 1 },
   { id: 9, char: "ゴ", possible: true, dakuten: "゛", initchar: "コ", type: 1 },
   {
@@ -747,6 +747,7 @@ export const pokemoji = [
   { id: 255, char: "9", possible: false, type: 0 },
 ];
 
-export const pokemojiMap = pokemoji.map((p) => {
-  return { [p.char]: p };
-});
+export const pokemojiMap = pokemoji.reduce((acc, p) => {
+  acc[p.char] = p;
+  return acc;
+}, {} as { [key: string]: { id: number; char: string; possible: boolean; dakuten?: string; initchar?: string; type: number } });

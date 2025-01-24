@@ -2,10 +2,10 @@
   max-height: 300px;
   overflow-y: auto;
   scroll-behavior: smooth;
+}
 
-  :last-child {
-    border-bottom: none;
-  }
+.logBox:last-child {
+  border-bottom: none;
 }
 
 .logCell {

@@ -43,6 +43,7 @@ export default function LogBox({
             ref={(el) => {
               logsRef.current[i] = el;
             }}
+            key={i}
           >
             <span className={styles.logCellGoal}>{p.goal}</span>
             <span className={styles.logCellButtonBox}>
@@ -54,6 +55,7 @@ export default function LogBox({
                       handleChangeNumbers(i, j);
                       e.stopPropagation();
                     }}
+                    key={`${i}-${j}`}
                   >
                     <span
                       className={`${styles.logCellButton} ${

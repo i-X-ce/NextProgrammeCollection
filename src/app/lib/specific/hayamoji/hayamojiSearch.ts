@@ -79,7 +79,7 @@ export class HayamojiSearch {
     const charList = ["ア"].concat(array);
 
     let name = "";
-    let ret = [];
+    const ret = [];
     let iskata = true;
     for (let i = 0; i < charList.length - 1; i++) {
       const startChar = charList[i];
@@ -135,7 +135,7 @@ export class HayamojiSearch {
     )
       return null;
 
-    let ret = [];
+    const ret = [];
     for (let i = 0; i < spl.length; i++) {
       const p = pokemoji.find((p) => p.char === spl[i])!;
       if (p.dakuten) {
@@ -352,7 +352,7 @@ export class HayamojiMap {
       }
 
       {
-        let target: VisitedData = visitedData.get(goalNode)!;
+        const target: VisitedData = visitedData.get(goalNode)!;
         if (!target) return null;
         // パスの文字を変換する
         let path: {
@@ -402,7 +402,7 @@ export class HayamojiMap {
             newName += HayamojiSearch.HANDAKUTEN_CONVERSION[name.at(-1)!];
           }
         }
-        let newChar = newName.length >= 5 ? "ED" : formatKana(goal, type);
+        const newChar = newName.length >= 5 ? "ED" : formatKana(goal, type);
         path.push({
           char: newChar,
           button: ButtonType.A,

@@ -71,7 +71,7 @@ export default function Keyboard({
       <div className={styles.keyboard}>
         {HayamojiMap.CHARS.map((s, i) => (
           <>
-            {s.map((ss, j) => (
+            {s.map((ss) => (
               <div
                 key={ss}
                 className={`${styles.cell} ${

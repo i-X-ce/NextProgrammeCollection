@@ -1,9 +1,6 @@
 "use client";
 import Keyboard from "@/app/components/specific/hayamoji/Keyboard";
-import {
-  ButtonType,
-  ButtonTypeMap,
-} from "@/app/lib/specific/hayamoji/ButtonType";
+import { ButtonType } from "@/app/lib/specific/hayamoji/ButtonType";
 import { HayamojiSearch } from "@/app/lib/specific/hayamoji/hayamojiSearch";
 import {
   Clear,

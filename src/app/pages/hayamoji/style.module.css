@@ -24,58 +24,6 @@
   align-items: center;
 }
 
-.logBox {
-  max-height: 300px;
-  overflow-y: auto;
-  scroll-behavior: smooth;
-
-  :last-child {
-    border-bottom: none;
-  }
-}
-
-.logCell {
-  padding: 10px;
-  border-bottom: 1px solid gray;
-  display: grid;
-  grid-template-columns: 1fr 3fr;
-  transition: background-color 0.3s;
-}
-
-.logCell:hover {
-  background-color: var(--bc-shadow);
-}
-
-.logCellSelected {
-  background-color: lightblue;
-}
-
-.logCellGoal {
-  display: flex;
-}
-
-.logCellButtonBox {
-  display: flex;
-  flex-wrap: wrap;
-}
-
-.logCellButton {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  aspect-ratio: 1;
-  height: 1.5rem;
-  color: gray;
-  border-radius: 100%;
-  padding: 2px;
-  transition: background-color 0.1s;
-}
-
-.logCellButtonSelected {
-  background-color: var(--bc-primary);
-  color: white;
-}
-
 .mobileToolBox {
   display: none;
 }
@@ -109,15 +57,5 @@
 @media (max-width: 600px) {
   .toolBox {
     width: 90vw;
-  }
-  .logBox {
-    max-height: 200px;
-  }
-  .logCell {
-    padding: 5px;
-    display: block;
-  }
-  .logCellButton {
-    height: 1.2rem;
   }
 }

@@ -87,7 +87,7 @@ export class HayamojiSearch {
       let changedType = false;
       if (endChar !== "゛" && endChar !== "゜") {
         const preKata: boolean = iskata;
-        if (!["リ", "ヘ", "ベ", "ペ"].includes(toKatakana(endChar)))
+        if (!["リ", "ヘ", "ベ", "ペ", "ー", "　"].includes(toKatakana(endChar)))
           iskata = isKatakana(endChar);
         if (preKata != iskata) changedType = true;
       }

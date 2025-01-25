@@ -47,7 +47,7 @@
 
 .logCellButtonSelected {
   background-color: var(--bc-primary);
-  color: white;
+  color: var(--background);
 }
 
 @media (max-width: 600px) {

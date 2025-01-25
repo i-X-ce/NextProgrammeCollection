@@ -62,7 +62,7 @@
 
 .selected {
   background-color: var(--bc-primary);
-  color: white;
+  color: var(--background);
 }
 
 .includes::after {

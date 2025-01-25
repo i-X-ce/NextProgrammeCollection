@@ -57,7 +57,7 @@
 }
 
 .includes {
-  background-color: lightblue;
+  background-color: var(--bc-primary-trans);
 }
 
 .selected {

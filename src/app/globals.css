@@ -7,13 +7,18 @@
   --foreground: #171717;
 
   --bc-primary: #1976d2;
-  --bc-shadow: rgba(0, 0, 0, 0.1);
+  --bc-primary-trans: #1976d240;
+  --bc-shadow: #0000001a;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;
+
+    --bc-primary: #90caf9;
+    --bc-primary-trans: #90caf940;
+    --bc-shadow: #ffffff1a;
   }
 }
 

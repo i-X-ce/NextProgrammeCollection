@@ -122,6 +122,7 @@ export class HayamojiSearch {
       へ: "ヘ",
       べ: "ベ",
       ぺ: "ペ",
+      " ": "　",
     };
 
     let spl = str.split("");

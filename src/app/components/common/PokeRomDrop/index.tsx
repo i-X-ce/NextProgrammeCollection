@@ -1,12 +1,15 @@
 "use client";
 import { PokeRomFile } from "@/app/lib/common/PokeRomFile";
+import { MapPokeFile } from "@/app/lib/specific/maping/MapPokeFile";
 import { useCallback, useState } from "react";
 import { useDropzone } from "react-dropzone";
 
-export default function PokeRomDrop({
+export default function PokeRomDrop<T extends PokeRomFile>({
   setRom,
+  romClass,
 }: {
-  setRom: (rom: PokeRomFile) => void;
+  setRom: (rom: T) => void;
+  romClass: new (arrayBuffer: ArrayBuffer) => T;
 }) {
   const [fileData, setFileData] = useState<Uint8Array | null>(null);
   const onDrop = useCallback((acceptFiles: File[]) => {
@@ -18,7 +21,9 @@ export default function PokeRomDrop({
       if (e.target?.result) {
         const arrayBuffer = e.target.result as ArrayBuffer;
         setFileData(new Uint8Array(arrayBuffer));
-        setRom(new PokeRomFile(arrayBuffer));
+        const instance = new romClass(arrayBuffer);
+        setRom(instance);
+        console.log(instance instanceof MapPokeFile);
       }
     };
     reader.readAsArrayBuffer(file);

@@ -1,3 +1,5 @@
+import { RomVersion } from "./romVersion";
+
 // ROMのArrayBufferを渡す
 export class PokeRomFile {
   private _rom: Uint8Array | null = null;
@@ -103,17 +105,13 @@ export class PokeRomFile {
   readWordBig(address: number): number {
     return this.readByteBig(address) + (this.readByteBig(address + 1) << 8);
   }
-}
 
-// ROMのバージョン 順番を変えないこと
-enum RomVersion {
-  r0, // 赤初期
-  r1, // 赤後期
-  g0, // 緑初期
-  g1, // 緑後期
-  b, // 青
-  y0, // 黄初期
-  y1, // 黄後期1
-  y2, // 黄後期2
-  y3, // 黄後期3
+  // バンク1バイト、アドレス2バイト(リトルエンディアン)
+  readByteLittle(address: number): number {
+    address =
+      (address & 0xff0000) +
+      ((address & 0xff00) >> 8) +
+      ((address & 0xff) << 8);
+    return this.readByteBig(address);
+  }
 }

@@ -5,7 +5,7 @@ export class PokeRomFile {
   private _rom: Uint8Array | null = null;
   private _romVersion: RomVersion | null = null;
 
-  constructor(buffer: ArrayBuffer) {
+  constructor(buffer: ArrayBuffer | Uint8Array) {
     if (!buffer) return;
     this._rom = new Uint8Array(buffer);
 
@@ -96,12 +96,16 @@ export class PokeRomFile {
 
   // バンク1バイト、アドレス2バイト(ビッグエンディアン)
   readByteBig(address: number): number {
-    const bank = address >> 16;
+    const bank =
+      ((address & 0xffff) >= 0x4000 ? address >> 16 : 0) % // 0x4000未満はバンク0
+      (this.romVersion! >= RomVersion.y0 ? 0x40 : 0x20); // バンクの上限
     address = address & 0xffff;
+    if (address >= 0x8000) return 0x100;
     address = address - (bank === 0 ? 0 : 0x4000);
     return this._rom![bank * 0x4000 + address];
   }
 
+  // バンク1バイト、アドレス2バイト(ビッグエンディアンで渡す) ビッグエンディアンで返す
   readWordBig(address: number): number {
     return this.readByteBig(address) + (this.readByteBig(address + 1) << 8);
   }

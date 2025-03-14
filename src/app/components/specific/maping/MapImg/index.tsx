@@ -1,10 +1,11 @@
 // import styles from './style.module.css';
 
+import { number2Hex, rgbToHex } from "@/app/lib/common/calc";
 import { MapPokeFile } from "@/app/lib/specific/maping/MapPokeFile";
 import { useEffect, useRef } from "react";
 
-const colors = ["#000", "#555", "#AAA", "#FFF"];
-const size = 3;
+const colors = ["#000000", "#555555", "#aaaaaa", "#ffffff"];
+const size = 2;
 
 export default function MapImg({
   pokeRom,
@@ -15,21 +16,72 @@ export default function MapImg({
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const mapInfo = pokeRom.getMapInfo(mapId);
-  const height = mapInfo.height;
-  const width = mapInfo.width;
+  const mapTypeInfo = pokeRom.getMapTypeInfo(mapInfo.mapType);
+  const mapEdge = true;
+  const sprite = true;
+  const height = mapInfo.height + (mapEdge ? 6 : 0);
+  const width = mapInfo.width + (mapEdge ? 6 : 0);
 
-  useEffect(() => {
+  async function drawImg() {
     if (!pokeRom) return;
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
     ctx.imageSmoothingEnabled = false;
+    console.log(pokeRom.getAdditionalMapInfo(mapId));
 
-    const mapData = pokeRom.getMapData(mapId);
+    const additionalMapInfo = pokeRom.getAdditionalMapInfo(mapId);
+    const originMapData = pokeRom.getMapData(mapId);
+    let mapData: number[][] = [];
+    if (mapEdge) {
+      const newMapData = Array.from({ length: height }, () =>
+        Array.from({ length: width }, () => additionalMapInfo.clsCell)
+      );
+
+      for (let i = 0; i < height - 6; i++) {
+        for (let j = 0; j < width - 6; j++) {
+          newMapData[i + 3][j + 3] = originMapData[i * (width - 6) + j];
+        }
+      }
+
+      for (let i = 0; i < 4; i++) {
+        const nextMap = additionalMapInfo.nextMap[i];
+        if (nextMap === null) continue;
+        const readAddr =
+          (pokeRom.getMapBank(nextMap.mapId) << 16) + nextMap.mapDataAddr;
+        const wh = nextMap.width; // 今のマップの幅
+        const wh2 = nextMap.width2; // 隣のマップの幅
+        let y = Math.floor((nextMap.writeAddr - 0xc6e8) / width);
+        let x = (nextMap.writeAddr - 0xc6e8) % width;
+        for (let ci = 0; ci < 3; ci++) {
+          for (let cj = 0; cj < wh; cj++) {
+            if (i < 2)
+              newMapData[y + ci][x + cj] = pokeRom.readByteBig(
+                readAddr + ci * wh2 + cj
+              );
+            else
+              newMapData[y + cj][x + ci] = pokeRom.readByteBig(
+                readAddr + cj * wh2 + ci
+              );
+          }
+        }
+      }
+      mapData = newMapData;
+    } else {
+      let newMapData: number[][] = [];
+      for (let i = 0; i < height; i++) {
+        newMapData.push([]);
+        for (let j = 0; j < width; j++) {
+          newMapData[i].push(originMapData[i * width + j]);
+        }
+      }
+      mapData = newMapData;
+    }
+
     for (let ci = 0; ci < height; ci++) {
       for (let cj = 0; cj < width; cj++) {
-        const cellData = pokeRom.getCellData(mapId, mapData[ci * width + cj]);
+        const cellData = pokeRom.getCellData(mapId, mapData[ci][cj]);
         for (let ti = 0; ti < 4; ti++) {
           for (let tj = 0; tj < 4; tj++) {
             const tileId = cellData[ti * 4 + tj];
@@ -50,7 +102,72 @@ export default function MapImg({
           }
         }
       }
+      // await new Promise(requestAnimationFrame); // 非同期処理を追加
     }
+
+    if (sprite) {
+      const ornDict = { 0xd0: 0, 0xd1: 1, 0xd2: 2, 0xd3: 3 }; // 方向
+
+      additionalMapInfo.npc.forEach((npc) => {
+        const edgeAdd = mapEdge ? 3 * 32 : 0;
+        const x = (npc.x - 4) * 16 + edgeAdd;
+        const y = (npc.y - 4) * 16 + edgeAdd;
+        const attr = npc.attr;
+        const spriteData = pokeRom.getSprData(npc.sprId);
+        const orn = // 方向
+          ornDict[attr as keyof typeof ornDict] === undefined
+            ? -1
+            : ornDict[attr as keyof typeof ornDict];
+        const onKusa =
+          pokeRom.getTileIdforMap(mapId, npc.y - 4, npc.x - 4) ===
+          mapTypeInfo.kusaTile;
+
+        for (let i = 0; i < 2; i++) {
+          for (let j = 0; j < 2; j++) {
+            for (let si = 0; si < 8; si++) {
+              const diff = orn !== -1 ? Math.min(orn, 2) * 0x40 : 0;
+              const sprIndex = (i * 2 + j) * 16 + si * 2 + diff;
+              const value = spriteData[sprIndex];
+              const value2 = spriteData[sprIndex + 1];
+
+              for (let sj = 0; sj < 8; sj++) {
+                let colorIndex =
+                  ((1 << (7 - sj)) & value ? 0 : 1) |
+                  (((1 << (7 - sj)) & value2 ? 0 : 1) << 1);
+                if (colorIndex === 3) continue;
+                if (colorIndex !== 0) colorIndex++;
+                ctx.fillStyle = colors[colorIndex];
+                const drawX =
+                  orn === 3 ? x + 7 - sj + (1 - j) * 8 : x + sj + j * 8;
+                const drawY = y + si + i * 8 - 4;
+                const pixelColor = ctx.getImageData(
+                  drawX * size + 1,
+                  drawY * size + 1,
+                  1,
+                  1
+                );
+                if (
+                  !(
+                    i === 1 &&
+                    onKusa &&
+                    rgbToHex(
+                      pixelColor.data[0],
+                      pixelColor.data[1],
+                      pixelColor.data[2]
+                    ) !== colors[3]
+                  )
+                )
+                  ctx.fillRect(drawX * size, drawY * size, size, size);
+              }
+            }
+          }
+        }
+      });
+    }
+  }
+
+  useEffect(() => {
+    drawImg();
   }, [pokeRom, mapId]);
 
   if (mapInfo.mapType >= 0x40) {

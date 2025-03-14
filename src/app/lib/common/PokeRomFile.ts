@@ -118,4 +118,9 @@ export class PokeRomFile {
       ((address & 0xff) << 8);
     return this.readByteBig(address);
   }
+
+  // データ列を返す(ビッグエンディアン)
+  readBytesBig(address: number, length: number): number[] {
+    return Array.from({ length }, (_, i) => this.readByteBig(address + i));
+  }
 }

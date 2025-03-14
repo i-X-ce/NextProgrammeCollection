@@ -1,14 +1,16 @@
-// import styles from './style.module.css';
+import styles from "./style.module.css";
 
 import { useEffect, useRef } from "react";
 
 const colors = ["#000", "#555", "#AAA", "#FFF"];
-const size = 20;
+const size = 5;
 
 export default function TileImg({ tileData }: { tileData: number[] }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
+    if (tileData.length !== 16) return;
+
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
@@ -25,10 +27,17 @@ export default function TileImg({ tileData }: { tileData: number[] }) {
         ctx.fillRect(size * j, size * i, size, size);
       }
     }
-  });
+  }, [tileData]);
 
   if (tileData.length !== 16) {
     return <div>タイルデータが不正です</div>;
   }
-  return <canvas ref={canvasRef} width={size * 8} height={size * 8} />;
+  return (
+    <canvas
+      className={styles.tile}
+      ref={canvasRef}
+      width={size * 8}
+      height={size * 8}
+    />
+  );
 }

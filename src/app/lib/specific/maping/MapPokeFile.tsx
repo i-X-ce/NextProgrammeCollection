@@ -1,10 +1,18 @@
+import React from "react";
 import { PokeRomFile } from "../../common/PokeRomFile";
 import { RomVersion } from "../../common/romVersion";
+import TileImg from "@/app/components/specific/maping/TileImg";
+import CellImg from "@/app/components/specific/maping/CellImg";
 
 export class MapPokeFile extends PokeRomFile {
   private _table: TableAddress | null = null;
-  private _mapData: MapInfo = createMapInfo();
-  private _mapTypeInfo: MapTypeInfo = createMapTypeInfo();
+  // private _mapInfo: MapInfo = createMapInfo();
+  // private _mapTypeInfo: MapTypeInfo = createMapTypeInfo();
+  // private _mapId: number = 0;
+
+  // private _tileImages: React.ReactNode[] = [];
+  // private _cellImages: React.ReactNode[] = [];
+  // private _mapImage: React.ReactNode[] = [];
 
   constructor(buffer: ArrayBuffer | Uint8Array, mapId: number) {
     super(buffer);
@@ -21,18 +29,42 @@ export class MapPokeFile extends PokeRomFile {
         [RomVersion.y3]: y3Table,
       };
       this._table = tableDict[this.romVersion || RomVersion.r0];
-      this._mapData = this.getMapInfo(mapId);
-      this._mapTypeInfo = this.getMapTypeInfo(this._mapData.mapType);
+      // this._mapId = mapId;
+      // this.updateMap(mapId);
     }
   }
 
-  get mapData(): MapInfo {
-    return this._mapData;
-  }
+  // get mapId(): number {
+  //   return this._mapId;
+  // }
 
-  get mapTypeInfo(): MapTypeInfo {
-    return this._mapTypeInfo;
-  }
+  // get mapInfo(): MapInfo {
+  //   return this._mapInfo;
+  // }
+
+  // get mapTypeInfo(): MapTypeInfo {
+  //   return this._mapTypeInfo;
+  // }
+
+  // get tileImages(): React.ReactNode[] {
+  //   return this._tileImages;
+  // }
+
+  // get cellImages(): React.ReactNode[] {
+  //   return this._cellImages;
+  // }
+
+  // get mapImage(): React.ReactNode[] {
+  //   return this._mapImage;
+  // }
+
+  // updateMap(mapId: number) {
+  //   this._mapInfo = this.getMapInfo(mapId);
+  //   this._mapTypeInfo = this.getMapTypeInfo(this._mapInfo.mapType);
+  //   for (let i = 0; i < 0x100; i++) this._tileImages[i] = this.getTileImg(i);
+  //   for (let i = 0; i < 0x100; i++) this._cellImages[i] = this.getCellImg(i);
+  //   this._mapImage[mapId] = this.getMapImg(mapId);
+  // }
 
   getMapBank(mapId: number): number {
     const mapBank = this.readByteBig(this._table!.mapBank + mapId);
@@ -91,18 +123,71 @@ export class MapPokeFile extends PokeRomFile {
     return mapTypeInfo;
   }
 
-  getTileData(tileId: number): number[] {
+  // 生のタイルデータを取得(16バイト)
+  getTileData(mapId: number, tileId: number): number[] {
+    const typeInfo = this.getMapTypeInfo(this.getMapInfo(mapId).mapType);
     const tileData = Array.from({ length: 16 }).map((_, i) => {
       const addr =
-        (this.mapTypeInfo.typeBank << 16) +
-        this.mapTypeInfo.tileDataAddr +
-        tileId * 16 +
-        i;
-      console.log(this.mapTypeInfo);
+        (typeInfo.typeBank << 16) + typeInfo.tileDataAddr + tileId * 16 + i;
       return this.readByteBig(addr);
     });
     return tileData;
   }
+
+  // 生のタイルセルを取得(16バイト)
+  getCellData(mapId: number, cellId: number): number[] {
+    const typeInfo = this.getMapTypeInfo(this.getMapInfo(mapId).mapType);
+    const tileCell = Array.from({ length: 16 }).map((_, i) => {
+      const addr =
+        (typeInfo.typeBank << 16) + typeInfo.cellTableAddr + cellId * 16 + i;
+      return this.readByteBig(addr);
+    });
+    return tileCell;
+  }
+
+  // 生のマップデータを取得(height * widthバイト)
+  getMapData(mapId: number): number[] {
+    const mapInfo = this.getMapInfo(mapId);
+    const bank = this.getMapBank(mapId);
+    const mapData = Array.from({
+      length: mapInfo.height * mapInfo.width,
+    }).map((_, i) => {
+      const addr = (bank << 16) + mapInfo.mapDataAddr + i;
+      return this.readByteBig(addr);
+    });
+    return mapData;
+  }
+
+  // タイルデータからコンポーネントを生成
+  // getTileImg(tileId: number): React.ReactNode {
+  //   const tileData = this.getTileData(tileId);
+  //   return <TileImg tileData={tileData}></TileImg>;
+  // }
+
+  // // セルデータからコンポーネントを生成(タイルデータを生成している必要がある)
+  // getCellImg(cellId: number): React.ReactNode {
+  //   const cellData = this.getCellData(cellId);
+  //   const tiles: React.ReactNode[] = cellData.map(
+  //     (value) => this.tileImages[value]
+  //   );
+  //   return <CellImg key={cellId} cellData={tiles} />;
+  // }
+
+  // // マップデータからコンポーネントを生成(タイルデータを生成している必要がある)
+  // getMapImg(mapId: number): React.ReactNode {
+  //   const mapData = this.getMapData(mapId);
+  //   const cells: React.ReactNode[] = mapData.map(
+  //     (value) => this.cellImages[value]
+  //   );
+  //   return (
+  //     <CellImg
+  //       key={mapId}
+  //       cellData={cells}
+  //       height={this.mapInfo.height}
+  //       width={this.mapInfo.width}
+  //     />
+  //   );
+  // }
 }
 
 // d2e6~のデータ

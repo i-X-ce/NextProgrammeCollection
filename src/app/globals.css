@@ -9,6 +9,7 @@
   --bc-primary: #1976d2;
   --bc-primary-trans: #1976d240;
   --bc-shadow: #0000001a;
+  --bc-action: rgba(0, 0, 0, 0.54);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -19,6 +20,7 @@
     --bc-primary: #90caf9;
     --bc-primary-trans: #90caf940;
     --bc-shadow: #ffffff1a;
+    --bc-action: rgba(255, 255, 255, 0.54);
   }
 }
 

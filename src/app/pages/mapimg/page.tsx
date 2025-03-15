@@ -4,12 +4,14 @@ import MapImg from "@/app/components/specific/maping/MapImg";
 import { number2Hex } from "@/app/lib/common/calc";
 import { MapPokeFile } from "@/app/lib/specific/maping/MapPokeFile";
 import { KeyboardArrowLeft, KeyboardArrowRight } from "@mui/icons-material";
-import { IconButton } from "@mui/material";
+import { Checkbox, FormControlLabel, IconButton, Slider } from "@mui/material";
 import { useState } from "react";
 
 export default function Home() {
   const [pokeRom, setPokeRom] = useState<MapPokeFile | null>(null);
-  const [mapId, setMapId] = useState(0x0c);
+  const [mapId, setMapId] = useState(0x25);
+  const [sprite, setSprite] = useState(true);
+  const [edge, setEdge] = useState(96);
 
   return (
     <>
@@ -28,7 +30,32 @@ export default function Home() {
           <KeyboardArrowRight />
         </IconButton>
       </span>
-      {pokeRom && <MapImg pokeRom={pokeRom} mapId={mapId} />}
+
+      <span>
+        <Slider
+          max={12}
+          min={0}
+          valueLabelDisplay="auto"
+          sx={{ width: "200px", margin: "0 20px" }}
+          value={edge}
+          onChange={(_, value) => setEdge(value as number)}
+        />
+        <FormControlLabel
+          control={
+            <Checkbox checked={sprite} onClick={() => setSprite(!sprite)} />
+          }
+          label="スプライト"
+        />
+      </span>
+      {pokeRom && (
+        <MapImg
+          key={mapId}
+          pokeRom={pokeRom}
+          mapId={mapId}
+          sprite={sprite}
+          edge={edge * 8}
+        />
+      )}
       {/* <div style={{ display: "flex", flexWrap: "wrap" }}>
         {pokeRom && pokeRom.mapImage}
       </div> */}

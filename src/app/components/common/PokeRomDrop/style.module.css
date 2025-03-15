@@ -1,0 +1,58 @@
+:root {
+  --bc-red: rgb(255, 68, 68);
+  --bc-green: rgb(110, 238, 110);
+  --bc-blue: rgb(96, 191, 255);
+  --bc-yellow: rgb(253, 214, 88);
+}
+
+.dropZone {
+  margin: 20px;
+  padding: 20px;
+  height: 80vh;
+  border: 3px dashed #ccc;
+  border-radius: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  gap: 5px;
+  transition: border-color 0.3s, background-color 0.3s;
+}
+
+.dropZone:hover {
+  border-color: var(--bc-primary);
+  background-color: var(--bc-primary-trans);
+}
+
+.fillDropZone {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 20px;
+  position: relative;
+}
+
+.fillDropZone::before {
+  content: "";
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background-color: transparent;
+  transition: background-color 0.3s;
+}
+
+.fillDropZone:hover::before {
+  background-color: var(--bc-shadow);
+}
+
+.fillDropZoneIcon {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  padding: 10px;
+}
+
+.romName {
+  margin: 0 20px;
+}

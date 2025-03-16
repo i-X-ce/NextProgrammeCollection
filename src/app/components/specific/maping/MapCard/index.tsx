@@ -39,6 +39,7 @@ export default function MapCard({
   const mapBank = pokeRom.getMapBank(mapId);
   const mapInfo = pokeRom.getMapInfo(mapId);
   const mapAddition = pokeRom.getAdditionalMapInfo(mapId);
+  const mapImgRef = useRef<HTMLDivElement>(null);
 
   // マップ生成のロード
   useEffect(() => {
@@ -53,12 +54,13 @@ export default function MapCard({
 
   const handleMapMouseMove = (e: React.MouseEvent) => {
     if (!mapDragging.current) return;
-    const rect = e.currentTarget.getBoundingClientRect();
+    const rect = mapImgRef.current?.getBoundingClientRect();
+    if (!rect) return;
     const dx = e.clientX - mapLastPos.current.x;
     const dy = e.clientY - mapLastPos.current.y;
     setMapPos((pos) => ({
       x: Math.max(Math.min(pos.x + dx, rect.width / 2), -rect.width / 2),
-      y: Math.max(Math.min(pos.y + dy, rect.height), -rect.height),
+      y: Math.max(Math.min(pos.y + dy, rect.height / 2), -rect.height / 2),
     }));
     mapLastPos.current = { x: e.clientX, y: e.clientY };
   };
@@ -123,6 +125,7 @@ export default function MapCard({
 
   return (
     <div className={styles.card}>
+      {/* マップ画像 */}
       <div className={styles.mapContainer} {...mapHandlers}>
         {isVisible ? (
           <div
@@ -133,6 +136,7 @@ export default function MapCard({
               left: `${mapPos.x}px`,
               // transformOrigin: `${-mapPos.x}px ${-mapPos.y}px`,
             }}
+            ref={mapImgRef}
           >
             <MapImg
               pokeRom={pokeRom}
@@ -158,11 +162,15 @@ export default function MapCard({
           </div>
         )}
       </div>
+
+      {/* ロードバー */}
       <LinearProgress
         variant="determinate"
         value={progressValue}
         color="info"
       />
+
+      {/* 詳細 */}
       <div className={styles.detail}>
         <h2
           className={styles.name}
@@ -173,7 +181,11 @@ export default function MapCard({
         <Collapse in={detailOpen}>
           <div className={styles.detailList}>
             {detailList.map((item, i) => (
-              <DetailListCell key={i} {...item} />
+              <DetailListCell
+                key={i}
+                listName={item.listName}
+                value={isVisible ? item.value : "???"}
+              />
             ))}
           </div>
         </Collapse>

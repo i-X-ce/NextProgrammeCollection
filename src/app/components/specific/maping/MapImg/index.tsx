@@ -16,6 +16,7 @@ export default function MapImg({
   className,
   onLoaded,
   setProgressValue,
+  imgRef,
 }: {
   pokeRom: MapPokeFile;
   mapId: number;
@@ -26,6 +27,7 @@ export default function MapImg({
   className?: string;
   onLoaded?: () => void;
   setProgressValue?: (value: number) => void;
+  imgRef?: React.RefObject<HTMLCanvasElement | null>;
 }) {
   const sprImg = useRef<ImageData | null>(null); // スプライトありの画像
   const nsprImg = useRef<ImageData | null>(null); // スプライトなしの画像
@@ -176,6 +178,7 @@ export default function MapImg({
     onLoaded && onLoaded();
   }
 
+  // 画像の修正(スプライトの表示、端の表示)
   const fixImg = () => {
     if (!pokeRom) return;
     const canvas = canvasRef.current;
@@ -191,7 +194,7 @@ export default function MapImg({
   // マップ全体の書き直し
   useEffect(() => {
     drawImg();
-  }, [pokeRom, mapId]);
+  }, [pokeRom.romVersion, mapId]);
 
   // マップ端、スプライトの変更時
   useEffect(() => {
@@ -204,7 +207,12 @@ export default function MapImg({
 
   return (
     <canvas
-      ref={canvasRef}
+      ref={(e) => {
+        canvasRef.current = e;
+        if (imgRef && e) {
+          imgRef.current = e;
+        }
+      }}
       width={(width * 32 + edge * 2 - maxEdge * 2) * size}
       height={(height * 32 + edge * 2 - maxEdge * 2) * size}
       className={className}

@@ -20,7 +20,8 @@
     "react-dom": "^19.0.0",
     "react-dropzone": "^14.3.8",
     "tinyqueue": "^3.0.0",
-    "wanakana": "^5.3.1"
+    "wanakana": "^5.3.1",
+    "yet-another-react-lightbox": "^3.21.8"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

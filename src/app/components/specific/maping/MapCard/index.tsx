@@ -5,14 +5,29 @@ import { useEffect, useRef, useState } from "react";
 import { mapNames } from "@/app/lib/common/map";
 import { number2Hex } from "@/app/lib/common/calc";
 import {
+  Backdrop,
   CardActionArea,
+  Checkbox,
   CircularProgress,
   Collapse,
   Divider,
+  IconButton,
   LinearProgress,
+  Slider,
+  Tooltip,
 } from "@mui/material";
-import { ErrorOutline, ExpandLess, ExpandMore } from "@mui/icons-material";
+import {
+  Download,
+  ErrorOutline,
+  ExpandLess,
+  ExpandMore,
+  FullscreenSharp,
+  Person,
+  PersonOff,
+} from "@mui/icons-material";
+import Fullscreen from "yet-another-react-lightbox/plugins/fullscreen";
 import { red } from "@mui/material/colors";
+import Lightbox from "yet-another-react-lightbox";
 
 const centerAndColumn = {
   display: "flex",
@@ -24,14 +39,18 @@ const centerAndColumn = {
 export default function MapCard({
   pokeRom,
   mapId,
+  masterEdge = 96,
+  masterSprite = true,
 }: {
   pokeRom: MapPokeFile;
   mapId: number;
+  masterEdge?: number;
+  masterSprite?: boolean;
 }) {
   const [mapPos, setMapPos] = useState({ x: 0, y: 0 });
   const mapDragging = useRef(false);
   const mapLastPos = useRef({ x: 0, y: 0 });
-  const [mapScale, setMapScale] = useState(0.2);
+  const [mapScale, setMapScale] = useState(1);
   const [loaded, setLoaded] = useState(false);
   const [progressValue, setProgressValue] = useState(0);
   const isVisible = mapNames[mapId].isVisible;
@@ -40,12 +59,16 @@ export default function MapCard({
   const mapInfo = pokeRom.getMapInfo(mapId);
   const mapAddition = pokeRom.getAdditionalMapInfo(mapId);
   const mapImgRef = useRef<HTMLDivElement>(null);
+  const [edge, setEdge] = useState(masterEdge);
+  const [sprite, setSprite] = useState(masterSprite);
+  const imgRef = useRef<HTMLCanvasElement>(null);
+  const [fullScreenImgOpen, setFullScreenImgOpen] = useState(false);
 
   // マップ生成のロード
   useEffect(() => {
     setLoaded(false);
     setMapPos({ x: 0, y: 0 });
-  }, [pokeRom]);
+  }, [pokeRom, mapId]);
 
   const handleMapMouseDown = (e: React.MouseEvent) => {
     mapDragging.current = true;
@@ -141,10 +164,13 @@ export default function MapCard({
             <MapImg
               pokeRom={pokeRom}
               mapId={mapId}
-              size={5}
+              size={1}
               className={styles.map}
               onLoaded={() => setLoaded(true)}
               setProgressValue={setProgressValue}
+              edge={edge * 8}
+              sprite={sprite}
+              imgRef={imgRef}
             />
           </div>
         ) : (
@@ -161,7 +187,67 @@ export default function MapCard({
             <CircularProgress color="info" />
           </div>
         )}
+
+        {/* マップUI */}
+        <div
+          className={styles.mapUI}
+          style={{
+            left: "10px",
+            bottom: "10px",
+            width: "30%",
+            paddingRight: "18px",
+          }}
+        >
+          <Tooltip title={`スプライト${sprite ? "off" : "on"}`} arrow>
+            <Checkbox
+              icon={<PersonOff />}
+              checkedIcon={<Person />}
+              checked={sprite}
+              onClick={() => setSprite((sprite) => !sprite)}
+              size="small"
+            />
+          </Tooltip>
+          <Tooltip title="端タイル数" arrow>
+            <Slider
+              max={12}
+              value={edge}
+              valueLabelDisplay="auto"
+              onChange={(_, value) => {
+                setEdge(value as number);
+                mapDragging.current = false;
+              }}
+              size="small"
+            />
+          </Tooltip>
+        </div>
+        <div className={styles.mapUI} style={{ right: "10px", bottom: "10px" }}>
+          <Tooltip title="ダウンロード">
+            <IconButton>
+              <Download />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title="全画面表示" arrow>
+            <IconButton onClick={() => setFullScreenImgOpen(true)}>
+              <FullscreenSharp />
+            </IconButton>
+          </Tooltip>
+        </div>
       </div>
+
+      {/* フルスクリーン */}
+      <Backdrop
+        open={fullScreenImgOpen}
+        onClick={() => setFullScreenImgOpen(false)}
+        sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}
+      >
+        <div className={styles.fullScreenImgWrapper}>
+          <img
+            src={imgRef.current?.toDataURL()}
+            alt={mapNames[mapId].name}
+            className={styles.fullScreenImg}
+          />
+        </div>
+      </Backdrop>
 
       {/* ロードバー */}
       <LinearProgress

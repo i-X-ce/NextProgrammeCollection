@@ -79,3 +79,24 @@
 .detailListCell:last-child {
   border-bottom: none;
 }
+
+.mapUI {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  background-color: var(--background);
+  border-radius: 100px;
+  box-shadow: var(--shadow-template);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.mapContainer:hover .mapUI {
+  opacity: 1;
+}
+
+.fullScreenImgWrapper {
+  max-width: 90vw;
+  max-height: 90vh;
+  overflow: auto;
+}

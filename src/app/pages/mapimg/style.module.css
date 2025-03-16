@@ -1,3 +1,7 @@
+:root {
+  --bc-detail: #7e7e7e;
+}
+
 .cardContainer {
   padding: 20px;
   display: grid;

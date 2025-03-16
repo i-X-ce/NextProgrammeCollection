@@ -1,7 +1,7 @@
 import { MapPokeFile } from "@/app/lib/specific/maping/MapPokeFile";
 import styles from "./style.module.css";
 import MapImg from "../MapImg";
-import { useEffect, useRef, useState } from "react";
+import { use, useEffect, useRef, useState } from "react";
 import { mapNames } from "@/app/lib/common/map";
 import { number2Hex } from "@/app/lib/common/calc";
 import {
@@ -48,7 +48,7 @@ export default function MapCard({
   masterSprite?: boolean;
 }) {
   const [mapPos, setMapPos] = useState({ x: 0, y: 0 });
-  const mapDragging = useRef(false);
+  const [mapDragging, setMapDragging] = useState(false);
   const mapLastPos = useRef({ x: 0, y: 0 });
   const [mapScale, setMapScale] = useState(1);
   const [loaded, setLoaded] = useState(false);
@@ -70,13 +70,20 @@ export default function MapCard({
     setMapPos({ x: 0, y: 0 });
   }, [pokeRom, mapId]);
 
+  // マスター設定の変更
+  useEffect(() => {
+    setEdge(masterEdge);
+    setSprite(masterSprite);
+  }, [masterEdge, masterSprite]);
+
   const handleMapMouseDown = (e: React.MouseEvent) => {
-    mapDragging.current = true;
+    // mapDragging.current = true;
+    setMapDragging(true);
     mapLastPos.current = { x: e.clientX, y: e.clientY };
   };
 
   const handleMapMouseMove = (e: React.MouseEvent) => {
-    if (!mapDragging.current) return;
+    if (!mapDragging) return;
     const rect = mapImgRef.current?.getBoundingClientRect();
     if (!rect) return;
     const dx = e.clientX - mapLastPos.current.x;
@@ -89,11 +96,13 @@ export default function MapCard({
   };
 
   const handleMapMouseUp = () => {
-    mapDragging.current = false;
+    // mapDragging.current = false;
+    setMapDragging(false);
   };
 
   const handleMapMouseLeave = () => {
-    mapDragging.current = false;
+    // mapDragging.current = false;
+    setMapDragging(false);
   };
 
   const handleMapWheel = (e: React.WheelEvent) => {
@@ -149,7 +158,11 @@ export default function MapCard({
   return (
     <div className={styles.card}>
       {/* マップ画像 */}
-      <div className={styles.mapContainer} {...mapHandlers}>
+      <div
+        className={styles.mapContainer}
+        {...mapHandlers}
+        style={{ cursor: mapDragging ? "grabbing" : "grab" }}
+      >
         {isVisible ? (
           <div
             className={styles.mapWrapper}
@@ -214,14 +227,15 @@ export default function MapCard({
               valueLabelDisplay="auto"
               onChange={(_, value) => {
                 setEdge(value as number);
-                mapDragging.current = false;
+                // mapDragging.current = false;
+                setMapDragging(false);
               }}
               size="small"
             />
           </Tooltip>
         </div>
         <div className={styles.mapUI} style={{ right: "10px", bottom: "10px" }}>
-          <Tooltip title="ダウンロード">
+          <Tooltip title="ダウンロード" arrow>
             <IconButton>
               <Download />
             </IconButton>

@@ -18,9 +18,10 @@ import {
 } from "@mui/icons-material";
 import {
   Checkbox,
+  Dialog,
+  DialogTitle,
+  Divider,
   FormControl,
-  FormControlLabel,
-  IconButton,
   InputLabel,
   MenuItem,
   Pagination,
@@ -31,13 +32,19 @@ import {
   SpeedDialAction,
   SpeedDialIcon,
 } from "@mui/material";
-import { useState } from "react";
+import React, { useState } from "react";
 
 export default function Home() {
   const [pokeRom, setPokeRom] = useState<MapPokeFile | null>(null);
-  const [mapIdStart, setMapIdStart] = useState(0x00);
-  const [mapEdge, setMapEdge] = useState(12);
-  const [sprite, setSprite] = useState(true);
+  const [masterMapIdStartTemp, setMasterMapIdStartTemp] = useState(0);
+  // 設定を閉じた時に一気に書き換えるため一時的なStateを用意
+  const [masterEdgeTemp, setMasterEdgeTemp] = useState(12);
+  const [masterSpriteTemp, setMasterSpriteTemp] = useState(true);
+  const [masterMapIdStart, setMasterMapIdStart] = useState(0);
+  const [masterEdge, setMasterEdge] = useState(12);
+  const [masterSprite, setMasterSprite] = useState(true);
+
+  const [openSetting, setOpenSetting] = useState(false);
 
   const speedDialActions = [
     {
@@ -48,7 +55,9 @@ export default function Home() {
     {
       icon: <Settings />,
       tooltipTitle: "設定",
-      onClick: () => {},
+      onClick: () => {
+        setOpenSetting(true);
+      },
     },
   ];
 
@@ -56,25 +65,25 @@ export default function Home() {
     <Pagination
       count={0x10}
       color="primary"
-      page={mapIdStart + 1}
+      page={masterMapIdStartTemp + 1}
       renderItem={(item) => (
         <PaginationItem
           {...item}
           page={number2Hex(((item.page || 0) - 1) * 0x10)}
         />
       )}
-      onChange={(_, page) => setMapIdStart(page - 1)}
+      onChange={(_, page) => setMasterMapIdStartTemp(page - 1)}
     />
   );
 
   const mapIdSelecter = (
-    <FormControl>
+    <FormControl sx={{ marginTop: "15px" }}>
       <InputLabel>マップ番号</InputLabel>
       <Select
         label="マップ番号"
-        value={mapIdStart}
+        value={masterMapIdStartTemp}
         onChange={(e) => {
-          setMapIdStart(e.target.value as number);
+          setMasterMapIdStartTemp(e.target.value as number);
         }}
       >
         {Array.from({ length: 0x10 }).map((_, i) => (
@@ -89,27 +98,20 @@ export default function Home() {
   const edgeSlider = (
     <div
       style={{
-        width: 200,
-        gap: 10,
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
+        flexGrow: 1,
       }}
     >
-      <IconButton onClick={() => setMapEdge((edge) => Math.max(edge - 1, 0))}>
-        <UnfoldLess />
-      </IconButton>
       <Slider
         max={12}
-        value={mapEdge}
+        value={masterEdgeTemp}
         valueLabelDisplay="auto"
         onChange={(_, value) => {
-          setMapEdge(value as number);
+          setMasterEdgeTemp(value as number);
         }}
       />
-      <IconButton onClick={() => setMapEdge((edge) => Math.min(edge + 1, 12))}>
-        <UnfoldMore />
-      </IconButton>
     </div>
   );
 
@@ -117,8 +119,8 @@ export default function Home() {
     <Checkbox
       icon={<PersonOff />}
       checkedIcon={<Person />}
-      checked={sprite}
-      onClick={() => setSprite((sprite) => !sprite)}
+      checked={masterSpriteTemp}
+      onClick={() => setMasterSpriteTemp((sprite) => !sprite)}
     />
   );
 
@@ -126,22 +128,23 @@ export default function Home() {
     <>
       <PokeRomDrop
         setRom={(arrayBuffer: ArrayBuffer) => {
-          const newPokeRom = new MapPokeFile(arrayBuffer, mapIdStart);
+          const newPokeRom = new MapPokeFile(arrayBuffer, masterMapIdStart);
           setPokeRom(newPokeRom);
         }}
       />
       {mapIdSelecter}
-      {edgeSlider}
-      {spriteCheckbox}
       {pokeRom && (
-        <div className={styles.cardContainer}>
-          {Array.from({ length: 0x10 }).map((_, i) => (
+        <div
+          className={styles.cardContainer}
+          style={openSetting ? { display: "none" } : {}}
+        >
+          {Array.from({ length: 0x3 }).map((_, i) => (
             <MapCard
-              key={i + mapIdStart}
+              key={i + masterMapIdStart}
               pokeRom={pokeRom}
-              mapId={i + mapIdStart * 0x10}
-              masterEdge={mapEdge * 8}
-              masterSprite={sprite}
+              mapId={i + masterMapIdStart * 0x10}
+              masterEdge={masterEdge}
+              masterSprite={masterSprite}
             />
           ))}
         </div>
@@ -156,6 +159,56 @@ export default function Home() {
           <SpeedDialAction key={i} {...action} />
         ))}
       </SpeedDial>
+
+      {/* 設定ダイアログ */}
+      <Dialog
+        open={openSetting}
+        onClose={() => {
+          setOpenSetting(false);
+          setMasterMapIdStart(masterMapIdStartTemp);
+          setMasterEdge(masterEdgeTemp);
+          setMasterSprite(masterSpriteTemp);
+        }}
+        maxWidth={false}
+      >
+        <DialogTitle>設定</DialogTitle>
+        <Divider />
+        <div className={styles.settingContainer}>
+          <SettingTool
+            title="マップ番号"
+            description="画像化するマップ番号の初期値を変更します。"
+          >
+            {mapIdSelecter}
+          </SettingTool>
+          <SettingTool
+            title="スプライト・端タイル数"
+            description="スプライトの表示・非表示と端タイル数を変更します。ここで設定するとすべてのマップに適応されます。"
+          >
+            <div className={styles.edgeAndSprite}>
+              {spriteCheckbox}
+              {edgeSlider}
+            </div>
+          </SettingTool>
+        </div>
+      </Dialog>
     </>
+  );
+}
+
+function SettingTool({
+  title,
+  description,
+  children,
+}: {
+  title: string;
+  description: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className={styles.settingTools}>
+      <h3 className={styles.settingToolTitle}>{title}</h3>
+      <p className={styles.settingToolDescription}>{description}</p>
+      {children}
+    </div>
   );
 }

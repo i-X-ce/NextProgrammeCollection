@@ -7,3 +7,32 @@
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
 }
+
+.settingContainer {
+  padding: 20px 30px;
+  width: 40vw;
+  display: flex;
+  flex-direction: column;
+}
+
+.edgeAndSprite {
+  display: flex;
+  gap: 15px;
+}
+
+.settingTools {
+  display: flex;
+  flex-direction: column;
+  margin: 8px 0;
+}
+
+.settingToolTitle {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: var(--bc-primary);
+}
+
+.settingToolDescription {
+  font-size: small;
+  color: var(--bc-detail);
+}

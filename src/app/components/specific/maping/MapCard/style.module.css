@@ -1,3 +1,7 @@
+:root {
+  --bc-detail: #7e7e7e;
+}
+
 .card {
   display: flex;
   flex-direction: column;
@@ -5,6 +9,7 @@
   box-shadow: var(--shadow-template);
   border-radius: 5px;
   overflow: hidden;
+  align-self: flex-start;
 }
 
 .mapContainer {
@@ -45,4 +50,32 @@
   justify-content: center;
   align-items: center;
   background-color: var(--bc-shadow);
+}
+
+.centerAndColumn {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.detailList {
+  display: grid;
+  grid-template-rows: auto;
+  color: var(--bc-detail);
+}
+
+.detailListCell {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border-bottom: 1px solid var(--bc-shadow);
+}
+
+.detailListCell:hover {
+  background-color: var(--bc-shadow);
+  cursor: pointer;
+}
+
+.detailListCell:last-child {
+  border-bottom: none;
 }

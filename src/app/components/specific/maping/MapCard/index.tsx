@@ -4,7 +4,22 @@ import MapImg from "../MapImg";
 import { useEffect, useRef, useState } from "react";
 import { mapNames } from "@/app/lib/common/map";
 import { number2Hex } from "@/app/lib/common/calc";
-import { CircularProgress, LinearProgress } from "@mui/material";
+import {
+  CardActionArea,
+  CircularProgress,
+  Collapse,
+  Divider,
+  LinearProgress,
+} from "@mui/material";
+import { ErrorOutline, ExpandLess, ExpandMore } from "@mui/icons-material";
+import { red } from "@mui/material/colors";
+
+const centerAndColumn = {
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  justifyContent: "center",
+};
 
 export default function MapCard({
   pokeRom,
@@ -19,6 +34,11 @@ export default function MapCard({
   const [mapScale, setMapScale] = useState(0.2);
   const [loaded, setLoaded] = useState(false);
   const [progressValue, setProgressValue] = useState(0);
+  const isVisible = mapNames[mapId].isVisible;
+  const [detailOpen, setDetailOpen] = useState(false);
+  const mapBank = pokeRom.getMapBank(mapId);
+  const mapInfo = pokeRom.getMapInfo(mapId);
+  const mapAddition = pokeRom.getAdditionalMapInfo(mapId);
 
   // マップ生成のロード
   useEffect(() => {
@@ -80,29 +100,59 @@ export default function MapCard({
     // onWheel: handleMapWheel,
   };
 
+  const detailList = [
+    { listName: "タイプ", value: number2Hex(mapInfo.mapType) + "h" },
+    { listName: "高", value: `${mapInfo.height} * 2` },
+    { listName: "幅", value: `${mapInfo.width} * 2` },
+    {
+      listName: "マップデータ",
+      value: formatAddr(mapBank, mapInfo.mapDataAddr),
+    },
+    {
+      listName: "イベントテーブル",
+      value: formatAddr(mapBank, mapInfo.msgTableAddr),
+    },
+    {
+      listName: "マップスクリプト",
+      value: formatAddr(mapBank, mapInfo.eventTableAddr),
+    },
+    { listName: "ドア数", value: `${mapAddition.warpPointCnt}` },
+    { listName: "イベント数", value: `${mapAddition.eventCnt}` },
+    { listName: "NPC数", value: `${mapAddition.npcCnt}` },
+  ];
+
   return (
     <div className={styles.card}>
       <div className={styles.mapContainer} {...mapHandlers}>
-        <div
-          className={styles.mapWrapper}
-          style={{
-            transform: `scale(${mapScale})`,
-            top: `${mapPos.y}px`,
-            left: `${mapPos.x}px`,
-            // transformOrigin: `${-mapPos.x}px ${-mapPos.y}px`,
-          }}
-        >
-          <MapImg
-            pokeRom={pokeRom}
-            mapId={mapId}
-            size={5}
-            className={styles.map}
-            onLoaded={() => setLoaded(true)}
-            setProgressValue={setProgressValue}
-          />
-        </div>
-
-        {!loaded && (
+        {isVisible ? (
+          <div
+            className={styles.mapWrapper}
+            style={{
+              transform: `scale(${mapScale})`,
+              top: `${mapPos.y}px`,
+              left: `${mapPos.x}px`,
+              // transformOrigin: `${-mapPos.x}px ${-mapPos.y}px`,
+            }}
+          >
+            <MapImg
+              pokeRom={pokeRom}
+              mapId={mapId}
+              size={5}
+              className={styles.map}
+              onLoaded={() => setLoaded(true)}
+              setProgressValue={setProgressValue}
+            />
+          </div>
+        ) : (
+          <div
+            className={styles.centerAndColumn}
+            style={{ color: red[500], fontSize: "small" }}
+          >
+            <ErrorOutline color="error" fontSize="large" />
+            <p>表示できないマップです</p>
+          </div>
+        )}
+        {!loaded && isVisible && (
           <div className={styles.loading}>
             <CircularProgress color="info" />
           </div>
@@ -114,10 +164,50 @@ export default function MapCard({
         color="info"
       />
       <div className={styles.detail}>
-        <h2 className={styles.name}>
-          {number2Hex(mapId)} : {mapNames[mapId].name}
+        <h2
+          className={styles.name}
+          style={{ color: `var(--bc-${isVisible ? "primary" : "shadow"})` }}
+        >
+          {number2Hex(mapId)}h : {mapNames[mapId].name}
         </h2>
+        <Collapse in={detailOpen}>
+          <div className={styles.detailList}>
+            {detailList.map((item, i) => (
+              <DetailListCell key={i} {...item} />
+            ))}
+          </div>
+        </Collapse>
       </div>
+      <Divider />
+      <CardActionArea
+        sx={{ borderRadius: "0", padding: "5px 0", ...centerAndColumn }}
+        onClick={() => setDetailOpen((open) => !open)}
+      >
+        {detailOpen ? (
+          <ExpandLess color="action" />
+        ) : (
+          <ExpandMore color="action" />
+        )}
+      </CardActionArea>
     </div>
   );
+}
+
+function DetailListCell({
+  listName,
+  value,
+}: {
+  listName: string;
+  value: string | number;
+}) {
+  return (
+    <div className={styles.detailListCell}>
+      <div>{listName}</div>
+      <div>{value}</div>
+    </div>
+  );
+}
+
+function formatAddr(bank: number, addr: number) {
+  return `${number2Hex(bank)}:${number2Hex(addr, 4)}h`;
 }

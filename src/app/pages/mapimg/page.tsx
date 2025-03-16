@@ -1,5 +1,7 @@
 "use client";
+import styles from "./style.module.css";
 import PokeRomDrop from "@/app/components/common/PokeRomDrop";
+import MapCard from "@/app/components/specific/maping/MapCard";
 import MapImg from "@/app/components/specific/maping/MapImg";
 import { number2Hex } from "@/app/lib/common/calc";
 import { MapPokeFile } from "@/app/lib/specific/maping/MapPokeFile";
@@ -9,19 +11,17 @@ import { useState } from "react";
 
 export default function Home() {
   const [pokeRom, setPokeRom] = useState<MapPokeFile | null>(null);
-  const [mapId, setMapId] = useState(0x25);
-  const [sprite, setSprite] = useState(true);
-  const [edge, setEdge] = useState(96);
+  const [mapIdStart, setMapIdStart] = useState(0x00);
 
   return (
     <>
       <PokeRomDrop
         setRom={(arrayBuffer: ArrayBuffer) => {
-          const newPokeRom = new MapPokeFile(arrayBuffer, mapId);
+          const newPokeRom = new MapPokeFile(arrayBuffer, mapIdStart);
           setPokeRom(newPokeRom);
         }}
       />
-      <span>
+      {/* <span>
         <IconButton onClick={() => setMapId((mapId) => (mapId - 1) & 0xff)}>
           <KeyboardArrowLeft />
         </IconButton>
@@ -46,15 +46,13 @@ export default function Home() {
           }
           label="スプライト"
         />
-      </span>
+      </span> */}
       {pokeRom && (
-        <MapImg
-          key={mapId}
-          pokeRom={pokeRom}
-          mapId={mapId}
-          sprite={sprite}
-          edge={edge * 8}
-        />
+        <div className={styles.cardContainer}>
+          {Array.from({ length: 0x10 }).map((_, i) => (
+            <MapCard key={i} pokeRom={pokeRom} mapId={i} />
+          ))}
+        </div>
       )}
       {/* <div style={{ display: "flex", flexWrap: "wrap" }}>
         {pokeRom && pokeRom.mapImage}

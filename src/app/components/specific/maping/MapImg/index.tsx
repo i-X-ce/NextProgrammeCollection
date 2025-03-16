@@ -13,6 +13,9 @@ export default function MapImg({
   sprite = true,
   size = 2,
   edge = 96,
+  className,
+  onLoaded,
+  setProgressValue,
 }: {
   pokeRom: MapPokeFile;
   mapId: number;
@@ -20,6 +23,9 @@ export default function MapImg({
   sprite?: boolean;
   size?: number;
   edge?: number;
+  className?: string;
+  onLoaded?: () => void;
+  setProgressValue?: (value: number) => void;
 }) {
   const sprImg = useRef<ImageData | null>(null); // スプライトありの画像
   const nsprImg = useRef<ImageData | null>(null); // スプライトなしの画像
@@ -41,7 +47,6 @@ export default function MapImg({
     if (!ctx) return;
     ctx.imageSmoothingEnabled = false;
 
-    const drawMapId = mapId;
     const additionalMapInfo = pokeRom.getAdditionalMapInfo(mapId);
     const originMapData = pokeRom.getMapData(mapId);
     let mapData: number[][] = [];
@@ -103,6 +108,7 @@ export default function MapImg({
           }
         }
       }
+      setProgressValue && setProgressValue(((ci + 1) * 100) / height);
       await new Promise(requestAnimationFrame); // 非同期処理を追加
     }
     // if (drawMapId !== mapId) return;
@@ -167,6 +173,7 @@ export default function MapImg({
     // if (drawMapId !== mapId) return;
     sprImg.current = ctx.getImageData(0, 0, canvas.width, canvas.height);
     fixImg();
+    onLoaded && onLoaded();
   }
 
   const fixImg = () => {
@@ -200,6 +207,7 @@ export default function MapImg({
       ref={canvasRef}
       width={(width * 32 + edge * 2 - maxEdge * 2) * size}
       height={(height * 32 + edge * 2 - maxEdge * 2) * size}
+      className={className}
     />
   );
 }

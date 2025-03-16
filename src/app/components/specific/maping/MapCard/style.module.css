@@ -1,0 +1,48 @@
+.card {
+  display: flex;
+  flex-direction: column;
+  margin: 20px;
+  box-shadow: var(--shadow-template);
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.mapContainer {
+  width: 400px;
+  height: 250px;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: var(--bc-shadow);
+}
+
+.map {
+  position: relative;
+}
+
+.mapWrapper {
+  position: relative;
+  padding: 0;
+}
+
+.detail {
+  padding: 10px;
+}
+
+.name {
+  color: var(--bc-primary);
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+.loading {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: var(--bc-shadow);
+}

@@ -202,54 +202,76 @@ export default function MapCard({
         )}
 
         {/* マップUI */}
-        <div
-          className={styles.mapUI}
-          style={{
-            left: "10px",
-            bottom: "10px",
-            width: "30%",
-            paddingRight: "18px",
-          }}
-        >
-          <Tooltip title={`スプライト${sprite ? "off" : "on"}`} arrow>
-            <Checkbox
-              icon={<PersonOff />}
-              checkedIcon={<Person />}
-              checked={sprite}
-              onClick={() => {
-                if (!loaded) return;
-                setSprite((sprite) => !sprite);
+        {isVisible && loaded && (
+          <>
+            <div
+              className={styles.mapUI}
+              style={{
+                left: "10px",
+                bottom: "10px",
+                width: "30%",
+                paddingRight: "18px",
               }}
-              size="small"
-            />
-          </Tooltip>
-          <Tooltip title="端タイル数" arrow>
-            <Slider
-              max={12}
-              value={edge}
-              valueLabelDisplay="auto"
-              onChange={(_, value) => {
-                if (!loaded) return;
-                setEdge(value as number);
-                // mapDragging.current = false;
-                setMapDragging(false);
-              }}
-              size="small"
-            />
-          </Tooltip>
-        </div>
-        <div className={styles.mapUI} style={{ right: "10px", bottom: "10px" }}>
-          <Tooltip title="ダウンロード" arrow>
-            <IconButton>
-              <Download />
-            </IconButton>
-          </Tooltip>
-          <Tooltip title="全画面表示" arrow>
-            <IconButton onClick={() => setFullScreenImgOpen(true)}>
-              <FullscreenSharp />
-            </IconButton>
-          </Tooltip>
-        </div>
+            >
+              <Tooltip title={`スプライト${sprite ? "off" : "on"}`} arrow>
+                <Checkbox
+                  icon={<PersonOff />}
+                  checkedIcon={<Person />}
+                  checked={sprite}
+                  onClick={() => {
+                    if (!loaded) return;
+                    setSprite((sprite) => !sprite);
+                  }}
+                  size="small"
+                />
+              </Tooltip>
+              <Tooltip title="端タイル数" arrow>
+                <Slider
+                  max={12}
+                  value={edge}
+                  valueLabelDisplay="auto"
+                  onChange={(_, value) => {
+                    if (!loaded) return;
+                    setEdge(value as number);
+                    // mapDragging.current = false;
+                    setMapDragging(false);
+                  }}
+                  size="small"
+                />
+              </Tooltip>
+            </div>
+            <div
+              className={styles.mapUI}
+              style={{ right: "10px", bottom: "10px" }}
+            >
+              <Tooltip title="ダウンロード" arrow>
+                <IconButton
+                  onClick={() => {
+                    if (!loaded || !imgRef.current) return;
+                    imgRef.current.toBlob((blob) => {
+                      if (!blob) return;
+                      const url = URL.createObjectURL(blob);
+                      const a = document.createElement("a");
+                      a.href = url;
+                      a.download = `${number2Hex(mapId)}_${
+                        mapNames[mapId].name
+                      }.png`;
+                      a.click();
+                      URL.revokeObjectURL(url);
+                    });
+                  }}
+                >
+                  <Download />
+                </IconButton>
+              </Tooltip>
+              <Tooltip title="全画面表示" arrow>
+                <IconButton onClick={() => setFullScreenImgOpen(true)}>
+                  <FullscreenSharp />
+                </IconButton>
+              </Tooltip>
+            </div>
+          </>
+        )}
       </div>
 
       {/* フルスクリーン */}
@@ -270,7 +292,7 @@ export default function MapCard({
       {/* ロードバー */}
       <LinearProgress
         variant="determinate"
-        value={progressValue}
+        value={isVisible ? progressValue : 0}
         color="info"
       />
 
@@ -283,15 +305,17 @@ export default function MapCard({
           {number2Hex(mapId)}h : {mapNames[mapId].name}
         </h2>
         <Collapse in={detailOpen}>
-          <div className={styles.detailList}>
-            {detailList.map((item, i) => (
-              <DetailListCell
-                key={i}
-                listName={item.listName}
-                value={isVisible ? item.value : "???"}
-              />
-            ))}
-          </div>
+          {isVisible && (
+            <div className={styles.detailList}>
+              {detailList.map((item, i) => (
+                <DetailListCell
+                  key={i}
+                  listName={item.listName}
+                  value={isVisible ? item.value : "???"}
+                />
+              ))}
+            </div>
+          )}
         </Collapse>
       </div>
       <Divider />

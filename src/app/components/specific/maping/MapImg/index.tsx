@@ -201,10 +201,6 @@ export default function MapImg({
     fixImg();
   }, [edge, sprite]);
 
-  if (mapInfo.mapType >= 0x40) {
-    return <div>不正なマップです</div>;
-  }
-
   return (
     <canvas
       ref={(e) => {

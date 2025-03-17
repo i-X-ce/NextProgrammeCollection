@@ -32,7 +32,7 @@ import {
   SpeedDialAction,
   SpeedDialIcon,
 } from "@mui/material";
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 
 export default function Home() {
   const [pokeRom, setPokeRom] = useState<MapPokeFile | null>(null);
@@ -43,8 +43,27 @@ export default function Home() {
   const [masterMapIdStart, setMasterMapIdStart] = useState(0);
   const [masterEdge, setMasterEdge] = useState(12);
   const [masterSprite, setMasterSprite] = useState(true);
-
   const [openSetting, setOpenSetting] = useState(false);
+
+  const mapCards = useMemo(() => {
+    if (!pokeRom || openSetting) return null;
+    return (
+      <div
+        className={styles.cardContainer}
+        style={openSetting ? { display: "none" } : {}}
+      >
+        {Array.from({ length: 0x10 }).map((_, i) => (
+          <MapCard
+            key={i + masterMapIdStart * 0x10}
+            pokeRom={pokeRom}
+            mapId={i + masterMapIdStart * 0x10}
+            masterEdge={masterEdge}
+            masterSprite={masterSprite}
+          />
+        ))}
+      </div>
+    );
+  }, [pokeRom, masterMapIdStart, masterEdge, masterSprite]);
 
   const speedDialActions = [
     {
@@ -76,14 +95,14 @@ export default function Home() {
     />
   );
 
-  const mapIdSelecter = (
+  const mapIdSelecter = (setId: (id: number) => void) => (
     <FormControl sx={{ marginTop: "15px" }}>
       <InputLabel>マップ番号</InputLabel>
       <Select
         label="マップ番号"
         value={masterMapIdStartTemp}
         onChange={(e) => {
-          setMasterMapIdStartTemp(e.target.value as number);
+          setId(e.target.value as number);
         }}
       >
         {Array.from({ length: 0x10 }).map((_, i) => (
@@ -126,29 +145,19 @@ export default function Home() {
 
   return (
     <>
+      {/* ドロップゾーン */}
       <PokeRomDrop
         setRom={(arrayBuffer: ArrayBuffer) => {
           const newPokeRom = new MapPokeFile(arrayBuffer, masterMapIdStart);
           setPokeRom(newPokeRom);
         }}
       />
-      {mapIdSelecter}
-      {pokeRom && (
-        <div
-          className={styles.cardContainer}
-          style={openSetting ? { display: "none" } : {}}
-        >
-          {Array.from({ length: 0x3 }).map((_, i) => (
-            <MapCard
-              key={i + masterMapIdStart}
-              pokeRom={pokeRom}
-              mapId={i + masterMapIdStart * 0x10}
-              masterEdge={masterEdge}
-              masterSprite={masterSprite}
-            />
-          ))}
-        </div>
-      )}
+      {mapIdSelecter(setMasterMapIdStart)}
+
+      {/* マップカード */}
+      {mapCards}
+
+      {/* スピードダイヤル */}
       <SpeedDial
         ariaLabel={""}
         sx={{ position: "fixed", bottom: 16, right: 16 }}
@@ -178,7 +187,7 @@ export default function Home() {
             title="マップ番号"
             description="画像化するマップ番号の初期値を変更します。"
           >
-            {mapIdSelecter}
+            {mapIdSelecter(setMasterMapIdStartTemp)}
           </SettingTool>
           <SettingTool
             title="スプライト・端タイル数"

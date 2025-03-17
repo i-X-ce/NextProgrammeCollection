@@ -216,7 +216,10 @@ export default function MapCard({
               icon={<PersonOff />}
               checkedIcon={<Person />}
               checked={sprite}
-              onClick={() => setSprite((sprite) => !sprite)}
+              onClick={() => {
+                if (!loaded) return;
+                setSprite((sprite) => !sprite);
+              }}
               size="small"
             />
           </Tooltip>
@@ -226,6 +229,7 @@ export default function MapCard({
               value={edge}
               valueLabelDisplay="auto"
               onChange={(_, value) => {
+                if (!loaded) return;
                 setEdge(value as number);
                 // mapDragging.current = false;
                 setMapDragging(false);

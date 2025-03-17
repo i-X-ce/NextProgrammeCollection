@@ -28,6 +28,7 @@ import {
 import Fullscreen from "yet-another-react-lightbox/plugins/fullscreen";
 import { red } from "@mui/material/colors";
 import Lightbox from "yet-another-react-lightbox";
+import { downloadBlob, mapFileName } from "@/app/lib/specific/maping/common";
 
 const centerAndColumn = {
   display: "flex",
@@ -250,15 +251,8 @@ export default function MapCard({
                     if (!loaded || !imgRef.current) return;
                     imgRef.current.toBlob((blob) => {
                       if (!blob) return;
-                      const url = URL.createObjectURL(blob);
-                      const a = document.createElement("a");
-                      a.href = url;
-                      a.download = `${number2Hex(mapId)}_${
-                        mapNames[mapId].name
-                      }.png`;
-                      a.click();
-                      URL.revokeObjectURL(url);
-                    });
+                      downloadBlob(blob, mapFileName(mapId, "png"));
+                    }, "image/png");
                   }}
                 >
                   <Download />

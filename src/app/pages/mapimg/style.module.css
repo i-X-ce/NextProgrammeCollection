@@ -36,3 +36,19 @@
   color: var(--bc-detail);
   white-space: pre-wrap;
 }
+
+.downloadProgress {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  margin: 10px 0;
+  color: var(--bc-detail);
+  gap: 5px;
+}
+
+.downloadButtons {
+  display: flex;
+  gap: 20px;
+  justify-content: end;
+}

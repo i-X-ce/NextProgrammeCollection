@@ -2,14 +2,18 @@
 import styles from "./style.module.css";
 import PokeRomDrop from "@/app/components/common/PokeRomDrop";
 import MapCard from "@/app/components/specific/maping/MapCard";
-import MapImg from "@/app/components/specific/maping/MapImg";
+import MapImg, {
+  generateMapImg,
+} from "@/app/components/specific/maping/MapImg";
 import { number2Hex } from "@/app/lib/common/calc";
 import { mapNames } from "@/app/lib/common/map";
+import { downloadBlob, mapFileName } from "@/app/lib/specific/maping/common";
 import { MapPokeFile } from "@/app/lib/specific/maping/MapPokeFile";
 import { Download, Person, PersonOff, Settings } from "@mui/icons-material";
 import {
   Button,
   Checkbox,
+  CircularProgress,
   Collapse,
   Dialog,
   FormControl,
@@ -25,7 +29,8 @@ import {
   Tab,
   Tabs,
 } from "@mui/material";
-import React, { useMemo, useState } from "react";
+import JSZip from "jszip";
+import React, { useMemo, useRef, useState } from "react";
 
 export default function Home() {
   const [pokeRom, setPokeRom] = useState<MapPokeFile | null>(null);
@@ -40,6 +45,8 @@ export default function Home() {
   const [tabValue, setTabValue] = useState<"setting" | "download">("setting");
   const [downloadRange, setDownloadRange] = useState([0x00, 0xff]);
   const [fileFormat, setFileFormat] = useState<"png" | "jpg" | "bmp">("png");
+  const [downloadProgress, setDownloadProgress] = useState<number | null>(null);
+  const downloadCnacel = useRef(false);
 
   const mapCards = useMemo(() => {
     if (!pokeRom || openSetting) return null;
@@ -203,6 +210,7 @@ export default function Home() {
       <Dialog
         open={openSetting}
         onClose={() => {
+          if (downloadProgress !== null) return;
           setOpenSetting(false);
           setMasterMapIdStart(masterMapIdStartTemp);
           setMasterEdge(masterEdgeTemp);
@@ -210,7 +218,13 @@ export default function Home() {
         }}
         maxWidth={false}
       >
-        <Tabs value={tabValue} onChange={(_, value) => setTabValue(value)}>
+        <Tabs
+          value={tabValue}
+          onChange={(_, value) => {
+            if (downloadProgress !== null) return;
+            setTabValue(value);
+          }}
+        >
           <Tab label="設定" value={"setting"} />
           <Tab label="ダウンロード" value={"download"} />
         </Tabs>
@@ -239,6 +253,15 @@ export default function Home() {
 
           {/* ダウンロード */}
           <TabPanel value={tabValue} index={"download"}>
+            <Collapse in={downloadProgress !== null}>
+              <div className={styles.downloadProgress}>
+                <CircularProgress
+                  variant="determinate"
+                  value={downloadProgress as number}
+                />
+                <p>描画中...({downloadProgress?.toFixed(1)}%)</p>
+              </div>
+            </Collapse>
             <SettingTool
               title="範囲選択"
               description={`ダウンロードしたいマップ番号の範囲を指定してください。\n(${number2Hex(
@@ -264,12 +287,69 @@ export default function Home() {
                   }
                   onChange={(_: Event, value: number | number[]) => {
                     setDownloadRange(value as number[]);
-                    console.log(value);
                   }}
                 />
               </div>
             </SettingTool>
-            <Button variant="contained">スタート</Button>
+            <div className={styles.downloadButtons}>
+              <Button
+                variant="contained"
+                disabled={downloadProgress === null}
+                onClick={() => {
+                  downloadCnacel.current = true;
+                  setDownloadProgress(null);
+                }}
+              >
+                キャンセル
+              </Button>
+              <Button
+                variant="contained"
+                disabled={!pokeRom || downloadProgress !== null}
+                onClick={async () => {
+                  if (!pokeRom) return;
+                  if (downloadProgress !== null) return;
+                  const toBlobAsync = (
+                    canvas: HTMLCanvasElement,
+                    format: string
+                  ): Promise<Blob | null> => {
+                    return new Promise((resolve) => {
+                      canvas.toBlob((blob) => resolve(blob), format);
+                    });
+                  };
+                  const minRange = downloadRange[0];
+                  const maxRange = downloadRange[1];
+                  const total = maxRange - minRange + 1;
+                  setDownloadProgress(0);
+                  const zip = new JSZip();
+                  for (let i = minRange; i <= maxRange; i++) {
+                    if (downloadCnacel.current) {
+                      downloadCnacel.current = false;
+                      setDownloadProgress(null);
+                      return;
+                    } // キャンセル
+                    const canvas = await generateMapImg(
+                      pokeRom,
+                      i,
+                      masterSpriteTemp,
+                      1,
+                      masterEdgeTemp * 8
+                    );
+                    setDownloadProgress(((i - minRange + 1) / total) * 100);
+                    if (!canvas) continue;
+                    const blob = await toBlobAsync(canvas, fileFormat);
+                    if (!blob) continue;
+                    zip
+                      .folder("mapimg")
+                      ?.file(mapFileName(i, fileFormat), blob);
+                  }
+                  const zipBlob = await zip.generateAsync({ type: "blob" });
+                  downloadBlob(zipBlob, "mapimg.zip");
+                  setDownloadProgress(null);
+                }}
+              >
+                スタート
+              </Button>
+            </div>
           </TabPanel>
         </div>
       </Dialog>

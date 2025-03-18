@@ -28,7 +28,11 @@ import {
 import Fullscreen from "yet-another-react-lightbox/plugins/fullscreen";
 import { red } from "@mui/material/colors";
 import Lightbox from "yet-another-react-lightbox";
-import { downloadBlob, mapFileName } from "@/app/lib/specific/maping/common";
+import {
+  downloadBlob,
+  FileFormat,
+  mapFileName,
+} from "@/app/lib/specific/maping/common";
 
 const centerAndColumn = {
   display: "flex",
@@ -41,10 +45,12 @@ export default function MapCard({
   pokeRom,
   mapId,
   masterEdge = 96,
+  fileFormat,
   masterSprite = true,
 }: {
   pokeRom: MapPokeFile;
   mapId: number;
+  fileFormat: FileFormat;
   masterEdge?: number;
   masterSprite?: boolean;
 }) {
@@ -69,7 +75,7 @@ export default function MapCard({
   useEffect(() => {
     setLoaded(false);
     setMapPos({ x: 0, y: 0 });
-  }, [pokeRom, mapId]);
+  }, [pokeRom.romVersion, mapId]);
 
   // マスター設定の変更
   useEffect(() => {
@@ -249,10 +255,14 @@ export default function MapCard({
                 <IconButton
                   onClick={() => {
                     if (!loaded || !imgRef.current) return;
-                    imgRef.current.toBlob((blob) => {
-                      if (!blob) return;
-                      downloadBlob(blob, mapFileName(mapId, "png"));
-                    }, "image/png");
+                    imgRef.current.toBlob(
+                      (blob) => {
+                        if (!blob) return;
+                        downloadBlob(blob, mapFileName(mapId, fileFormat));
+                      },
+                      `image/${fileFormat}`,
+                      1
+                    );
                   }}
                 >
                   <Download />

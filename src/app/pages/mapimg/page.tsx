@@ -7,7 +7,12 @@ import MapImg, {
 } from "@/app/components/specific/maping/MapImg";
 import { number2Hex } from "@/app/lib/common/calc";
 import { mapNames } from "@/app/lib/common/map";
-import { downloadBlob, mapFileName } from "@/app/lib/specific/maping/common";
+import {
+  canvasToBlob,
+  downloadBlob,
+  FileFormat,
+  mapFileName,
+} from "@/app/lib/specific/maping/common";
 import { MapPokeFile } from "@/app/lib/specific/maping/MapPokeFile";
 import { Download, Person, PersonOff, Settings } from "@mui/icons-material";
 import {
@@ -44,12 +49,13 @@ export default function Home() {
   const [openSetting, setOpenSetting] = useState(false);
   const [tabValue, setTabValue] = useState<"setting" | "download">("setting");
   const [downloadRange, setDownloadRange] = useState([0x00, 0xff]);
-  const [fileFormat, setFileFormat] = useState<"png" | "jpg" | "bmp">("png");
+  const [fileFormat, setFileFormat] = useState<FileFormat>("png");
+  const [fileFormatTemp, setFileFormatTemp] = useState<FileFormat>("png");
   const [downloadProgress, setDownloadProgress] = useState<number | null>(null);
   const downloadCnacel = useRef(false);
 
   const mapCards = useMemo(() => {
-    if (!pokeRom || openSetting) return null;
+    if (!pokeRom) return null;
     return (
       <div
         className={styles.cardContainer}
@@ -62,11 +68,12 @@ export default function Home() {
             mapId={i + masterMapIdStart * 0x10}
             masterEdge={masterEdge}
             masterSprite={masterSprite}
+            fileFormat={fileFormat}
           />
         ))}
       </div>
     );
-  }, [pokeRom, masterMapIdStart, masterEdge, masterSprite]);
+  }, [pokeRom, masterMapIdStart, masterEdge, masterSprite, fileFormat]);
 
   const speedDialActions = [
     {
@@ -155,14 +162,14 @@ export default function Home() {
       <InputLabel>ファイル形式</InputLabel>
       <Select
         label="ファイル形式"
-        value={fileFormat}
+        value={fileFormatTemp}
         onChange={(e) => {
-          setFileFormat(e.target.value as "png" | "jpg" | "bmp");
+          setFileFormatTemp(e.target.value as FileFormat);
         }}
       >
         <MenuItem value={"png"}>PNG</MenuItem>
         <MenuItem value={"jpg"}>JPG</MenuItem>
-        <MenuItem value={"bmp"}>BMP</MenuItem>
+        {/* <MenuItem value={"bmp"}>BMP</MenuItem> */}
       </Select>
     </FormControl>
   );
@@ -215,6 +222,7 @@ export default function Home() {
           setMasterMapIdStart(masterMapIdStartTemp);
           setMasterEdge(masterEdgeTemp);
           setMasterSprite(masterSpriteTemp);
+          setFileFormat(fileFormatTemp);
         }}
         maxWidth={false}
       >
@@ -308,14 +316,14 @@ export default function Home() {
                 onClick={async () => {
                   if (!pokeRom) return;
                   if (downloadProgress !== null) return;
-                  const toBlobAsync = (
-                    canvas: HTMLCanvasElement,
-                    format: string
-                  ): Promise<Blob | null> => {
-                    return new Promise((resolve) => {
-                      canvas.toBlob((blob) => resolve(blob), format);
-                    });
-                  };
+                  // const toBlobAsync = (
+                  //   canvas: HTMLCanvasElement,
+                  //   format: string
+                  // ): Promise<Blob | null> => {
+                  //   return new Promise((resolve) => {
+                  //     canvas.toBlob((blob) => resolve(blob), format);
+                  //   });
+                  // };
                   const minRange = downloadRange[0];
                   const maxRange = downloadRange[1];
                   const total = maxRange - minRange + 1;
@@ -336,11 +344,11 @@ export default function Home() {
                     );
                     setDownloadProgress(((i - minRange + 1) / total) * 100);
                     if (!canvas) continue;
-                    const blob = await toBlobAsync(canvas, fileFormat);
+                    const blob = await canvasToBlob(canvas, fileFormatTemp);
                     if (!blob) continue;
                     zip
                       .folder("mapimg")
-                      ?.file(mapFileName(i, fileFormat), blob);
+                      ?.file(mapFileName(i, fileFormatTemp), blob);
                   }
                   const zipBlob = await zip.generateAsync({ type: "blob" });
                   downloadBlob(zipBlob, "mapimg.zip");

@@ -1,4 +1,5 @@
 "use client";
+import ColorPalettes from "@/app/components/specific/maping/ColorPalettes";
 import styles from "./style.module.css";
 import PokeRomDrop from "@/app/components/common/PokeRomDrop";
 import MapCard from "@/app/components/specific/maping/MapCard";
@@ -14,7 +15,13 @@ import {
   mapFileName,
 } from "@/app/lib/specific/maping/common";
 import { MapPokeFile } from "@/app/lib/specific/maping/MapPokeFile";
-import { Download, Person, PersonOff, Settings } from "@mui/icons-material";
+import {
+  Download,
+  Palette,
+  Person,
+  PersonOff,
+  Settings,
+} from "@mui/icons-material";
 import {
   Button,
   Checkbox,
@@ -31,11 +38,13 @@ import {
   SpeedDial,
   SpeedDialAction,
   SpeedDialIcon,
+  Switch,
   Tab,
   Tabs,
 } from "@mui/material";
 import JSZip from "jszip";
 import React, { useMemo, useRef, useState } from "react";
+import { GBcolorPalettes } from "@/app/lib/common/colorPalettes";
 
 export default function Home() {
   const [pokeRom, setPokeRom] = useState<MapPokeFile | null>(null);
@@ -47,12 +56,27 @@ export default function Home() {
   const [masterEdge, setMasterEdge] = useState(12);
   const [masterSprite, setMasterSprite] = useState(true);
   const [openSetting, setOpenSetting] = useState(false);
-  const [tabValue, setTabValue] = useState<"setting" | "download">("setting");
+  const [tabValue, setTabValue] = useState<"setting" | "color" | "download">(
+    "setting"
+  );
+
+  // ダウンロード
   const [downloadRange, setDownloadRange] = useState([0x00, 0xff]);
   const [fileFormat, setFileFormat] = useState<FileFormat>("png");
   const [fileFormatTemp, setFileFormatTemp] = useState<FileFormat>("png");
   const [downloadProgress, setDownloadProgress] = useState<number | null>(null);
   const downloadCnacel = useRef(false);
+
+  // カラーパレット
+  const [colorPalettes, setColorPalettes] = useState<string[][]>(
+    [...GBcolorPalettes].map((colors) => [...colors])
+  );
+  const [bgPaletteTemp, setBgPaletteTemp] = useState<number>(0);
+  const [bgPalette, setBgPalette] = useState<number>(0);
+  const [oamPaletteTemp, setOamPaletteTemp] = useState<number>(0);
+  const [oamPalette, setOamPalette] = useState<number>(0);
+  const [paletteDividTemp, setPaletteDividTemp] = useState(false);
+  const [paletteDivid, setPaletteDivid] = useState(false);
 
   const mapCards = useMemo(() => {
     if (!pokeRom) return null;
@@ -69,11 +93,26 @@ export default function Home() {
             masterEdge={masterEdge}
             masterSprite={masterSprite}
             fileFormat={fileFormat}
+            bgColors={colorPalettes[bgPalette]}
+            oamColors={
+              paletteDividTemp
+                ? colorPalettes[oamPalette]
+                : colorPalettes[bgPalette]
+            }
           />
         ))}
       </div>
     );
-  }, [pokeRom, masterMapIdStart, masterEdge, masterSprite, fileFormat]);
+  }, [
+    pokeRom,
+    masterMapIdStart,
+    masterEdge,
+    masterSprite,
+    fileFormat,
+    bgPalette,
+    oamPalette,
+    paletteDivid,
+  ]);
 
   const speedDialActions = [
     {
@@ -82,6 +121,14 @@ export default function Home() {
       onClick: () => {
         setOpenSetting(true);
         setTabValue("download");
+      },
+    },
+    {
+      icon: <Palette />,
+      tooltipTitle: "カラーパレット",
+      onClick: () => {
+        setOpenSetting(true);
+        setTabValue("color");
       },
     },
     {
@@ -168,7 +215,7 @@ export default function Home() {
         }}
       >
         <MenuItem value={"png"}>PNG</MenuItem>
-        <MenuItem value={"jpg"}>JPG</MenuItem>
+        <MenuItem value={"jpeg"}>JPG</MenuItem>
         {/* <MenuItem value={"bmp"}>BMP</MenuItem> */}
       </Select>
     </FormControl>
@@ -218,11 +265,15 @@ export default function Home() {
         open={openSetting}
         onClose={() => {
           if (downloadProgress !== null) return;
+          // 閉じるときに一気に書き換える
           setOpenSetting(false);
           setMasterMapIdStart(masterMapIdStartTemp);
           setMasterEdge(masterEdgeTemp);
           setMasterSprite(masterSpriteTemp);
           setFileFormat(fileFormatTemp);
+          setBgPalette(bgPaletteTemp);
+          setOamPalette(oamPaletteTemp);
+          setPaletteDivid(paletteDividTemp);
         }}
         maxWidth={false}
       >
@@ -234,6 +285,7 @@ export default function Home() {
           }}
         >
           <Tab label="設定" value={"setting"} />
+          <Tab label="カラーパレット" value={"color"} />
           <Tab label="ダウンロード" value={"download"} />
         </Tabs>
 
@@ -257,6 +309,54 @@ export default function Home() {
               </div>
             </SettingTool>
             {fileFormatSetting}
+          </TabPanel>
+
+          {/* カラーパレット */}
+          <TabPanel value={tabValue} index={"color"}>
+            <SettingTool
+              title="個別に設定"
+              description="背景とスプライトの色を個別に設定します。"
+              direction="row"
+            >
+              <Switch
+                checked={paletteDividTemp}
+                onChange={(e) => setPaletteDividTemp(e.target.checked)}
+              />
+            </SettingTool>
+            <SettingTool
+              title={`背景${paletteDividTemp ? "" : "とスプライト"}`}
+              description={`背景${
+                paletteDividTemp ? "" : "とスプライト"
+              }の配色を変更します。`}
+            >
+              <ColorPalettes
+                pallets={colorPalettes}
+                palletIndex={bgPaletteTemp}
+                onClick={(i) => {
+                  setBgPaletteTemp(i);
+                }}
+                setPalettes={(palettes) => {
+                  setColorPalettes(palettes);
+                }}
+              />
+            </SettingTool>
+            <Collapse in={paletteDividTemp}>
+              <SettingTool
+                title="スプライト"
+                description="スプライトの配色を変更します。"
+              >
+                <ColorPalettes
+                  pallets={colorPalettes}
+                  palletIndex={oamPaletteTemp}
+                  onClick={(i) => {
+                    setOamPaletteTemp(i);
+                  }}
+                  setPalettes={(palettes) => {
+                    setColorPalettes(palettes);
+                  }}
+                />
+              </SettingTool>
+            </Collapse>
           </TabPanel>
 
           {/* ダウンロード */}
@@ -316,14 +416,6 @@ export default function Home() {
                 onClick={async () => {
                   if (!pokeRom) return;
                   if (downloadProgress !== null) return;
-                  // const toBlobAsync = (
-                  //   canvas: HTMLCanvasElement,
-                  //   format: string
-                  // ): Promise<Blob | null> => {
-                  //   return new Promise((resolve) => {
-                  //     canvas.toBlob((blob) => resolve(blob), format);
-                  //   });
-                  // };
                   const minRange = downloadRange[0];
                   const maxRange = downloadRange[1];
                   const total = maxRange - minRange + 1;
@@ -340,7 +432,11 @@ export default function Home() {
                       i,
                       masterSpriteTemp,
                       1,
-                      masterEdgeTemp * 8
+                      masterEdgeTemp * 8,
+                      colorPalettes[bgPaletteTemp],
+                      paletteDividTemp
+                        ? colorPalettes[oamPaletteTemp]
+                        : colorPalettes[bgPaletteTemp]
                     );
                     setDownloadProgress(((i - minRange + 1) / total) * 100);
                     if (!canvas) continue;

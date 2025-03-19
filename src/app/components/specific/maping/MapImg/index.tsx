@@ -5,12 +5,14 @@ import { mapNames } from "@/app/lib/common/map";
 import { MapPokeFile } from "@/app/lib/specific/maping/MapPokeFile";
 import { useEffect, useRef } from "react";
 
-const colors = ["#000000", "#555555", "#aaaaaa", "#ffffff"];
+const dummyColors = ["#000000", "#555555", "#aaaaaa", "#ffffff"];
 const maxEdge = 96;
 
 export default function MapImg({
   pokeRom,
   mapId,
+  bgColors = dummyColors,
+  oamColors = dummyColors,
   sprite = true,
   size = 2,
   edge = 96,
@@ -21,6 +23,8 @@ export default function MapImg({
 }: {
   pokeRom: MapPokeFile;
   mapId: number;
+  bgColors?: string[];
+  oamColors?: string[];
   mapEdge?: boolean;
   sprite?: boolean;
   size?: number;
@@ -57,6 +61,8 @@ export default function MapImg({
       sprite,
       size,
       edge,
+      bgColors,
+      oamColors,
       setProgressValue,
       setNsprImg,
       setSprImg,
@@ -222,7 +228,7 @@ export default function MapImg({
   // マップ全体の書き直し
   useEffect(() => {
     drawImg();
-  }, [pokeRom.romVersion, mapId]);
+  }, [pokeRom.romVersion, mapId, bgColors, oamColors]);
 
   // マップ端、スプライトの変更時
   useEffect(() => {
@@ -250,6 +256,8 @@ export async function generateMapImg(
   sprite = true,
   size = 1,
   edge = 96,
+  bgColors: string[] = dummyColors,
+  oamColors: string[] = dummyColors,
   setProgressValue?: (value: number) => void,
   setNsprImg?: (img: ImageData) => void, // スプライトなしの画像
   setSprImg?: (img: ImageData) => void, // スプライトありの画像
@@ -323,7 +331,7 @@ export async function generateMapImg(
               const colorIndex =
                 ((1 << (7 - j)) & value ? 0 : 1) |
                 (((1 << (7 - j)) & value2 ? 0 : 1) << 1);
-              ctx.fillStyle = colors[colorIndex];
+              ctx.fillStyle = bgColors[colorIndex];
               const y = (ci * 32 + ti * 8 + i) * size;
               const x = (cj * 32 + tj * 8 + j) * size;
               ctx.fillRect(x, y, size, size);
@@ -368,7 +376,7 @@ export async function generateMapImg(
               (((1 << (7 - sj)) & value2 ? 0 : 1) << 1);
             if (colorIndex === 3) continue;
             if (colorIndex !== 0) colorIndex++;
-            ctx.fillStyle = colors[colorIndex];
+            ctx.fillStyle = oamColors[colorIndex];
             const drawX = orn === 3 ? x + 7 - sj + (1 - j) * 8 : x + sj + j * 8;
             const drawY = y + si + i * 8 - 4;
             const pixelColor = ctx.getImageData(
@@ -385,7 +393,7 @@ export async function generateMapImg(
                   pixelColor.data[0],
                   pixelColor.data[1],
                   pixelColor.data[2]
-                ) !== colors[3]
+                ) !== bgColors[3]
               )
             )
               ctx.fillRect(drawX * size, drawY * size, size, size);

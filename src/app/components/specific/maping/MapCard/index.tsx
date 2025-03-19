@@ -47,12 +47,16 @@ export default function MapCard({
   masterEdge = 96,
   fileFormat,
   masterSprite = true,
+  bgColors,
+  oamColors,
 }: {
   pokeRom: MapPokeFile;
   mapId: number;
   fileFormat: FileFormat;
   masterEdge?: number;
   masterSprite?: boolean;
+  bgColors?: string[];
+  oamColors?: string[];
 }) {
   const [mapPos, setMapPos] = useState({ x: 0, y: 0 });
   const [mapDragging, setMapDragging] = useState(false);
@@ -75,7 +79,7 @@ export default function MapCard({
   useEffect(() => {
     setLoaded(false);
     setMapPos({ x: 0, y: 0 });
-  }, [pokeRom.romVersion, mapId]);
+  }, [pokeRom.romVersion, mapId, bgColors, oamColors]);
 
   // マスター設定の変更
   useEffect(() => {
@@ -191,6 +195,8 @@ export default function MapCard({
               edge={edge * 8}
               sprite={sprite}
               imgRef={imgRef}
+              bgColors={bgColors}
+              oamColors={oamColors}
             />
           </div>
         ) : (

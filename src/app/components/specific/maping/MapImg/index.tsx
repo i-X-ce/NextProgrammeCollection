@@ -1,6 +1,6 @@
 // import styles from './style.module.css';
 
-import { mod, number2Hex, rgbToHex } from "@/app/lib/common/calc";
+import { mod, number2Hex } from "@/app/lib/common/calc";
 import { mapNames } from "@/app/lib/common/map";
 import { MapPokeFile } from "@/app/lib/specific/maping/MapPokeFile";
 import { useCallback, useEffect, useRef } from "react";
@@ -399,12 +399,6 @@ export async function generateMapImg(
 
             const drawX = orn === 3 ? x + 7 - sj + (1 - j) * 8 : x + sj + j * 8;
             const drawY = y + si + i * 8 - 4;
-            // const pixelColor = ctx.getImageData(
-            //   drawX * size + 1,
-            //   drawY * size + 1,
-            //   1,
-            //   1
-            // );
             if (!hide) ctx.fillRect(drawX * size, drawY * size, size, size);
           }
         }

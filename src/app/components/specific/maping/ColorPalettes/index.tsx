@@ -7,11 +7,13 @@ import { GBcolorPalettes } from "@/app/lib/common/colorPalettes";
 export default function ColorPalettes({
   pallets,
   palletIndex,
+  maxPalettes = 30,
   onClick,
   setPalettes,
 }: {
   pallets: string[][];
   palletIndex?: number;
+  maxPalettes?: number;
   onClick?: (value: number) => void;
   setPalettes?: (pallets: string[][]) => void;
 }) {
@@ -55,15 +57,17 @@ export default function ColorPalettes({
             </div>
           )
       )}
-      <div className={styles.palletWrapper}>
-        <IconButton
-          onClick={() => {
-            setPalettes?.([...pallets, [...GBcolorPalettes[0]]]);
-          }}
-        >
-          <Add />
-        </IconButton>
-      </div>
+      {pallets.length <= maxPalettes && (
+        <div className={styles.palletWrapper}>
+          <IconButton
+            onClick={() => {
+              setPalettes?.([...pallets, [...GBcolorPalettes[0]]]);
+            }}
+          >
+            <Add />
+          </IconButton>
+        </div>
+      )}
 
       {/* 編集ダイアログ */}
       <Dialog open={openEdit} onClose={() => setOpenEdit(false)}>

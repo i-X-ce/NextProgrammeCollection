@@ -485,6 +485,7 @@ export default function Home() {
                 <p>描画中...({downloadProgress?.toFixed(1)}%)</p>
               </div>
             </Collapse>
+            {fileFormatSetting}
             <SettingTool
               title="範囲選択"
               description={`ダウンロードしたいマップ番号の範囲を指定してください。\n(${number2Hex(

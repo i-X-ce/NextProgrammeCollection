@@ -26,7 +26,7 @@ export class PokeRomFile {
   }
 
   errorCheck(): { isError: boolean; message: string } {
-    let ret = { isError: false, message: "ROMは正常に読み込まれています" };
+    const ret = { isError: false, message: "ROMは正常に読み込まれています" };
     if (!this._rom || this.romVersion === null) {
       ret.isError = true;
       ret.message = "ROMが読み込まれていません";

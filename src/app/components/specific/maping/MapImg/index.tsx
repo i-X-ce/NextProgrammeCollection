@@ -1,9 +1,9 @@
 // import styles from './style.module.css';
 
-import { number2Hex, rgbToHex } from "@/app/lib/common/calc";
+import { rgbToHex } from "@/app/lib/common/calc";
 import { mapNames } from "@/app/lib/common/map";
 import { MapPokeFile } from "@/app/lib/specific/maping/MapPokeFile";
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 
 const dummyColors = ["#000000", "#555555", "#aaaaaa", "#ffffff"];
 const maxEdge = 96;
@@ -43,7 +43,7 @@ export default function MapImg({
   const width = mapInfo.width + 6;
   edge = Math.min(Math.max(edge, 0), maxEdge);
 
-  async function drawImg() {
+  const drawImg = useCallback(async () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
@@ -208,7 +208,7 @@ export default function MapImg({
     // sprImg.current = ctx.getImageData(0, 0, canvas.width, canvas.height);
     // fixCanvas();
     // onLoaded && onLoaded();
-  }
+  }, []);
 
   // 画像の修正(スプライトの表示、端の表示)
   const fixCanvas = () => {
@@ -228,12 +228,12 @@ export default function MapImg({
   // マップ全体の書き直し
   useEffect(() => {
     drawImg();
-  }, [pokeRom.romVersion, mapId, bgColors, oamColors]);
+  }, [drawImg]);
 
   // マップ端、スプライトの変更時
   useEffect(() => {
     fixCanvas();
-  }, [edge, sprite]);
+  }, [fixCanvas]);
 
   return (
     <canvas
@@ -300,8 +300,8 @@ export async function generateMapImg(
       (pokeRom.getMapBank(nextMap.mapId) << 16) + nextMap.mapDataAddr;
     const wh = nextMap.width; // 今のマップの幅
     const wh2 = nextMap.width2; // 隣のマップの幅
-    let y = Math.floor((nextMap.writeAddr - 0xc6e8) / width);
-    let x = (nextMap.writeAddr - 0xc6e8) % width;
+    const y = Math.floor((nextMap.writeAddr - 0xc6e8) / width);
+    const x = (nextMap.writeAddr - 0xc6e8) % width;
     for (let ci = 0; ci < 3; ci++) {
       for (let cj = 0; cj < wh; cj++) {
         if (i < 2)
@@ -340,11 +340,11 @@ export async function generateMapImg(
         }
       }
     }
-    setProgressValue && setProgressValue(((ci + 1) * 100) / height);
+    setProgressValue?.(((ci + 1) * 100) / height);
     await new Promise(requestAnimationFrame); // 非同期処理を追加
   }
   // if (drawMapId !== mapId) return;
-  setNsprImg && setNsprImg(ctx.getImageData(0, 0, canvas.width, canvas.height));
+  setNsprImg?.(ctx.getImageData(0, 0, canvas.width, canvas.height));
   const nsprImg = ctx.getImageData(0, 0, canvas.width, canvas.height);
 
   const ornDict = { 0xd0: 0, 0xd1: 1, 0xd2: 2, 0xd3: 3 }; // 方向
@@ -403,8 +403,8 @@ export async function generateMapImg(
     }
   });
   // if (drawMapId !== mapId) return;
-  setSprImg && setSprImg(ctx.getImageData(0, 0, canvas.width, canvas.height));
-  onLoaded && onLoaded();
+  setSprImg?.(ctx.getImageData(0, 0, canvas.width, canvas.height));
+  onLoaded?.();
   return generateMapCanvas(
     sprite ? ctx.getImageData(0, 0, canvas.width, canvas.height) : nsprImg,
     size,

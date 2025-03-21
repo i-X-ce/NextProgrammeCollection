@@ -1,8 +1,5 @@
-import React from "react";
 import { PokeRomFile } from "../../common/PokeRomFile";
 import { RomVersion } from "../../common/romVersion";
-import TileImg from "@/app/components/specific/maping/TileImg";
-import CellImg from "@/app/components/specific/maping/CellImg";
 
 export class MapPokeFile extends PokeRomFile {
   private _table: TableAddress | null = null;
@@ -14,7 +11,7 @@ export class MapPokeFile extends PokeRomFile {
   // private _cellImages: React.ReactNode[] = [];
   // private _mapImage: React.ReactNode[] = [];
 
-  constructor(buffer: ArrayBuffer | Uint8Array, mapId: number) {
+  constructor(buffer: ArrayBuffer | Uint8Array) {
     super(buffer);
     if (!this.errorCheck().isError) {
       const tableDict = {
@@ -78,7 +75,7 @@ export class MapPokeFile extends PokeRomFile {
     const mapInfoTable = this.readWordBig(
       this._table!.mapInfoTable + mapId * 2
     );
-    let mapInfo: MapInfo = createMapInfo();
+    const mapInfo: MapInfo = createMapInfo();
     {
       let i = 0;
       Object.entries(mapInfo).forEach(([key, _]) => {
@@ -132,7 +129,7 @@ export class MapPokeFile extends PokeRomFile {
     const mapInfoTable = this.readWordBig(
       this._table!.mapInfoTable + mapId * 2
     );
-    let additionalMapInfo: AdditionalMapInfo = createAdditionalMapInfo();
+    const additionalMapInfo: AdditionalMapInfo = createAdditionalMapInfo();
     {
       let addr = (mapBank << 16) + mapInfoTable + 9;
       const linkFlg = this.readByteBig(addr++);

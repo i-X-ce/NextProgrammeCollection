@@ -1,12 +1,6 @@
 import { useRef, useState } from "react";
 import styles from "./style.module.css";
-import {
-  Dialog,
-  DialogTitle,
-  Divider,
-  IconButton,
-  Tooltip,
-} from "@mui/material";
+import { Dialog, IconButton } from "@mui/material";
 import { Add, Edit } from "@mui/icons-material";
 import { GBcolorPalettes } from "@/app/lib/common/colorPalettes";
 

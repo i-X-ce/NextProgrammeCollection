@@ -3,9 +3,7 @@ import ColorPalettes from "@/app/components/specific/maping/ColorPalettes";
 import styles from "./style.module.css";
 import PokeRomDrop from "@/app/components/common/PokeRomDrop";
 import MapCard from "@/app/components/specific/maping/MapCard";
-import MapImg, {
-  generateMapImg,
-} from "@/app/components/specific/maping/MapImg";
+import { generateMapImg } from "@/app/components/specific/maping/MapImg";
 import { number2Hex } from "@/app/lib/common/calc";
 import { mapNames } from "@/app/lib/common/map";
 import {
@@ -31,8 +29,6 @@ import {
   FormControl,
   InputLabel,
   MenuItem,
-  Pagination,
-  PaginationItem,
   Select,
   Slider,
   SpeedDial,
@@ -43,7 +39,7 @@ import {
   Tabs,
 } from "@mui/material";
 import JSZip from "jszip";
-import React, { useMemo, useRef, useState } from "react";
+import React, { memo, useRef, useState } from "react";
 import { GBcolorPalettes } from "@/app/lib/common/colorPalettes";
 
 export default function Home() {
@@ -68,9 +64,17 @@ export default function Home() {
   const downloadCnacel = useRef(false);
 
   // カラーパレット
-  const [colorPalettes, setColorPalettes] = useState<string[][]>(
-    [...GBcolorPalettes].map((colors) => [...colors])
-  );
+  // const [colorPalettes, setColorPalettes] = useState<string[][]>(
+  //   [...GBcolorPalettes].map((c) => [...c])
+  // );
+  const [
+    colorPalettes,
+    colorPalettesTemp,
+    _setColorPalettes,
+    setColorPalettesTemp,
+    colorPalettesConfirm,
+    _colorPalettesCancel,
+  ] = useTempState([...GBcolorPalettes].map((c) => [...c]));
   const [bgPaletteTemp, setBgPaletteTemp] = useState<number>(0);
   const [bgPalette, setBgPalette] = useState<number>(0);
   const [oamPaletteTemp, setOamPaletteTemp] = useState<number>(0);
@@ -78,41 +82,47 @@ export default function Home() {
   const [paletteDividTemp, setPaletteDividTemp] = useState(false);
   const [paletteDivid, setPaletteDivid] = useState(false);
 
-  const mapCards = useMemo(() => {
-    if (!pokeRom) return null;
-    return (
-      <div
-        className={styles.cardContainer}
-        style={openSetting ? { display: "none" } : {}}
-      >
-        {Array.from({ length: 0x10 }).map((_, i) => (
-          <MapCard
-            key={i + masterMapIdStart * 0x10}
-            pokeRom={pokeRom}
-            mapId={i + masterMapIdStart * 0x10}
-            masterEdge={masterEdge}
-            masterSprite={masterSprite}
-            fileFormat={fileFormat}
-            bgColors={colorPalettes[bgPalette]}
-            oamColors={
-              paletteDividTemp
-                ? colorPalettes[oamPalette]
-                : colorPalettes[bgPalette]
-            }
-          />
-        ))}
-      </div>
-    );
-  }, [
-    pokeRom,
-    masterMapIdStart,
-    masterEdge,
-    masterSprite,
-    fileFormat,
-    bgPalette,
-    oamPalette,
-    paletteDivid,
-  ]);
+  // サイズ
+  const [size, sizeTemp, _setSize, setSizeTemp, sizeConfirm, _sizeReset] =
+    useTempState(1);
+
+  // const mapCards = useMemo(() => {
+  //   if (!pokeRom) return null;
+  //   return (
+  //     <div
+  //       className={styles.cardContainer}
+  //       style={openSetting ? { display: "none" } : {}}
+  //     >
+  //       {Array.from({ length: 0x10 }).map((_, i) => (
+  //         <MapCard
+  //           key={`${i + masterMapIdStart * 0x10} ${size}`}
+  //           pokeRom={pokeRom}
+  //           mapId={i + masterMapIdStart * 0x10}
+  //           masterEdge={masterEdge}
+  //           masterSprite={masterSprite}
+  //           fileFormat={fileFormat}
+  //           bgColors={colorPalettes[bgPalette]}
+  //           oamColors={
+  //             paletteDividTemp
+  //               ? colorPalettes[oamPalette]
+  //               : colorPalettes[bgPalette]
+  //           }
+  //           size={size}
+  //         />
+  //       ))}
+  //     </div>
+  //   );
+  // }, [
+  //   pokeRom,
+  //   masterMapIdStart,
+  //   masterEdge,
+  //   masterSprite,
+  //   fileFormat,
+  //   bgPalette,
+  //   oamPalette,
+  //   paletteDivid,
+  //   size,
+  // ]);
 
   const speedDialActions = [
     {
@@ -141,20 +151,20 @@ export default function Home() {
     },
   ];
 
-  const mapIdPagination = (
-    <Pagination
-      count={0x10}
-      color="primary"
-      page={masterMapIdStartTemp + 1}
-      renderItem={(item) => (
-        <PaginationItem
-          {...item}
-          page={number2Hex(((item.page || 0) - 1) * 0x10)}
-        />
-      )}
-      onChange={(_, page) => setMasterMapIdStartTemp(page - 1)}
-    />
-  );
+  // const mapIdPagination = (
+  //   <Pagination
+  //     count={0x10}
+  //     color="primary"
+  //     page={masterMapIdStartTemp + 1}
+  //     renderItem={(item) => (
+  //       <PaginationItem
+  //         {...item}
+  //         page={number2Hex(((item.page || 0) - 1) * 0x10)}
+  //       />
+  //     )}
+  //     onChange={(_, page) => setMasterMapIdStartTemp(page - 1)}
+  //   />
+  // );
 
   const mapIdSelecter = (setId: (id: number) => void, id: number) => (
     <FormControl sx={{ marginTop: "15px", width: "30%" }}>
@@ -231,12 +241,53 @@ export default function Home() {
     </SettingTool>
   );
 
+  const sizeSelector = (
+    <FormControl sx={{ marginTop: "15px", width: "30%" }}>
+      <InputLabel>サイズ</InputLabel>
+      <Select
+        label="サイズ"
+        value={sizeTemp}
+        onChange={(e) => {
+          setSizeTemp(e.target.value as number);
+        }}
+      >
+        {Array.from({ length: 5 }).map((_, i) => (
+          <MenuItem key={i} value={i + 1}>
+            {i + 1}x
+          </MenuItem>
+        ))}
+      </Select>
+    </FormControl>
+  );
+
+  const handleCloseSetting = () => {
+    if (downloadProgress !== null) return;
+    // 閉じるときに一気に書き換える
+    setOpenSetting(false);
+    setMasterMapIdStart(masterMapIdStartTemp);
+    setMasterEdge(masterEdgeTemp);
+    setMasterSprite(masterSpriteTemp);
+    setFileFormat(fileFormatTemp);
+    setBgPalette(bgPaletteTemp);
+    setOamPalette(oamPaletteTemp);
+    setPaletteDivid(paletteDividTemp);
+    sizeConfirm();
+    colorPalettesConfirm();
+  };
+
   return (
     <>
+      <style jsx global>
+        {`
+          :root {
+            --bc-detail: #7e7e7e;
+          }
+        `}
+      </style>
       {/* ドロップゾーン */}
       <PokeRomDrop
         setRom={(arrayBuffer: ArrayBuffer) => {
-          const newPokeRom = new MapPokeFile(arrayBuffer, masterMapIdStart);
+          const newPokeRom = new MapPokeFile(arrayBuffer);
           setPokeRom(newPokeRom);
         }}
       />
@@ -246,7 +297,17 @@ export default function Home() {
       }, masterMapIdStart)}
 
       {/* マップカード */}
-      {mapCards}
+      <MapCards
+        pokeRom={pokeRom}
+        mapId={masterMapIdStart}
+        edge={masterEdge}
+        sprite={masterSprite}
+        fileFormat={fileFormat}
+        palettes={colorPalettes}
+        bgColor={bgPalette}
+        oamColor={paletteDivid ? oamPalette : bgPalette}
+        size={size}
+      />
 
       {/* スピードダイヤル */}
       <SpeedDial
@@ -261,22 +322,7 @@ export default function Home() {
       </SpeedDial>
 
       {/* 設定ダイアログ */}
-      <Dialog
-        open={openSetting}
-        onClose={() => {
-          if (downloadProgress !== null) return;
-          // 閉じるときに一気に書き換える
-          setOpenSetting(false);
-          setMasterMapIdStart(masterMapIdStartTemp);
-          setMasterEdge(masterEdgeTemp);
-          setMasterSprite(masterSpriteTemp);
-          setFileFormat(fileFormatTemp);
-          setBgPalette(bgPaletteTemp);
-          setOamPalette(oamPaletteTemp);
-          setPaletteDivid(paletteDividTemp);
-        }}
-        maxWidth={false}
-      >
+      <Dialog open={openSetting} onClose={handleCloseSetting} maxWidth={false}>
         <Tabs
           value={tabValue}
           onChange={(_, value) => {
@@ -309,6 +355,13 @@ export default function Home() {
               </div>
             </SettingTool>
             {fileFormatSetting}
+            <SettingTool
+              title="サイズ"
+              description="画像のピクセルサイズを変更します。"
+              direction="row"
+            >
+              {sizeSelector}
+            </SettingTool>
           </TabPanel>
 
           {/* カラーパレット */}
@@ -330,13 +383,13 @@ export default function Home() {
               }の配色を変更します。`}
             >
               <ColorPalettes
-                pallets={colorPalettes}
+                pallets={colorPalettesTemp}
                 palletIndex={bgPaletteTemp}
                 onClick={(i) => {
                   setBgPaletteTemp(i);
                 }}
-                setPalettes={(palettes) => {
-                  setColorPalettes(palettes);
+                setPalettes={(p) => {
+                  setColorPalettesTemp(p);
                 }}
               />
             </SettingTool>
@@ -346,13 +399,13 @@ export default function Home() {
                 description="スプライトの配色を変更します。"
               >
                 <ColorPalettes
-                  pallets={colorPalettes}
+                  pallets={colorPalettesTemp}
                   palletIndex={oamPaletteTemp}
                   onClick={(i) => {
                     setOamPaletteTemp(i);
                   }}
-                  setPalettes={(palettes) => {
-                    setColorPalettes(palettes);
+                  setPalettes={(p) => {
+                    setColorPalettesTemp(p);
                   }}
                 />
               </SettingTool>
@@ -433,10 +486,10 @@ export default function Home() {
                       masterSpriteTemp,
                       1,
                       masterEdgeTemp * 8,
-                      colorPalettes[bgPaletteTemp],
+                      colorPalettesTemp[bgPaletteTemp],
                       paletteDividTemp
-                        ? colorPalettes[oamPaletteTemp]
-                        : colorPalettes[bgPaletteTemp]
+                        ? colorPalettesTemp[oamPaletteTemp]
+                        : colorPalettesTemp[bgPaletteTemp]
                     );
                     setDownloadProgress(((i - minRange + 1) / total) * 100);
                     if (!canvas) continue;
@@ -496,3 +549,65 @@ function TabPanel({
 
   return <Collapse in={open}>{children}</Collapse>;
 }
+
+// 一時保存を使うフック
+function useTempState<T>(initialValue: T) {
+  const [value, setValue] = useState(initialValue);
+  const [tempValue, setTempValue] = useState(initialValue);
+
+  const confirm = () => {
+    setValue(tempValue);
+  };
+
+  const cancel = () => {
+    setTempValue(value);
+  };
+
+  return [value, tempValue, setValue, setTempValue, confirm, cancel] as const;
+}
+
+const MapCards = memo(
+  ({
+    pokeRom,
+    mapId,
+    sprite,
+    edge,
+    fileFormat,
+    palettes,
+    bgColor,
+    oamColor,
+    size,
+  }: {
+    pokeRom: MapPokeFile | null;
+    mapId: number;
+    sprite: boolean;
+    edge: number;
+    fileFormat: FileFormat;
+    palettes: string[][];
+    bgColor: number;
+    oamColor: number;
+    size: number;
+  }) => {
+    if (!pokeRom) return null;
+    console.log("render");
+    return (
+      <div className={styles.cardContainer}>
+        {Array.from({ length: 0x10 }).map((_, i) => (
+          <MapCard
+            key={`${pokeRom.romName()} ${i + mapId * 0x10} ${[
+              ...palettes[bgColor],
+            ].map((c) => c)} ${[...palettes[oamColor]].map((c) => c)} ${size}`}
+            pokeRom={pokeRom}
+            mapId={i + mapId * 0x10}
+            masterEdge={edge}
+            masterSprite={sprite}
+            fileFormat={fileFormat}
+            bgColors={palettes[bgColor]}
+            oamColors={palettes[oamColor]}
+            size={size}
+          />
+        ))}
+      </div>
+    );
+  }
+);

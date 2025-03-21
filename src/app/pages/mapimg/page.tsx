@@ -44,13 +44,36 @@ import { GBcolorPalettes } from "@/app/lib/common/colorPalettes";
 
 export default function Home() {
   const [pokeRom, setPokeRom] = useState<MapPokeFile | null>(null);
-  const [masterMapIdStartTemp, setMasterMapIdStartTemp] = useState(0);
-  // 設定を閉じた時に一気に書き換えるため一時的なStateを用意
-  const [masterEdgeTemp, setMasterEdgeTemp] = useState(12);
-  const [masterSpriteTemp, setMasterSpriteTemp] = useState(true);
-  const [masterMapIdStart, setMasterMapIdStart] = useState(0);
-  const [masterEdge, setMasterEdge] = useState(12);
-  const [masterSprite, setMasterSprite] = useState(true);
+  // const [masterMapIdStartTemp, setMasterMapIdStartTemp] = useState(0);
+  // const [masterEdgeTemp, setMasterEdgeTemp] = useState(12);
+  // const [masterSpriteTemp, setMasterSpriteTemp] = useState(true);
+  // const [masterMapIdStart, setMasterMapIdStart] = useState(0);
+  // const [masterEdge, setMasterEdge] = useState(12);
+  // const [masterSprite, setMasterSprite] = useState(true);
+  const [
+    masterMapIdStart,
+    masterMapIdStartTemp,
+    setMasterMapIdStart,
+    setMasterMapIdStartTemp,
+    masterMapIdStartConfirm,
+    _masterMapIdStartCancel,
+  ] = useTempState(0);
+  const [
+    masterEdge,
+    masterEdgeTemp,
+    _setMasterEdge,
+    setMasterEdgeTemp,
+    masterEdgeConfirm,
+    _masterEdgeCancel,
+  ] = useTempState(12);
+  const [
+    masterSprite,
+    masterSpriteTemp,
+    _setMasterSprite,
+    setMasterSpriteTemp,
+    masterSpriteConfirm,
+    _masterSpriteCancel,
+  ] = useTempState(true);
   const [openSetting, setOpenSetting] = useState(false);
   const [tabValue, setTabValue] = useState<"setting" | "color" | "download">(
     "setting"
@@ -58,8 +81,16 @@ export default function Home() {
 
   // ダウンロード
   const [downloadRange, setDownloadRange] = useState([0x00, 0xff]);
-  const [fileFormat, setFileFormat] = useState<FileFormat>("png");
-  const [fileFormatTemp, setFileFormatTemp] = useState<FileFormat>("png");
+  // const [fileFormat, setFileFormat] = useState<FileFormat>("png");
+  // const [fileFormatTemp, setFileFormatTemp] = useState<FileFormat>("png");
+  const [
+    fileFormat,
+    fileFormatTemp,
+    _setFileFormat,
+    setFileFormatTemp,
+    fileFormatConfirm,
+    _fileFormatCancel,
+  ] = useTempState<FileFormat>("png");
   const [downloadProgress, setDownloadProgress] = useState<number | null>(null);
   const downloadCnacel = useRef(false);
 
@@ -75,12 +106,36 @@ export default function Home() {
     colorPalettesConfirm,
     _colorPalettesCancel,
   ] = useTempState([...GBcolorPalettes].map((c) => [...c]));
-  const [bgPaletteTemp, setBgPaletteTemp] = useState<number>(0);
-  const [bgPalette, setBgPalette] = useState<number>(0);
-  const [oamPaletteTemp, setOamPaletteTemp] = useState<number>(0);
-  const [oamPalette, setOamPalette] = useState<number>(0);
-  const [paletteDividTemp, setPaletteDividTemp] = useState(false);
-  const [paletteDivid, setPaletteDivid] = useState(false);
+  // const [bgPaletteTemp, setBgPaletteTemp] = useState<number>(0);
+  // const [bgPalette, setBgPalette] = useState<number>(0);
+  const [
+    bgPalette,
+    bgPaletteTemp,
+    _setBgPalette,
+    setBgPaletteTemp,
+    bgPaletteConfirm,
+    _bgPaletteCancel,
+  ] = useTempState(0);
+  // const [oamPaletteTemp, setOamPaletteTemp] = useState<number>(0);
+  // const [oamPalette, setOamPalette] = useState<number>(0);
+  const [
+    oamPalette,
+    oamPaletteTemp,
+    _setOamPalette,
+    setOamPaletteTemp,
+    oamPaletteConfirm,
+    _oamPaletteCancel,
+  ] = useTempState(0);
+  const [
+    paletteDivid,
+    paletteDividTemp,
+    _setPaletteDivid,
+    setPaletteDividTemp,
+    paletteDividConfirm,
+    _paletteDividCancel,
+  ] = useTempState(false);
+  // const [paletteDividTemp, setPaletteDividTemp] = useState(false);
+  // const [paletteDivid, setPaletteDivid] = useState(false);
 
   // サイズ
   const [size, sizeTemp, _setSize, setSizeTemp, sizeConfirm, _sizeReset] =
@@ -264,13 +319,20 @@ export default function Home() {
     if (downloadProgress !== null) return;
     // 閉じるときに一気に書き換える
     setOpenSetting(false);
-    setMasterMapIdStart(masterMapIdStartTemp);
-    setMasterEdge(masterEdgeTemp);
-    setMasterSprite(masterSpriteTemp);
-    setFileFormat(fileFormatTemp);
-    setBgPalette(bgPaletteTemp);
-    setOamPalette(oamPaletteTemp);
-    setPaletteDivid(paletteDividTemp);
+    // setMasterMapIdStart(masterMapIdStartTemp);
+    masterMapIdStartConfirm();
+    // setMasterEdge(masterEdgeTemp);
+    masterEdgeConfirm();
+    // setMasterSprite(masterSpriteTemp);
+    masterSpriteConfirm();
+    // setFileFormat(fileFormatTemp);
+    fileFormatConfirm();
+    // setBgPalette(bgPaletteTemp);
+    // setOamPalette(oamPaletteTemp);
+    bgPaletteConfirm();
+    oamPaletteConfirm();
+    // setPaletteDivid(paletteDividTemp);
+    paletteDividConfirm();
     sizeConfirm();
     colorPalettesConfirm();
   };
@@ -484,7 +546,7 @@ export default function Home() {
                       pokeRom,
                       i,
                       masterSpriteTemp,
-                      1,
+                      sizeTemp,
                       masterEdgeTemp * 8,
                       colorPalettesTemp[bgPaletteTemp],
                       paletteDividTemp

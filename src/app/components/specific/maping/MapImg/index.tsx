@@ -1,6 +1,6 @@
 // import styles from './style.module.css';
 
-import { rgbToHex } from "@/app/lib/common/calc";
+import { mod, number2Hex, rgbToHex } from "@/app/lib/common/calc";
 import { mapNames } from "@/app/lib/common/map";
 import { MapPokeFile } from "@/app/lib/specific/maping/MapPokeFile";
 import { useCallback, useEffect, useRef } from "react";
@@ -347,6 +347,7 @@ export async function generateMapImg(
   setNsprImg?.(ctx.getImageData(0, 0, canvas.width, canvas.height));
   const nsprImg = ctx.getImageData(0, 0, canvas.width, canvas.height);
 
+  // スプライトの描画
   const ornDict = { 0xd0: 0, 0xd1: 1, 0xd2: 2, 0xd3: 3 }; // 方向
   additionalMapInfo.npc.forEach((npc) => {
     // const edgeAdd = mapEdge ? 3 * 32 : 0;
@@ -358,9 +359,15 @@ export async function generateMapImg(
       ornDict[attr as keyof typeof ornDict] === undefined
         ? -1
         : ornDict[attr as keyof typeof ornDict];
-    const onKusa =
-      pokeRom.getTileIdforMap(mapId, npc.y - 4, npc.x - 4) ===
-      mapTypeInfo.kusaTile;
+    const tiles = Array.from({ length: 2 }, (_, i) =>
+      Array.from({ length: 2 }, (_, j) =>
+        pokeRom.getTileIdforMap(mapId, npc.y - 4, npc.x - 4, i, j)
+      )
+    );
+    const tileDatas = tiles.map((row) =>
+      row.map((tile) => pokeRom.getTileData(mapId, tile))
+    );
+    const onKusa = tiles[1][0] === mapTypeInfo.kusaTile;
 
     for (let i = 0; i < 2; i++) {
       for (let j = 0; j < 2; j++) {
@@ -369,34 +376,36 @@ export async function generateMapImg(
           const sprIndex = (i * 2 + j) * 16 + si * 2 + diff;
           const value = spriteData[sprIndex];
           const value2 = spriteData[sprIndex + 1];
+          const tileData =
+            tileDatas[Math.max(Math.floor((si + i * 8 - 4) / 8), 0)][j];
+          const tileValue = tileData[mod(si - 4, 8) * 2];
+          const tileValue2 = tileData[mod(si - 4, 8) * 2 + 1];
 
           for (let sj = 0; sj < 8; sj++) {
+            let hide = onKusa && i === 1;
+            const tileX = orn === 3 ? 7 - sj : sj;
+            const tileColorIndex =
+              (1 << (7 - tileX)) & tileValue
+                ? 0
+                : 1 | (((1 << (7 - tileX)) & tileValue2 ? 0 : 1) << 1); // タイルの色
+            if (hide) console.log(number2Hex(mapId), tileColorIndex);
+            if (hide && tileColorIndex === 3) hide = false;
             let colorIndex =
               ((1 << (7 - sj)) & value ? 0 : 1) |
               (((1 << (7 - sj)) & value2 ? 0 : 1) << 1);
-            if (colorIndex === 3) continue;
+            if (colorIndex === 3) continue; // 透明色
             if (colorIndex !== 0) colorIndex++;
             ctx.fillStyle = oamColors[colorIndex];
+
             const drawX = orn === 3 ? x + 7 - sj + (1 - j) * 8 : x + sj + j * 8;
             const drawY = y + si + i * 8 - 4;
-            const pixelColor = ctx.getImageData(
-              drawX * size + 1,
-              drawY * size + 1,
-              1,
-              1
-            );
-            if (
-              !(
-                i === 1 &&
-                onKusa &&
-                rgbToHex(
-                  pixelColor.data[0],
-                  pixelColor.data[1],
-                  pixelColor.data[2]
-                ) !== bgColors[3]
-              )
-            )
-              ctx.fillRect(drawX * size, drawY * size, size, size);
+            // const pixelColor = ctx.getImageData(
+            //   drawX * size + 1,
+            //   drawY * size + 1,
+            //   1,
+            //   1
+            // );
+            if (!hide) ctx.fillRect(drawX * size, drawY * size, size, size);
           }
         }
       }

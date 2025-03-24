@@ -31,6 +31,7 @@ import {
   FileFormat,
   mapFileName,
 } from "@/app/lib/specific/maping/common";
+import { RomVersion } from "@/app/lib/common/romVersion";
 
 const centerAndColumn = {
   display: "flex",
@@ -61,10 +62,10 @@ export default function MapCard({
   const [mapPos, setMapPos] = useState({ x: 0, y: 0 });
   const [mapDragging, setMapDragging] = useState(false);
   const mapLastPos = useRef({ x: 0, y: 0 });
-  const [mapScale] = useState(1);
+  const [mapScale, setMapScale] = useState(1);
   const [loaded, setLoaded] = useState(false);
   const [progressValue, setProgressValue] = useState(0);
-  const isVisible = mapNames[mapId].isVisible;
+  let isVisible = mapNames[mapId].isVisible;
   const [detailOpen, setDetailOpen] = useState(false);
   const mapBank = pokeRom.getMapBank(mapId);
   const mapInfo = pokeRom.getMapInfo(mapId);
@@ -74,6 +75,11 @@ export default function MapCard({
   const [sprite, setSprite] = useState(masterSprite);
   const imgRef = useRef<HTMLCanvasElement>(null);
   const [fullScreenImgOpen, setFullScreenImgOpen] = useState(false);
+
+  // ピカ版以外でうみのいえのマップは非表示
+  if (pokeRom.romVersion && pokeRom.romVersion < RomVersion.y0) {
+    if (mapId === 0xf8) isVisible = false;
+  }
 
   // マップ生成のロード
   // useEffect(() => {
@@ -116,33 +122,33 @@ export default function MapCard({
     setMapDragging(false);
   };
 
-  // const handleMapWheel = (e: React.WheelEvent) => {
-  //   e.preventDefault();
-  //   const delta = e.deltaY;
-  //   const rect = e.currentTarget.getBoundingClientRect();
-  //   const centerX = rect.width / 2;
-  //   const centerY = rect.height / 2;
+  const handleMapWheel = (e: React.WheelEvent) => {
+    e.preventDefault();
+    const delta = e.deltaY;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
 
-  //   setMapScale((scale) => {
-  //     const newScale = scale - (delta * scale) / 1000;
-  //     const clampedScale = Math.max(0.01, Math.min(newScale, 2));
+    setMapScale((scale) => {
+      const newScale = scale - (delta * scale) / 1000;
+      const clampedScale = Math.max(0.01, Math.min(newScale, 2));
 
-  //     const scaleChange = clampedScale / scale;
-  //     setMapPos((pos) => ({
-  //       x: -pos.x * scaleChange,
-  //       y: -pos.y * scaleChange,
-  //     }));
+      const scaleChange = clampedScale / scale;
+      setMapPos((pos) => ({
+        x: -pos.x * scaleChange,
+        y: -pos.y * scaleChange,
+      }));
 
-  //     return clampedScale;
-  //   });
-  // };
+      return clampedScale;
+    });
+  };
 
   const mapHandlers = {
     onMouseDown: handleMapMouseDown,
     onMouseMove: handleMapMouseMove,
     onMouseUp: handleMapMouseUp,
     onMouseLeave: handleMapMouseLeave,
-    // onWheel: handleMapWheel,
+    onWheel: handleMapWheel,
   };
 
   const detailList = [
@@ -162,7 +168,7 @@ export default function MapCard({
       value: formatAddr(mapBank, mapInfo.eventTableAddr),
     },
     { listName: "ドア数", value: `${mapAddition.warpPointCnt}` },
-    { listName: "イベント数", value: `${mapAddition.eventCnt}` },
+    { listName: "看板等の数", value: `${mapAddition.eventCnt}` },
     { listName: "NPC数", value: `${mapAddition.npcCnt}` },
   ];
 

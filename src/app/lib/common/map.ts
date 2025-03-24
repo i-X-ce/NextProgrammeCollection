@@ -251,7 +251,7 @@ export const mapNames: {
   { id: 0xf5, name: "ポケモンリーグカンナの間", isVisible: true },
   { id: 0xf6, name: "ポケモンリーグシバの間", isVisible: true },
   { id: 0xf7, name: "ポケモンリーグキクコの間", isVisible: true },
-  { id: 0xf8, name: "バグ空間", isVisible: false },
+  { id: 0xf8, name: "うみのいえ", isVisible: true },
   { id: 0xf9, name: "バグ空間", isVisible: false },
   { id: 0xfa, name: "バグ空間", isVisible: false },
   { id: 0xfb, name: "フリーズ", isVisible: false },

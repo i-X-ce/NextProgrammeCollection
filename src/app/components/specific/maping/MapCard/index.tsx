@@ -2,7 +2,7 @@ import { MapPokeFile } from "@/app/lib/specific/maping/MapPokeFile";
 import styles from "./style.module.css";
 import MapImg from "../MapImg";
 import { useEffect, useRef, useState } from "react";
-import { mapNames } from "@/app/lib/common/map";
+import { isVisibleMap, mapNames } from "@/app/lib/common/map";
 import { number2Hex } from "@/app/lib/common/calc";
 import {
   Backdrop,
@@ -62,10 +62,10 @@ export default function MapCard({
   const [mapPos, setMapPos] = useState({ x: 0, y: 0 });
   const [mapDragging, setMapDragging] = useState(false);
   const mapLastPos = useRef({ x: 0, y: 0 });
-  const [mapScale, setMapScale] = useState(1);
+  const [mapScale, _setMapScale] = useState(1);
   const [loaded, setLoaded] = useState(false);
   const [progressValue, setProgressValue] = useState(0);
-  let isVisible = mapNames[mapId].isVisible;
+  const isVisible = isVisibleMap(mapId, pokeRom.romVersion as RomVersion);
   const [detailOpen, setDetailOpen] = useState(false);
   const mapBank = pokeRom.getMapBank(mapId);
   const mapInfo = pokeRom.getMapInfo(mapId);
@@ -75,11 +75,6 @@ export default function MapCard({
   const [sprite, setSprite] = useState(masterSprite);
   const imgRef = useRef<HTMLCanvasElement>(null);
   const [fullScreenImgOpen, setFullScreenImgOpen] = useState(false);
-
-  // ピカ版以外でうみのいえのマップは非表示
-  if (pokeRom.romVersion && pokeRom.romVersion < RomVersion.y0) {
-    if (mapId === 0xf8) isVisible = false;
-  }
 
   // マップ生成のロード
   // useEffect(() => {
@@ -122,33 +117,34 @@ export default function MapCard({
     setMapDragging(false);
   };
 
-  const handleMapWheel = (e: React.WheelEvent) => {
-    e.preventDefault();
-    const delta = e.deltaY;
-    const rect = e.currentTarget.getBoundingClientRect();
-    const centerX = rect.width / 2;
-    const centerY = rect.height / 2;
+  // const handleMapWheel = (e: React.WheelEvent) => {
+  //   e.preventDefault();
+  //   const delta = e.deltaY;
+  //   const rect = mapImgRef.current?.getBoundingClientRect();
+  //   // マウスのコンテナ内での位置
+  //   if (!rect) return;
+  //   const containerX = e.clientX - rect.left;
+  //   const containerY = e.clientY - rect.top;
 
-    setMapScale((scale) => {
-      const newScale = scale - (delta * scale) / 1000;
-      const clampedScale = Math.max(0.01, Math.min(newScale, 2));
-
-      const scaleChange = clampedScale / scale;
-      setMapPos((pos) => ({
-        x: -pos.x * scaleChange,
-        y: -pos.y * scaleChange,
-      }));
-
-      return clampedScale;
-    });
-  };
+  //   setMapScale((scale) => {
+  //     const newScale = scale - (delta * scale) / 1000;
+  //     const clampedScale = Math.max(0.01, Math.min(newScale, 2));
+  //     const scaleChange = clampedScale / scale;
+  //     // マウス位置下の画像座標が同じになるようにオフセットを補正する
+  //     setMapPos((pos) => ({
+  //       x: containerX - scaleChange * (containerX - pos.x),
+  //       y: containerY - scaleChange * (containerY - pos.y),
+  //     }));
+  //     return clampedScale;
+  //   });
+  // };
 
   const mapHandlers = {
     onMouseDown: handleMapMouseDown,
     onMouseMove: handleMapMouseMove,
     onMouseUp: handleMapMouseUp,
     onMouseLeave: handleMapMouseLeave,
-    onWheel: handleMapWheel,
+    // onWheel: handleMapWheel,
   };
 
   const detailList = [

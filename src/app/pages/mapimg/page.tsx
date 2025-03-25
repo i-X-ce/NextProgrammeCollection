@@ -5,7 +5,7 @@ import PokeRomDrop from "@/app/components/common/PokeRomDrop";
 import MapCard from "@/app/components/specific/maping/MapCard";
 import { generateMapImg } from "@/app/components/specific/maping/MapImg";
 import { number2Hex } from "@/app/lib/common/calc";
-import { mapNames } from "@/app/lib/common/map";
+import { isVisibleMap, mapNames } from "@/app/lib/common/map";
 import {
   canvasToBlob,
   downloadBlob,
@@ -41,6 +41,7 @@ import {
 import JSZip from "jszip";
 import React, { memo, useRef, useState } from "react";
 import { GBcolorPalettes } from "@/app/lib/common/colorPalettes";
+import { RomVersion } from "@/app/lib/common/romVersion";
 
 export default function Home() {
   const [pokeRom, setPokeRom] = useState<MapPokeFile | null>(null);
@@ -543,6 +544,8 @@ export default function Home() {
                       setDownloadProgress(null);
                       return;
                     } // キャンセル
+                    if (!isVisibleMap(i, pokeRom.romVersion as RomVersion))
+                      continue;
                     const canvas = await generateMapImg(
                       pokeRom,
                       i,

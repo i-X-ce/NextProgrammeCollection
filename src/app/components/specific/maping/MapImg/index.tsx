@@ -1,7 +1,8 @@
 // import styles from './style.module.css';
 
 import { mod, number2Hex } from "@/app/lib/common/calc";
-import { mapNames } from "@/app/lib/common/map";
+import { isVisibleMap, mapNames } from "@/app/lib/common/map";
+import { RomVersion } from "@/app/lib/common/romVersion";
 import { MapPokeFile } from "@/app/lib/specific/maping/MapPokeFile";
 import { useCallback, useEffect, useRef } from "react";
 
@@ -263,7 +264,7 @@ export async function generateMapImg(
   setSprImg?: (img: ImageData) => void, // スプライトありの画像
   onLoaded?: () => void
 ): Promise<HTMLCanvasElement | null> {
-  if (!mapNames[mapId].isVisible) return null;
+  if (!isVisibleMap(mapId, pokeRom.romVersion as RomVersion)) return null;
   const mapInfo = pokeRom.getMapInfo(mapId);
   const mapTypeInfo = pokeRom.getMapTypeInfo(mapInfo.mapType);
   const width = mapInfo.width + 6;

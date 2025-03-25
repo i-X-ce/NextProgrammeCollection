@@ -1,3 +1,5 @@
+import { RomVersion } from "./romVersion";
+
 export const mapNames: {
   id: number;
   name: string;
@@ -260,3 +262,12 @@ export const mapNames: {
   { id: 0xfe, name: "フリーズ", isVisible: false },
   { id: 0xff, name: "フリーズ", isVisible: false },
 ];
+
+// 表示できるマップか判断する
+export function isVisibleMap(id: number, version: RomVersion): boolean {
+  if (id === 0xf8) {
+    return version >= RomVersion.y0;
+  } else {
+    return mapNames[id].isVisible;
+  }
+}

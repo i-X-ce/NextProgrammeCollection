@@ -638,3 +638,5 @@ const MapCards = memo(
     );
   }
 );
+
+MapCards.displayName = "MapCard";

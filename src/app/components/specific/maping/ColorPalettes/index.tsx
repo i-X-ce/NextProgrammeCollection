@@ -1,4 +1,4 @@
-import { memo, useRef, useState } from "react";
+import { useState } from "react";
 import styles from "./style.module.css";
 import { Dialog, IconButton } from "@mui/material";
 import { Add, Edit } from "@mui/icons-material";

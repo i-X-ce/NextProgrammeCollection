@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { memo, useRef, useState } from "react";
 import styles from "./style.module.css";
 import { Dialog, IconButton } from "@mui/material";
 import { Add, Edit } from "@mui/icons-material";
@@ -20,7 +20,7 @@ export default function ColorPalettes({
   const [index, setIndex] = useState<number>(palletIndex || 0);
   const [openEdit, setOpenEdit] = useState<boolean>(false);
   const [editNum, setEditNum] = useState<number>(0);
-  const editFinalColor = useRef<string | null>(null);
+  const [editingPalette, setEditingPalette] = useState<string[]>([]);
 
   return (
     <div className={styles.palletsContainer}>
@@ -37,6 +37,7 @@ export default function ColorPalettes({
                 className={styles.editButton}
                 onClick={() => {
                   setEditNum(paletteI);
+                  setEditingPalette(pallets[paletteI]);
                   setOpenEdit(true);
                 }}
               >
@@ -69,27 +70,38 @@ export default function ColorPalettes({
         </div>
       )}
 
-      {/* 編集ダイアログ */}
-      <Dialog open={openEdit} onClose={() => setOpenEdit(false)}>
+      <Dialog
+        open={openEdit}
+        onClose={() => {
+          setOpenEdit(false);
+          if (setPalettes) {
+            const newPalettes = [...pallets];
+            newPalettes[editNum] = editingPalette;
+            setPalettes(newPalettes);
+          }
+        }}
+      >
         <div className={styles.editDialog}>
-          {/* <h2 className={styles.editDialogTitle}>パレット編集</h2> */}
           <Edit color="action" />
           <div className={styles.editDialogInputContainer}>
-            {pallets[editNum || 0].map((color: string, i: number) => (
+            {editingPalette.map((color: string, i: number) => (
               <input
                 key={i}
                 type="color"
                 className={styles.editDialogInput}
-                value={editFinalColor.current || color}
+                value={color}
                 onChange={(e) => {
-                  editFinalColor.current = e.target.value;
+                  const newColor = e.target.value;
+                  const newPalette = [...editingPalette];
+                  newPalette[i] = newColor;
+                  setEditingPalette(newPalette);
                 }}
                 onBlur={() => {
-                  const newPalettes = [...pallets];
-                  newPalettes[editNum || 0][i] =
-                    editFinalColor.current || color;
-                  setPalettes?.(newPalettes);
-                  editFinalColor.current = null;
+                  if (setPalettes) {
+                    const newPalettes = [...pallets];
+                    newPalettes[editNum] = editingPalette;
+                    setPalettes(newPalettes);
+                  }
                 }}
               />
             ))}

@@ -18,6 +18,7 @@
 .edgeAndSprite {
   display: flex;
   gap: 15px;
+  padding: 0 10px;
 }
 
 .settingTools {
@@ -26,10 +27,22 @@
   justify-content: space-between;
 }
 
+.settingToolRow {
+  flex-direction: row;
+}
+
+.settingToolColumn {
+  flex-direction: column;
+}
+
 .settingToolTitle {
   font-size: 1.2rem;
   font-weight: bold;
   color: var(--bc-primary);
+}
+
+.settingToolContent {
+  padding: 10px 5px;
 }
 
 .settingToolDescription {
@@ -52,4 +65,59 @@
   display: flex;
   gap: 20px;
   justify-content: end;
+}
+
+.uiContainer {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  align-items: end;
+  padding: 0 20px;
+}
+
+.uiIcons {
+  display: flex;
+  flex-direction: row-reverse;
+}
+
+.downloardSliderContainer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.selector {
+  width: 30%;
+}
+
+@media (max-width: 1100px) {
+  .settingContainer {
+    width: 80vw;
+  }
+}
+
+@media (max-width: 700px) {
+  .cardContainer {
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  }
+
+  .uiContainer {
+    flex-direction: column-reverse;
+    align-items: center;
+    gap: 0;
+  }
+
+  .selector {
+    width: 100%;
+  }
+
+  .settingToolRow {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 500px) {
+  .cardContainer {
+    padding: 10px;
+  }
 }

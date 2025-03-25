@@ -15,6 +15,8 @@ import {
 import { MapPokeFile } from "@/app/lib/specific/maping/MapPokeFile";
 import {
   Download,
+  KeyboardArrowLeft,
+  KeyboardArrowRight,
   Palette,
   Person,
   PersonOff,
@@ -27,6 +29,7 @@ import {
   Collapse,
   Dialog,
   FormControl,
+  IconButton,
   InputLabel,
   MenuItem,
   Select,
@@ -37,6 +40,7 @@ import {
   Switch,
   Tab,
   Tabs,
+  Tooltip,
 } from "@mui/material";
 import JSZip from "jszip";
 import React, { memo, useRef, useState } from "react";
@@ -45,12 +49,6 @@ import { RomVersion } from "@/app/lib/common/romVersion";
 
 export default function Home() {
   const [pokeRom, setPokeRom] = useState<MapPokeFile | null>(null);
-  // const [masterMapIdStartTemp, setMasterMapIdStartTemp] = useState(0);
-  // const [masterEdgeTemp, setMasterEdgeTemp] = useState(12);
-  // const [masterSpriteTemp, setMasterSpriteTemp] = useState(true);
-  // const [masterMapIdStart, setMasterMapIdStart] = useState(0);
-  // const [masterEdge, setMasterEdge] = useState(12);
-  // const [masterSprite, setMasterSprite] = useState(true);
   const [
     masterMapIdStart,
     masterMapIdStartTemp,
@@ -82,8 +80,6 @@ export default function Home() {
 
   // ダウンロード
   const [downloadRange, setDownloadRange] = useState([0x00, 0xff]);
-  // const [fileFormat, setFileFormat] = useState<FileFormat>("png");
-  // const [fileFormatTemp, setFileFormatTemp] = useState<FileFormat>("png");
   const [
     fileFormat,
     fileFormatTemp,
@@ -96,9 +92,6 @@ export default function Home() {
   const downloadCnacel = useRef(false);
 
   // カラーパレット
-  // const [colorPalettes, setColorPalettes] = useState<string[][]>(
-  //   [...GBcolorPalettes].map((c) => [...c])
-  // );
   const [
     colorPalettes,
     colorPalettesTemp,
@@ -107,8 +100,6 @@ export default function Home() {
     colorPalettesConfirm,
     _colorPalettesCancel,
   ] = useTempState([...GBcolorPalettes].map((c) => [...c]));
-  // const [bgPaletteTemp, setBgPaletteTemp] = useState<number>(0);
-  // const [bgPalette, setBgPalette] = useState<number>(0);
   const [
     bgPalette,
     bgPaletteTemp,
@@ -117,8 +108,6 @@ export default function Home() {
     bgPaletteConfirm,
     _bgPaletteCancel,
   ] = useTempState(0);
-  // const [oamPaletteTemp, setOamPaletteTemp] = useState<number>(0);
-  // const [oamPalette, setOamPalette] = useState<number>(0);
   const [
     oamPalette,
     oamPaletteTemp,
@@ -135,50 +124,10 @@ export default function Home() {
     paletteDividConfirm,
     _paletteDividCancel,
   ] = useTempState(false);
-  // const [paletteDividTemp, setPaletteDividTemp] = useState(false);
-  // const [paletteDivid, setPaletteDivid] = useState(false);
 
   // サイズ
   const [size, sizeTemp, _setSize, setSizeTemp, sizeConfirm, _sizeReset] =
     useTempState(1);
-
-  // const mapCards = useMemo(() => {
-  //   if (!pokeRom) return null;
-  //   return (
-  //     <div
-  //       className={styles.cardContainer}
-  //       style={openSetting ? { display: "none" } : {}}
-  //     >
-  //       {Array.from({ length: 0x10 }).map((_, i) => (
-  //         <MapCard
-  //           key={`${i + masterMapIdStart * 0x10} ${size}`}
-  //           pokeRom={pokeRom}
-  //           mapId={i + masterMapIdStart * 0x10}
-  //           masterEdge={masterEdge}
-  //           masterSprite={masterSprite}
-  //           fileFormat={fileFormat}
-  //           bgColors={colorPalettes[bgPalette]}
-  //           oamColors={
-  //             paletteDividTemp
-  //               ? colorPalettes[oamPalette]
-  //               : colorPalettes[bgPalette]
-  //           }
-  //           size={size}
-  //         />
-  //       ))}
-  //     </div>
-  //   );
-  // }, [
-  //   pokeRom,
-  //   masterMapIdStart,
-  //   masterEdge,
-  //   masterSprite,
-  //   fileFormat,
-  //   bgPalette,
-  //   oamPalette,
-  //   paletteDivid,
-  //   size,
-  // ]);
 
   const speedDialActions = [
     {
@@ -207,23 +156,8 @@ export default function Home() {
     },
   ];
 
-  // const mapIdPagination = (
-  //   <Pagination
-  //     count={0x10}
-  //     color="primary"
-  //     page={masterMapIdStartTemp + 1}
-  //     renderItem={(item) => (
-  //       <PaginationItem
-  //         {...item}
-  //         page={number2Hex(((item.page || 0) - 1) * 0x10)}
-  //       />
-  //     )}
-  //     onChange={(_, page) => setMasterMapIdStartTemp(page - 1)}
-  //   />
-  // );
-
   const mapIdSelecter = (setId: (id: number) => void, id: number) => (
-    <FormControl sx={{ marginTop: "15px", width: "30%" }}>
+    <FormControl sx={{ marginTop: "15px" }} className={styles.selector}>
       <InputLabel>マップ番号</InputLabel>
       <Select
         label="マップ番号"
@@ -271,7 +205,7 @@ export default function Home() {
   );
 
   const fileFormatSelecter = (
-    <FormControl sx={{ marginTop: "15px", width: "30%" }}>
+    <FormControl sx={{ marginTop: "15px" }} className={styles.selector}>
       <InputLabel>ファイル形式</InputLabel>
       <Select
         label="ファイル形式"
@@ -298,7 +232,7 @@ export default function Home() {
   );
 
   const sizeSelector = (
-    <FormControl sx={{ marginTop: "15px", width: "30%" }}>
+    <FormControl sx={{ marginTop: "15px" }} className={styles.selector}>
       <InputLabel>サイズ</InputLabel>
       <Select
         label="サイズ"
@@ -320,19 +254,12 @@ export default function Home() {
     if (downloadProgress !== null) return;
     // 閉じるときに一気に書き換える
     setOpenSetting(false);
-    // setMasterMapIdStart(masterMapIdStartTemp);
     masterMapIdStartConfirm();
-    // setMasterEdge(masterEdgeTemp);
     masterEdgeConfirm();
-    // setMasterSprite(masterSpriteTemp);
     masterSpriteConfirm();
-    // setFileFormat(fileFormatTemp);
     fileFormatConfirm();
-    // setBgPalette(bgPaletteTemp);
-    // setOamPalette(oamPaletteTemp);
     bgPaletteConfirm();
     oamPaletteConfirm();
-    // setPaletteDivid(paletteDividTemp);
     paletteDividConfirm();
     sizeConfirm();
     colorPalettesConfirm();
@@ -354,10 +281,21 @@ export default function Home() {
           setPokeRom(newPokeRom);
         }}
       />
-      {mapIdSelecter((id) => {
-        setMasterMapIdStart(id);
-        setMasterMapIdStartTemp(id);
-      }, masterMapIdStart)}
+
+      {/* UI */}
+      <div className={styles.uiContainer}>
+        {mapIdSelecter((id) => {
+          setMasterMapIdStart(id);
+          setMasterMapIdStartTemp(id);
+        }, masterMapIdStart)}
+        <div className={styles.uiIcons}>
+          {speedDialActions.map((action, i) => (
+            <Tooltip key={i} title={action.tooltipTitle}>
+              <IconButton onClick={action.onClick}>{action.icon}</IconButton>
+            </Tooltip>
+          ))}
+        </div>
+      </div>
 
       {/* マップカード */}
       <MapCards
@@ -393,9 +331,9 @@ export default function Home() {
             setTabValue(value);
           }}
         >
-          <Tab label="設定" value={"setting"} />
-          <Tab label="カラーパレット" value={"color"} />
-          <Tab label="ダウンロード" value={"download"} />
+          <Tab icon={<Settings />} value={"setting"} />
+          <Tab icon={<Palette />} value={"color"} />
+          <Tab icon={<Download />} value={"download"} />
         </Tabs>
 
         <div className={styles.settingContainer}>
@@ -495,13 +433,16 @@ export default function Home() {
                 downloadRange[1]
               )}h ${mapNames[downloadRange[1]].name})`}
             >
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  padding: "10px ",
-                }}
-              >
+              <div className={styles.downloardSliderContainer}>
+                <IconButton
+                  onClick={() =>
+                    setDownloadRange((range) => {
+                      return [Math.max(range[0] - 1, 0), range[1]];
+                    })
+                  }
+                >
+                  <KeyboardArrowLeft />
+                </IconButton>
                 <Slider
                   value={downloadRange}
                   min={0x00}
@@ -514,6 +455,15 @@ export default function Home() {
                     setDownloadRange(value as number[]);
                   }}
                 />
+                <IconButton
+                  onClick={() =>
+                    setDownloadRange((range) => {
+                      return [range[0], Math.min(range[1] + 1, 0xff)];
+                    })
+                  }
+                >
+                  <KeyboardArrowRight />
+                </IconButton>
               </div>
             </SettingTool>
             <div className={styles.downloadButtons}>
@@ -591,8 +541,11 @@ function SettingTool({
   children: React.ReactNode;
   direction?: "row" | "column";
 }) {
+  const directionClass =
+    direction === "row" ? styles.settingToolRow : styles.settingToolColumn;
+
   return (
-    <div className={styles.settingTools} style={{ flexDirection: direction }}>
+    <div className={styles.settingTools + " " + directionClass}>
       <div>
         <h3 className={styles.settingToolTitle}>{title}</h3>
         <p className={styles.settingToolDescription}>{description}</p>

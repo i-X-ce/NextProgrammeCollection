@@ -1,7 +1,7 @@
 // import styles from './style.module.css';
 
 import { mod, number2Hex } from "@/app/lib/common/calc";
-import { isVisibleMap, mapNames } from "@/app/lib/common/map";
+import { isVisibleMap } from "@/app/lib/common/map";
 import { RomVersion } from "@/app/lib/common/romVersion";
 import { MapPokeFile } from "@/app/lib/specific/maping/MapPokeFile";
 import { useCallback, useEffect, useRef } from "react";

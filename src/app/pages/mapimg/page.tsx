@@ -46,6 +46,7 @@ import JSZip from "jszip";
 import React, { memo, useRef, useState } from "react";
 import { GBcolorPalettes } from "@/app/lib/common/colorPalettes";
 import { RomVersion } from "@/app/lib/common/romVersion";
+import CopyrightFooter from "@/app/components/common/CopyrightFooter";
 
 export default function Home() {
   const [pokeRom, setPokeRom] = useState<MapPokeFile | null>(null);
@@ -283,19 +284,21 @@ export default function Home() {
       />
 
       {/* UI */}
-      <div className={styles.uiContainer}>
-        {mapIdSelecter((id) => {
-          setMasterMapIdStart(id);
-          setMasterMapIdStartTemp(id);
-        }, masterMapIdStart)}
-        <div className={styles.uiIcons}>
-          {speedDialActions.map((action, i) => (
-            <Tooltip key={i} title={action.tooltipTitle}>
-              <IconButton onClick={action.onClick}>{action.icon}</IconButton>
-            </Tooltip>
-          ))}
+      {pokeRom && (
+        <div className={styles.uiContainer}>
+          {mapIdSelecter((id) => {
+            setMasterMapIdStart(id);
+            setMasterMapIdStartTemp(id);
+          }, masterMapIdStart)}
+          <div className={styles.uiIcons}>
+            {speedDialActions.map((action, i) => (
+              <Tooltip key={i} title={action.tooltipTitle}>
+                <IconButton onClick={action.onClick}>{action.icon}</IconButton>
+              </Tooltip>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* マップカード */}
       <MapCards
@@ -311,16 +314,18 @@ export default function Home() {
       />
 
       {/* スピードダイヤル */}
-      <SpeedDial
-        ariaLabel={""}
-        sx={{ position: "fixed", bottom: 16, right: 16 }}
-        icon={<SpeedDialIcon />}
-        direction="left"
-      >
-        {speedDialActions.map((action, i) => (
-          <SpeedDialAction key={i} {...action} />
-        ))}
-      </SpeedDial>
+      {pokeRom && (
+        <SpeedDial
+          ariaLabel={""}
+          sx={{ position: "fixed", bottom: 16, right: 16 }}
+          icon={<SpeedDialIcon />}
+          direction="left"
+        >
+          {speedDialActions.map((action, i) => (
+            <SpeedDialAction key={i} {...action} />
+          ))}
+        </SpeedDial>
+      )}
 
       {/* 設定ダイアログ */}
       <Dialog open={openSetting} onClose={handleCloseSetting} maxWidth={false}>
@@ -526,6 +531,9 @@ export default function Home() {
           </TabPanel>
         </div>
       </Dialog>
+
+      {/* フッター */}
+      <CopyrightFooter year={2025} />
     </>
   );
 }

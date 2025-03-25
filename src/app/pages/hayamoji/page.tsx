@@ -28,6 +28,7 @@ import styles from "./style.module.css";
 import ButtonBox from "@/app/components/specific/hayamoji/ButtonBox";
 import LogBox from "@/app/components/specific/hayamoji/LogBox";
 import { pokemojiMap } from "@/app/lib/common/pokemoji";
+import CopyrightFooter from "@/app/components/common/CopyrightFooter";
 
 const hayamojisearch = new HayamojiSearch();
 
@@ -335,6 +336,7 @@ export default function Home() {
           <Alert severity="error">{errorMessage}</Alert>
         </Snackbar>
       </div>
+      <CopyrightFooter year={2024} />
     </>
   );
 }

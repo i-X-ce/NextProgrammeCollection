@@ -1,0 +1,62 @@
+.container {
+  display: flex;
+  justify-content: center;
+  position: relative;
+  margin: 50px 0;
+  min-height: 80vh;
+}
+
+.keyboardContainer {
+  display: flex;
+  position: relative;
+}
+
+.toolBox {
+  display: flex;
+  flex-direction: column;
+  width: 35vw;
+  padding: 20px;
+  gap: 10px;
+  position: relative;
+}
+
+.progressBox {
+  display: flex;
+  align-items: center;
+}
+
+.mobileToolBox {
+  display: none;
+}
+
+@media (max-width: 1000px) {
+  .keyboardContainer {
+    flex-direction: column;
+  }
+  .laptopToolBox {
+    display: none;
+  }
+  .toolBox {
+    width: 50vw;
+  }
+  .mobileToolBoxTop {
+    display: flex;
+    align-items: center;
+  }
+  .mobileToolBox {
+    display: flex;
+    align-self: center;
+    flex-direction: column;
+    margin: 10px 0;
+    justify-content: center;
+    align-items: center;
+    max-width: 300px;
+    gap: 10px;
+  }
+}
+
+@media (max-width: 600px) {
+  .toolBox {
+    width: 90vw;
+  }
+}

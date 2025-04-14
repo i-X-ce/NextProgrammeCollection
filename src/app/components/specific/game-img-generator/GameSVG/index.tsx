@@ -1,5 +1,5 @@
 "use client";
-import styles from './style.module.css';
+import styles from "./style.module.css";
 import { ReactNode, useState } from "react";
 
 // 表示できるゲーム機の種類
@@ -294,8 +294,8 @@ export default function GameSVG({ gameType }: { gameType: GameType }) {
   };
 
   return (
-    <div>
-      {svgs[gameType]}
+    <div className={styles.container}>
+      <div className={styles.svgContainer}>{svgs[gameType]}</div>
 
       <div>
         {initialStyleColors[gameType].map((styleObject) => (

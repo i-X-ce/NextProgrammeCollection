@@ -1,0 +1,16 @@
+.container {
+  display: flex;
+  justify-content: center;
+  padding: 20px;
+  gap: 20px;
+}
+
+.svgContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  width: 30%;
+  padding: 30px;
+  border: 1px solid var(--foreground);
+}

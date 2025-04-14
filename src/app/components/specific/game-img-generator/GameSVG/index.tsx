@@ -1,4 +1,5 @@
 "use client";
+import PartsPallet from "../PartsPallet";
 import styles from "./style.module.css";
 import { ReactNode, useState } from "react";
 
@@ -24,7 +25,7 @@ type StyleColor = {
 };
 
 // 部品ごとのパレット(表示する必要のあるパレットのみ)
-const partsPalettes: Record<PartsStyles, string[]> = {
+const partsPalletes: Record<PartsStyles, string[]> = {
   shell: ["#f2f2f2", "#FF7F7F", "#FF4C4C", "#FF0000"],
   button: ["#4d4d4d", "#b3b3b3", "#c12750"],
   cross: ["#4d4d4d", "#ed1c24", "#f2f2f2"],
@@ -39,14 +40,14 @@ const partsPalettes: Record<PartsStyles, string[]> = {
 // ゲーム機の色の初期値
 const initialStyleColors: Record<GameType, StyleColor[]> = {
   GB: [
-    { style: "shell", color: partsPalettes.shell[0] },
-    { style: "AB", color: partsPalettes.AB[0] },
-    { style: "rubber", color: partsPalettes.rubber[0] },
-    { style: "shadow", color: partsPalettes.shadow[0] },
-    { style: "lamp", color: partsPalettes.lamp[0] },
-    { style: "cross", color: partsPalettes.cross[0] },
-    { style: "screen", color: partsPalettes.screen[0] },
-    { style: "glass", color: partsPalettes.glass[0] },
+    { style: "shell", color: partsPalletes.shell[0] },
+    { style: "AB", color: partsPalletes.AB[0] },
+    { style: "rubber", color: partsPalletes.rubber[0] },
+    { style: "shadow", color: partsPalletes.shadow[0] },
+    { style: "lamp", color: partsPalletes.lamp[0] },
+    { style: "cross", color: partsPalletes.cross[0] },
+    { style: "screen", color: partsPalletes.screen[0] },
+    { style: "glass", color: partsPalletes.glass[0] },
   ],
   GBP: [],
   GBC: [],
@@ -300,8 +301,28 @@ export default function GameSVG({ gameType }: { gameType: GameType }) {
       <div>
         {initialStyleColors[gameType].map((styleObject) => (
           <div key={styleObject.style}>
-            <span>{styleObject.style}</span>
-            {partsPalettes[styleObject.style].map((color) => (
+            <PartsPallet
+              title={styleObject.style}
+              colors={partsPalletes[styleObject.style]}
+              onClick={(color) => {
+                const newStyleColors = styleColors.map((s) =>
+                  s.style === styleObject.style ? { ...s, color } : s
+                );
+                setStyleColors(newStyleColors);
+                // 個別で変更した部品をリセットする
+                setChangePartsList((prev) => {
+                  const resetParts = prev.filter(
+                    (part) => part.name === styleObject.style
+                  );
+                  resetParts.forEach((part) => {
+                    const element = part.element;
+                    element.removeAttribute("style");
+                  });
+                  return prev.filter((part) => part.name !== styleObject.style);
+                });
+              }}
+            />
+            {/* {partsPalletes[styleObject.style].map((color) => (
               <div
                 key={color}
                 style={{ backgroundColor: color }}
@@ -327,7 +348,7 @@ export default function GameSVG({ gameType }: { gameType: GameType }) {
               >
                 {color}
               </div>
-            ))}
+            ))} */}
           </div>
         ))}
       </div>

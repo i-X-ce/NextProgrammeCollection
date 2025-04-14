@@ -304,6 +304,7 @@ export default function GameSVG({ gameType }: { gameType: GameType }) {
             <PartsPallet
               title={styleObject.style}
               colors={partsPalletes[styleObject.style]}
+              color={styleObject.color}
               onClick={(color) => {
                 const newStyleColors = styleColors.map((s) =>
                   s.style === styleObject.style ? { ...s, color } : s

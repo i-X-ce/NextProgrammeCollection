@@ -5,8 +5,15 @@
 
 .colorBoxContainer {
   display: flex;
+  gap: 10px;
 }
 .colorBox {
   height: 30px;
-  aspect-ratio: 3/1;
+  aspect-ratio: 1/1;
+  border-radius: 500px;
+  box-shadow: var(--shadow-template);
+}
+
+.selected {
+  border: 5px solid var(--bc-primary);
 }

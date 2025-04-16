@@ -1,7 +1,8 @@
 "use client";
 import PartsPallet from "../PartsPallet";
 import styles from "./style.module.css";
-import { ReactNode, useState } from "react";
+import { ReactNode, useRef, useState } from "react";
+import ChromePickerWrapper from "../ChromePickerWrapper";
 
 // 表示できるゲーム機の種類
 type GameType = "GB" | "GBP" | "GBC" | "GBA" | "GC" | "SFC";
@@ -78,26 +79,40 @@ export default function GameSVG({ gameType }: { gameType: GameType }) {
     return styleColors.find((s) => s.style === style)?.color;
   };
 
-  const handleElementClick = (event: React.MouseEvent<SVGElement>) => {
+  const [openColorPicker, setOpenColorPicker] = useState(false);
+  const [createColor, setCreateColor] = useState<string | null>(null);
+  const targetElement = useRef<{ target: SVGElement | null; style: string }>(
+    null
+  ); // クリックした要素を保存するためのref
+
+  const handleSVGClick = (event: React.MouseEvent<SVGElement>) => {
+    console.log("click");
     const target = event.target as SVGElement;
     const targetId = target.getAttribute("id");
     const targetName = target.getAttribute("data-name");
-    if (!targetId && !targetName) return;
     const targetStyle = !targetName ? targetId : targetName;
+    if (!targetId && !targetName) return;
+    if (!targetStyle) return;
+    setOpenColorPicker(true);
+    targetElement.current = { target, style: targetStyle }; // クリックした要素を保存
+    // targetの色を取得する
+    const computedStyle = window.getComputedStyle(target);
+    const fill = computedStyle.fill;
+    setCreateColor(fill);
 
-    const newColor = prompt(`色を入力してください:`);
-    if (newColor) {
-      target.setAttribute("style", `fill: #${newColor} !important;`);
-      setChangePartsList((prev) => {
-        return [
-          ...prev,
-          {
-            name: targetStyle as PartsStyles,
-            element: target,
-          },
-        ];
-      });
-    }
+    // const newColor = prompt(`色を入力してください:`);
+    // if (newColor) {
+    //   target.setAttribute("style", `fill: #${newColor} !important;`);
+    //   setChangePartsList((prev) => {
+    //     return [
+    //       ...prev,
+    //       {
+    //         name: targetStyle as PartsStyles,
+    //         element: target,
+    //       },
+    //     ];
+    //   });
+    // }
   };
 
   const svgs: Record<GameType, ReactNode> = {
@@ -107,7 +122,7 @@ export default function GameSVG({ gameType }: { gameType: GameType }) {
         data-name="レイヤー 1"
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 604.34 1000"
-        onClick={handleElementClick}
+        onClick={handleSVGClick}
       >
         <defs>
           <style>
@@ -298,14 +313,42 @@ export default function GameSVG({ gameType }: { gameType: GameType }) {
     <div className={styles.container}>
       <div className={styles.svgContainer}>{svgs[gameType]}</div>
 
+      <ChromePickerWrapper
+        props={{
+          color: createColor || "#ffffff",
+          onChange: (color) => {
+            if (!targetElement.current) return;
+            const target = targetElement.current.target;
+            const targetStyle = targetElement.current.style;
+            if (!target || !targetStyle) return;
+            const rgba = `rgba(${color.rgb.r}, ${color.rgb.g}, ${color.rgb.b}, ${color.rgb.a})`;
+            setCreateColor(rgba);
+            target.setAttribute("style", `fill: ${rgba} !important;`);
+            setChangePartsList((prev) => {
+              return [
+                ...prev,
+                {
+                  name: targetStyle as PartsStyles,
+                  element: target,
+                },
+              ];
+            });
+          },
+        }}
+        open={openColorPicker}
+        onClose={() => {
+          setOpenColorPicker(false);
+        }}
+      />
+
       <div>
         {initialStyleColors[gameType].map((styleObject) => (
-          <div key={styleObject.style}>
+          <div key={`${gameType} ${styleObject.style}`}>
             <PartsPallet
               title={styleObject.style}
               colors={partsPalletes[styleObject.style]}
               color={styleObject.color}
-              onClick={(color) => {
+              onChange={(color) => {
                 const newStyleColors = styleColors.map((s) =>
                   s.style === styleObject.style ? { ...s, color } : s
                 );
@@ -323,33 +366,6 @@ export default function GameSVG({ gameType }: { gameType: GameType }) {
                 });
               }}
             />
-            {/* {partsPalletes[styleObject.style].map((color) => (
-              <div
-                key={color}
-                style={{ backgroundColor: color }}
-                onClick={() => {
-                  const newStyleColors = styleColors.map((s) =>
-                    s.style === styleObject.style ? { ...s, color } : s
-                  );
-                  setStyleColors(newStyleColors);
-                  // 個別で変更した部品をリセットする
-                  setChangePartsList((prev) => {
-                    const resetParts = prev.filter(
-                      (part) => part.name === styleObject.style
-                    );
-                    resetParts.forEach((part) => {
-                      const element = part.element;
-                      element.removeAttribute("style");
-                    });
-                    return prev.filter(
-                      (part) => part.name !== styleObject.style
-                    );
-                  });
-                }}
-              >
-                {color}
-              </div>
-            ))} */}
           </div>
         ))}
       </div>

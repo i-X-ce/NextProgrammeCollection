@@ -1,65 +1,82 @@
-import { useRef, useState } from "react";
+import { memo, useState } from "react";
 import styles from "./style.module.css";
+import { Add } from "@mui/icons-material";
+import { Tooltip } from "@mui/material";
+import ChromePickerWrapper from "../ChromePickerWrapper";
 
-export default function PartsPallet({
-  title,
-  colors,
-  color,
-  onClick,
-}: {
+type PartsPalletProps = {
   title: string;
   colors: string[];
   color: string;
-  onClick?: (color: string) => void;
-}) {
+  onChange?: (color: string) => void;
+};
+
+const PartsPallet = memo(function PartsPallet({
+  title,
+  colors,
+  color,
+  onChange,
+}: PartsPalletProps) {
   colors.sort().reverse();
   const [selectedColorIndex, setSelectedColorIndex] = useState(
     colors.indexOf(color)
   );
   const [createColor, setCreateColor] = useState("#ffffff");
-  const colorInputRef = useRef<HTMLInputElement>(null);
+  const [pickerVisible, setPickerVisible] = useState(false);
+  // const colorInputRef = useRef<HTMLInputElement>(null);
 
   return (
     <div className={styles.container}>
       <div>{title}</div>
-      <input
-        type="color"
-        style={{ display: "none" }}
-        ref={colorInputRef}
-        onChange={(e) => {
-          setCreateColor(e.target.value);
-          onClick?.(e.target.value);
+      <ChromePickerWrapper
+        props={{
+          onChange: (color) => {
+            const rgba = `rgba(${color.rgb.r}, ${color.rgb.g}, ${color.rgb.b}, ${color.rgb.a})`;
+            setCreateColor(rgba);
+            onChange?.(rgba);
+          },
+          color: createColor,
         }}
-        value={createColor}
+        open={pickerVisible}
+        onClose={(e) => {
+          e.stopPropagation();
+          setPickerVisible(false);
+        }}
       />
       <div className={styles.colorBoxContainer}>
-        <div
-          className={`${styles.colorBox} ${
-            selectedColorIndex === -1 ? styles.selected : ""
-          }`}
-          onClick={() => {
-            setSelectedColorIndex(-1);
-            if (!colorInputRef.current) return;
-            colorInputRef.current.click();
-            // ピッカーの位置を調整する
-            onClick?.(createColor);
-          }}
-          style={{ backgroundColor: createColor }}
-        />
-        {colors.map((color, i) => (
+        <Tooltip title="カラーピッカーを開く" arrow>
           <div
-            key={i}
             className={`${styles.colorBox} ${
-              selectedColorIndex === i ? styles.selected : ""
+              selectedColorIndex === -1 ? styles.selected : ""
             }`}
-            style={{ backgroundColor: color }}
             onClick={() => {
-              setSelectedColorIndex(i);
-              onClick?.(color);
+              setSelectedColorIndex(-1);
+              setPickerVisible(!pickerVisible);
+              onChange?.(createColor);
             }}
-          />
+            style={{ backgroundColor: createColor }}
+          >
+            <Add color="action" />
+          </div>
+        </Tooltip>
+        {colors.map((color, i) => (
+          <Tooltip key={i} title={color} arrow>
+            <div
+              key={i}
+              className={`${styles.colorBox} ${
+                selectedColorIndex === i ? styles.selected : ""
+              }`}
+              style={{ backgroundColor: color }}
+              onClick={() => {
+                setSelectedColorIndex(i);
+                onChange?.(color);
+              }}
+            />
+          </Tooltip>
         ))}
       </div>
     </div>
   );
-}
+});
+
+export default PartsPallet;

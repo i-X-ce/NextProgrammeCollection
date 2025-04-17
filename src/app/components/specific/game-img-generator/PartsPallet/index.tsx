@@ -1,6 +1,6 @@
 import { memo, useState } from "react";
 import styles from "./style.module.css";
-import { Add } from "@mui/icons-material";
+import { Palette } from "@mui/icons-material";
 import { Tooltip } from "@mui/material";
 import PopoverWrapper from "@/app/components/common/PopoverWrapper";
 import { ChromePicker } from "react-color";
@@ -28,7 +28,7 @@ const PartsPallet = memo(function PartsPallet({
 
   return (
     <div className={styles.container}>
-      <div>{title}</div>
+      <h2 className={styles.title}>{title}</h2>
       <PopoverWrapper
         open={pickerVisible}
         onClose={() => setPickerVisible(false)}
@@ -100,7 +100,7 @@ const ColorBox = memo(function ColorBox({
             selected ? styles.selected : ""
           }`}
         /> */}
-        {add && <Add color="action" sx={{ zIndex: 2 }} />}
+        {add && <Palette color="action" sx={{ zIndex: 2 }} />}
       </div>
     </Tooltip>
   );

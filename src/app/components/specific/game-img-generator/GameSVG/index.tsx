@@ -44,18 +44,31 @@ const initialStyleColors: Record<GameType, StyleColor[]> = {
   GB: [
     { style: "shell", color: partsPalletes.shell[0] },
     { style: "AB", color: partsPalletes.AB[0] },
-    { style: "rubber", color: partsPalletes.rubber[0] },
-    { style: "shadow", color: partsPalletes.shadow[0] },
-    { style: "lamp", color: partsPalletes.lamp[0] },
     { style: "cross", color: partsPalletes.cross[0] },
+    { style: "rubber", color: partsPalletes.rubber[0] },
     { style: "screen", color: partsPalletes.screen[0] },
     { style: "glass", color: partsPalletes.glass[0] },
+    { style: "lamp", color: partsPalletes.lamp[0] },
+    { style: "shadow", color: partsPalletes.shadow[0] },
   ],
   GBP: [],
   GBC: [],
   GBA: [],
   GC: [],
   SFC: [],
+};
+
+// パーツの名前
+const partsNames: Record<PartsStyles, string> = {
+  shell: "外装",
+  cross: "十字キー",
+  screen: "画面",
+  glass: "画面ガラス",
+  lamp: "ランプ",
+  shadow: "影・溝",
+  button: "ボタン",
+  AB: "ABボタン",
+  rubber: "ラバーボタン",
 };
 
 // // パレットを表示させるスタイルのセットを定義
@@ -320,7 +333,11 @@ export default function GameSVG({ gameType }: { gameType: GameType }) {
 
   return (
     <div className={styles.container}>
-      <div className={styles.svgContainer}>{svgs[gameType]}</div>
+      <div className={styles.svgContainer}>
+        <h2 className={styles.svgTitle}>{gameType}</h2>
+        <div className={styles.svgWrapper}>{svgs[gameType]}</div>
+      </div>
+
       <PopoverWrapper
         open={openColorPicker}
         onClose={() => setOpenColorPicker(false)}
@@ -339,32 +356,31 @@ export default function GameSVG({ gameType }: { gameType: GameType }) {
         />
       </PopoverWrapper>
 
-      <div>
+      <div className={styles.palletContainer}>
         {initialStyleColors[gameType].map((styleObject) => (
-          <div key={`${gameType} ${styleObject.style}`}>
-            <PartsPallet
-              title={styleObject.style}
-              colors={partsPalletes[styleObject.style]}
-              color={styleObject.color}
-              onChange={(color) => {
-                const newStyleColors = styleColors.map((s) =>
-                  s.style === styleObject.style ? { ...s, color } : s
+          <PartsPallet
+            key={`${gameType} ${styleObject.style}`}
+            title={partsNames[styleObject.style]}
+            colors={partsPalletes[styleObject.style]}
+            color={styleObject.color}
+            onChange={(color) => {
+              const newStyleColors = styleColors.map((s) =>
+                s.style === styleObject.style ? { ...s, color } : s
+              );
+              setStyleColors(newStyleColors);
+              // 個別で変更した部品をリセットする
+              setChangePartsList((prev) => {
+                const resetParts = prev.filter(
+                  (part) => part.name === styleObject.style
                 );
-                setStyleColors(newStyleColors);
-                // 個別で変更した部品をリセットする
-                setChangePartsList((prev) => {
-                  const resetParts = prev.filter(
-                    (part) => part.name === styleObject.style
-                  );
-                  resetParts.forEach((part) => {
-                    const element = part.element;
-                    element.removeAttribute("style");
-                  });
-                  return prev.filter((part) => part.name !== styleObject.style);
+                resetParts.forEach((part) => {
+                  const element = part.element;
+                  element.removeAttribute("style");
                 });
-              }}
-            />
-          </div>
+                return prev.filter((part) => part.name !== styleObject.style);
+              });
+            }}
+          />
         ))}
       </div>
     </div>

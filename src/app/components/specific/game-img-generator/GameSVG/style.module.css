@@ -6,11 +6,36 @@
 }
 
 .svgContainer {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  border: 1px solid var(--bc-shadow);
+  border-radius: 20px;
+  box-shadow: var(--shadow-template);
+}
+
+.svgTitle {
+  font-size: xx-large;
+  font-weight: bold;
+  color: var(--bc-primary);
+  padding-left: 30px;
+  border-bottom: 1px solid var(--bc-shadow);
+}
+
+.svgWrapper {
   display: flex;
   justify-content: center;
   align-items: center;
-  position: relative;
-  width: 30%;
+  width: 500px;
   padding: 30px;
-  border: 1px solid var(--foreground);
+  flex: 1;
+}
+
+.palletContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 30%;
+  /* align-items: start; */
 }

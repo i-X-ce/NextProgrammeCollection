@@ -2,6 +2,20 @@
   position: relative;
   display: flex;
   flex-direction: column;
+  /* margin: 10px 0; */
+  gap: 5px;
+  padding: 10px;
+  /* box-shadow: var(--shadow-template);
+  border-left: 5px solid var(--bc-primary); */
+  border-top: 1px solid var(--bc-shadow);
+  border-radius: 0 5px 5px 0;
+}
+
+.title {
+  position: relative;
+  font-size: large;
+  font-weight: bold;
+  left: 5px;
 }
 
 .colorBoxContainer {
@@ -9,6 +23,7 @@
   flex-wrap: wrap;
   gap: 10px;
 }
+
 .colorBox {
   height: 40px;
   aspect-ratio: 1/1;

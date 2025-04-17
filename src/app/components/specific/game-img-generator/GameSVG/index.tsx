@@ -2,7 +2,8 @@
 import PartsPallet from "../PartsPallet";
 import styles from "./style.module.css";
 import { ReactNode, useRef, useState } from "react";
-import ChromePickerWrapper from "../ChromePickerWrapper";
+import PopoverWrapper from "@/app/components/common/PopoverWrapper";
+import { ChromePicker } from "react-color";
 
 // 表示できるゲーム機の種類
 type GameType = "GB" | "GBP" | "GBC" | "GBA" | "GC" | "SFC";
@@ -85,21 +86,29 @@ export default function GameSVG({ gameType }: { gameType: GameType }) {
     null
   ); // クリックした要素を保存するためのref
 
-  const handleSVGClick = (event: React.MouseEvent<SVGElement>) => {
-    console.log("click");
-    const target = event.target as SVGElement;
+  const handleSVGClick = (e: React.MouseEvent<SVGElement>) => {
+    const target = e.target as SVGElement;
     const targetId = target.getAttribute("id");
     const targetName = target.getAttribute("data-name");
     const targetStyle = !targetName ? targetId : targetName;
     if (!targetId && !targetName) return;
     if (!targetStyle) return;
+    console.log({ target, style: targetStyle });
     setOpenColorPicker(true);
     targetElement.current = { target, style: targetStyle }; // クリックした要素を保存
     // targetの色を取得する
     const computedStyle = window.getComputedStyle(target);
     const fill = computedStyle.fill;
     setCreateColor(fill);
-
+    setChangePartsList((prev) => {
+      return [
+        ...prev,
+        {
+          name: targetStyle as PartsStyles,
+          element: target,
+        },
+      ];
+    });
     // const newColor = prompt(`色を入力してください:`);
     // if (newColor) {
     //   target.setAttribute("style", `fill: #${newColor} !important;`);
@@ -312,11 +321,13 @@ export default function GameSVG({ gameType }: { gameType: GameType }) {
   return (
     <div className={styles.container}>
       <div className={styles.svgContainer}>{svgs[gameType]}</div>
-
-      <ChromePickerWrapper
-        props={{
-          color: createColor || "#ffffff",
-          onChange: (color) => {
+      <PopoverWrapper
+        open={openColorPicker}
+        onClose={() => setOpenColorPicker(false)}
+      >
+        <ChromePicker
+          color={createColor || "#ffffff"}
+          onChange={(color) => {
             if (!targetElement.current) return;
             const target = targetElement.current.target;
             const targetStyle = targetElement.current.style;
@@ -324,22 +335,9 @@ export default function GameSVG({ gameType }: { gameType: GameType }) {
             const rgba = `rgba(${color.rgb.r}, ${color.rgb.g}, ${color.rgb.b}, ${color.rgb.a})`;
             setCreateColor(rgba);
             target.setAttribute("style", `fill: ${rgba} !important;`);
-            setChangePartsList((prev) => {
-              return [
-                ...prev,
-                {
-                  name: targetStyle as PartsStyles,
-                  element: target,
-                },
-              ];
-            });
-          },
-        }}
-        open={openColorPicker}
-        onClose={() => {
-          setOpenColorPicker(false);
-        }}
-      />
+          }}
+        />
+      </PopoverWrapper>
 
       <div>
         {initialStyleColors[gameType].map((styleObject) => (

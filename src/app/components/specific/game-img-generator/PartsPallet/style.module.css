@@ -6,6 +6,7 @@
 
 .colorBoxContainer {
   display: flex;
+  flex-wrap: wrap;
   gap: 10px;
 }
 .colorBox {
@@ -20,13 +21,13 @@
   transition: transform 0.2s;
 }
 
-.colorBox:hover {
+/* .colorBox:hover {
   transform: scale(1.1);
-}
+} */
 
-.selected {
+/* .selected {
   border: 5px solid var(--bc-primary);
-}
+} */
 
 .pickerPopover {
   position: absolute;
@@ -36,4 +37,29 @@
 .pickerCover {
   position: fixed;
   inset: 0;
+}
+
+.hoverCircle {
+  position: absolute;
+  width: 70%;
+  aspect-ratio: 1/1;
+  background-color: var(--background);
+  border-radius: 500px;
+  box-shadow: var(--shadow-template);
+  transform: scale(0);
+  transition: transform 0.1s;
+}
+
+.hoverCircleInner {
+  position: absolute;
+  width: 50%;
+  aspect-ratio: 1/1;
+  border-radius: 500px;
+  background-color: var(--bc-primary);
+  transform: scale(0);
+}
+
+.selected,
+.colorBox:hover .hoverCircle {
+  transform: scale(1);
 }

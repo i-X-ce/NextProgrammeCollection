@@ -1,14 +1,12 @@
 import styles from "./style.module.css";
 
-import { ChromePicker, ChromePickerProps } from "react-color";
-
-export default function ChromePickerWrapper({
-  props,
-  open,
+export default function PopoverWrapper({
+  children,
+  open = true,
   onClose,
 }: {
-  props: ChromePickerProps;
-  open: boolean;
+  children: React.ReactNode;
+  open?: boolean;
   onClose?: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
 }) {
   return (
@@ -16,7 +14,7 @@ export default function ChromePickerWrapper({
       {open && (
         <>
           <div className={styles.cover} onClick={onClose} />
-          <ChromePicker {...props} />
+          {children}
         </>
       )}
     </div>

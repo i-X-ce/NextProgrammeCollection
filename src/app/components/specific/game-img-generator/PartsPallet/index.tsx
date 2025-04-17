@@ -2,7 +2,8 @@ import { memo, useState } from "react";
 import styles from "./style.module.css";
 import { Add } from "@mui/icons-material";
 import { Tooltip } from "@mui/material";
-import ChromePickerWrapper from "../ChromePickerWrapper";
+import PopoverWrapper from "@/app/components/common/PopoverWrapper";
+import { ChromePicker } from "react-color";
 
 type PartsPalletProps = {
   title: string;
@@ -28,55 +29,79 @@ const PartsPallet = memo(function PartsPallet({
   return (
     <div className={styles.container}>
       <div>{title}</div>
-      <ChromePickerWrapper
-        props={{
-          onChange: (color) => {
+      <PopoverWrapper
+        open={pickerVisible}
+        onClose={() => setPickerVisible(false)}
+      >
+        <ChromePicker
+          onChange={(color) => {
             const rgba = `rgba(${color.rgb.r}, ${color.rgb.g}, ${color.rgb.b}, ${color.rgb.a})`;
             setCreateColor(rgba);
             onChange?.(rgba);
-          },
-          color: createColor,
-        }}
-        open={pickerVisible}
-        onClose={(e) => {
-          e.stopPropagation();
-          setPickerVisible(false);
-        }}
-      />
+          }}
+          color={createColor}
+        />
+      </PopoverWrapper>
       <div className={styles.colorBoxContainer}>
-        <Tooltip title="カラーピッカーを開く" arrow>
-          <div
-            className={`${styles.colorBox} ${
-              selectedColorIndex === -1 ? styles.selected : ""
-            }`}
-            onClick={() => {
-              setSelectedColorIndex(-1);
-              setPickerVisible(!pickerVisible);
-              onChange?.(createColor);
-            }}
-            style={{ backgroundColor: createColor }}
-          >
-            <Add color="action" />
-          </div>
-        </Tooltip>
-        {colors.map((color, i) => (
-          <Tooltip key={i} title={color} arrow>
-            <div
+        <ColorBox
+          add
+          color={createColor}
+          onClick={() => {
+            setSelectedColorIndex(-1);
+            setPickerVisible(!pickerVisible);
+            onChange?.(createColor);
+          }}
+          selected={selectedColorIndex === -1}
+        />
+        {colors.map((color, i) => {
+          return (
+            <ColorBox
               key={i}
-              className={`${styles.colorBox} ${
-                selectedColorIndex === i ? styles.selected : ""
-              }`}
-              style={{ backgroundColor: color }}
+              color={color}
+              selected={selectedColorIndex === i}
               onClick={() => {
                 setSelectedColorIndex(i);
                 onChange?.(color);
               }}
             />
-          </Tooltip>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
 });
 
 export default PartsPallet;
+
+const ColorBox = memo(function ColorBox({
+  color,
+  selected,
+  onClick,
+  add,
+}: {
+  color?: string;
+  selected?: boolean;
+  onClick?: () => void;
+  add?: boolean;
+}) {
+  return (
+    <Tooltip title={add ? "自由に指定" : color} arrow>
+      <div
+        className={`${styles.colorBox}`}
+        // className={`${styles.colorBox} ${selected ? styles.selected : ""}`}
+        style={{ backgroundColor: color }}
+        onClick={onClick}
+      >
+        <div
+          className={`${styles.hoverCircle} ${selected ? styles.selected : ""}`}
+        />
+        {/* <div
+          className={`${styles.hoverCircleInner} ${
+            selected ? styles.selected : ""
+          }`}
+        /> */}
+        {add && <Add color="action" sx={{ zIndex: 2 }} />}
+      </div>
+    </Tooltip>
+  );
+});

@@ -4,6 +4,20 @@ import styles from "./style.module.css";
 import { ReactNode, useRef, useState } from "react";
 import PopoverWrapper from "@/app/components/common/PopoverWrapper";
 import { ChromePicker } from "react-color";
+import {
+  Button,
+  Checkbox,
+  Slider,
+  ToggleButton,
+  ToggleButtonGroup,
+  Tooltip,
+} from "@mui/material";
+import {
+  Circle,
+  Landscape,
+  LandscapeOutlined,
+  Square,
+} from "@mui/icons-material";
 
 // 表示できるゲーム機の種類
 type GameType = "GB" | "GBP" | "GBC" | "GBA" | "GC" | "SFC";
@@ -71,6 +85,34 @@ const partsNames: Record<PartsStyles, string> = {
   rubber: "ラバーボタン",
 };
 
+// ゲーム機の名前
+const GameNames: Record<GameType, { EN: GameType; JP: string }> = {
+  GB: {
+    EN: "GB",
+    JP: "ゲームボーイ",
+  },
+  GBP: {
+    EN: "GBP",
+    JP: "ゲームボーイポケット",
+  },
+  GBC: {
+    EN: "GBC",
+    JP: "ゲームボーイカラー",
+  },
+  GBA: {
+    EN: "GBA",
+    JP: "ゲームボーイアドバンス",
+  },
+  GC: {
+    EN: "GC",
+    JP: "ゲームキューブ",
+  },
+  SFC: {
+    EN: "SFC",
+    JP: "スーパーファミコン",
+  },
+};
+
 // // パレットを表示させるスタイルのセットを定義
 // const displayStyleSet: Record<GameType, PartsStyles[]> = {
 //   GB: ["shell", "AB", "rubber", "cross", "screen", "glass", "lamp", "shadow"],
@@ -81,13 +123,17 @@ const partsNames: Record<PartsStyles, string> = {
 //   SFC: [],
 // };
 
-export default function GameSVG({ gameType }: { gameType: GameType }) {
+export default function GameSVG() {
+  const [gameType, setGameType] = useState<GameType>("GB");
   const [styleColors, setStyleColors] = useState<StyleColor[]>(
     initialStyleColors[gameType]
   );
   const [_changePartsList, setChangePartsList] = useState<
     { name: PartsStyles; element: SVGElement }[]
   >([]); // 個別に変更した部品のリスト
+
+  const svgRef = useRef<SVGSVGElement>(null);
+  // const svgRef = useRef<HTMLDivElement>(null);
 
   const getColor = (style: PartsStyles) => {
     return styleColors.find((s) => s.style === style)?.color;
@@ -98,6 +144,12 @@ export default function GameSVG({ gameType }: { gameType: GameType }) {
   const targetElement = useRef<{ target: SVGElement | null; style: string }>(
     null
   ); // クリックした要素を保存するためのref
+
+  const [backgroundEnabled, setBackgroundEnabled] = useState(false); // 背景の有無
+  const [backgroundShape, setBackgroundShape] = useState<"circle" | "square">(
+    "circle"
+  ); // 背景の形
+  const [backgroundSize, setBackgroundSize] = useState(0); // 背景のサイズ
 
   const handleSVGClick = (e: React.MouseEvent<SVGElement>) => {
     const target = e.target as SVGElement;
@@ -137,6 +189,82 @@ export default function GameSVG({ gameType }: { gameType: GameType }) {
     // }
   };
 
+  // 画像ダウンロードの処理
+  const handleSVGDownload = () => {
+    const svg = svgRef.current;
+    if (!svg) return;
+    console.log(svg);
+    const svgData = new XMLSerializer().serializeToString(svg);
+    const svgBlob = new Blob([svgData], {
+      type: "image/svg+xml;charset=utf-8",
+    });
+    console.log(svgBlob);
+    const url = URL.createObjectURL(svgBlob);
+    const image = new Image();
+    image.onload = () => {
+      const canvas = document.createElement("canvas");
+      const context = canvas.getContext("2d");
+      if (!context) return;
+      // 背景の有無で分岐
+      const size = 1000;
+      if (backgroundEnabled) {
+        canvas.width = size;
+        canvas.height = size;
+        context.fillStyle = "#ffffff"; // 背景色を白に設定
+        if (backgroundShape === "circle") {
+          context.beginPath();
+          context.arc(size / 2, size / 2, size / 2, 0, Math.PI * 2);
+          context.closePath();
+          context.fill();
+        } else {
+          context.fillRect(0, 0, canvas.width, canvas.height);
+        }
+        let w = 0;
+        let h = 0;
+        if (image.width > image.height) {
+          w = svg.clientHeight;
+          h = (image.height / image.width) * svg.clientHeight;
+        } else {
+          w = (image.width / image.height) * svg.clientHeight;
+          h = svg.clientHeight;
+        }
+        const x = (size - w) / 2;
+        const y = (size - h) / 2;
+        context.drawImage(image, x, y, w, h);
+      } else {
+        if (image.width > image.height) {
+          canvas.width = size;
+          canvas.height = size * (image.height / image.width);
+        } else {
+          canvas.width = size * (image.width / image.height);
+          canvas.height = size;
+        }
+        context.drawImage(image, 0, 0, canvas.width, canvas.height);
+      }
+
+      const pngUrl = canvas.toDataURL("image/png");
+      const a = document.createElement("a");
+      a.href = pngUrl;
+      a.download = `${gameType}.png`;
+      a.click();
+      URL.revokeObjectURL(url);
+    };
+    image.src = url;
+
+    // const canvas = await html2canvas(target);
+    // const dataUrl = canvas.toDataURL("image/png");
+    // const link = document.createElement("a");
+    // link.href = dataUrl;
+    // link.download = `${gameType}.png`;
+    // link.click();
+    // console.log("ダウンロード完了");
+  };
+
+  // SVG追加ルール
+  // -- レイヤーにパーツの名前を付ける
+  // -- SVGタグのonClickにhandleSVGClickを追加する
+  // -- svg/defs/styleの中身を``で囲み、fillの色をgetColor(部品名)で取得する
+  // -- svgにrefを追加する
   const svgs: Record<GameType, ReactNode> = {
     GB: (
       <svg
@@ -145,6 +273,7 @@ export default function GameSVG({ gameType }: { gameType: GameType }) {
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 604.34 1000"
         onClick={handleSVGClick}
+        ref={svgRef}
       >
         <defs>
           <style>
@@ -331,11 +460,96 @@ export default function GameSVG({ gameType }: { gameType: GameType }) {
     SFC: undefined,
   };
 
+  const currentSVGView = (size: number) => (
+    <div className={styles.svgWrapper}>
+      <div className={styles.svgWrapper2} style={{ width: size }}>
+        {backgroundEnabled ? (
+          <div
+            className={styles.svgBack}
+            style={{
+              padding: `${backgroundSize}%`,
+              borderRadius: backgroundShape === "circle" ? "100%" : "0",
+            }}
+          >
+            {svgs[gameType]}
+          </div>
+        ) : (
+          svgs[gameType]
+        )}
+      </div>
+    </div>
+  );
+
   return (
     <div className={styles.container}>
-      <div className={styles.svgContainer}>
-        <h2 className={styles.svgTitle}>{gameType}</h2>
-        <div className={styles.svgWrapper}>{svgs[gameType]}</div>
+      {/* 左のコンテナ */}
+      <div className={styles.leftContainer}>
+        <ToggleButtonGroup
+          value={gameType}
+          color="primary"
+          exclusive
+          onChange={(_, value) => {
+            if (!value) return;
+            setGameType(value as GameType);
+            setStyleColors(initialStyleColors[value as GameType]);
+          }}
+        >
+          {Object.values(GameNames).map((game) => (
+            <ToggleButton key={game.EN} value={game.EN}>
+              <img
+                src={`/gameSVG/${game.EN}.svg`}
+                style={{ width: "30px", aspectRatio: 1 }}
+              />
+            </ToggleButton>
+          ))}
+        </ToggleButtonGroup>
+        <div className={styles.bgToolsContainer}>
+          <Tooltip
+            title={`背景を${backgroundEnabled ? "無" : "有"}効にする`}
+            arrow
+          >
+            <Checkbox
+              icon={<LandscapeOutlined />}
+              checkedIcon={<Landscape />}
+              size="large"
+              checked={backgroundEnabled}
+              onChange={(e) => setBackgroundEnabled(e.target.checked)}
+            />
+          </Tooltip>
+          <div className={styles.bgTools}>
+            <Tooltip title="背景の形を変更" arrow>
+              <ToggleButtonGroup
+                exclusive
+                value={backgroundEnabled ? backgroundShape : null}
+                disabled={!backgroundEnabled}
+                color="primary"
+                onChange={(_, value) => {
+                  if (value) setBackgroundShape(value);
+                }}
+              >
+                <ToggleButton value={"circle"}>
+                  <Circle />
+                </ToggleButton>
+                <ToggleButton value={"square"}>
+                  <Square />
+                </ToggleButton>
+              </ToggleButtonGroup>
+            </Tooltip>
+            <Tooltip title="背景の余白を変更" arrow>
+              <Slider
+                disabled={!backgroundEnabled}
+                max={50}
+                onChange={(_, value) => {
+                  setBackgroundSize(value as number);
+                }}
+              />
+            </Tooltip>
+          </div>
+        </div>
+        <div className={styles.svgContainer}>
+          <h2 className={styles.svgTitle}>{gameType}</h2>
+          {currentSVGView(500)}
+        </div>
       </div>
 
       <PopoverWrapper
@@ -356,6 +570,7 @@ export default function GameSVG({ gameType }: { gameType: GameType }) {
         />
       </PopoverWrapper>
 
+      {/* 右のコンテナ */}
       <div className={styles.palletContainer}>
         {initialStyleColors[gameType].map((styleObject) => (
           <PartsPallet
@@ -382,6 +597,14 @@ export default function GameSVG({ gameType }: { gameType: GameType }) {
             }}
           />
         ))}
+        <Button
+          variant="contained"
+          onClick={() => {
+            handleSVGDownload();
+          }}
+        >
+          ダウンロード
+        </Button>
       </div>
     </div>
   );

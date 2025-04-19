@@ -5,7 +5,7 @@ import GameSVG from "../GameSVG";
 export default function GameImgGeneratorContent() {
   return (
     <>
-      <GameSVG gameType="GB" />
+      <GameSVG />
     </>
   );
 }

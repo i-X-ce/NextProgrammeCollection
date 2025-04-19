@@ -265,6 +265,8 @@ export default function GameSVG() {
   // -- SVGタグのonClickにhandleSVGClickを追加する
   // -- svg/defs/styleの中身を``で囲み、fillの色をgetColor(部品名)で取得する
   // -- svgにrefを追加する
+  // -- 同じ色で違うパーツパレットにしたい場合は少しだけカラーコードを変更してクラスをずらしておく
+  // -- 透明度がopacityで指定されている場合は、RGBAで指定する
   const svgs: Record<GameType, ReactNode> = {
     GB: (
       <svg

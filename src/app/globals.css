@@ -10,6 +10,7 @@
   --bc-primary-trans: #1976d240;
   --bc-shadow: #0000001a;
   --bc-action: rgba(0, 0, 0, 0.54);
+  --bc-detail: #7e7e7e;
 
   --shadow-template: 1px 1px 5px 1px var(--bc-shadow);
 }

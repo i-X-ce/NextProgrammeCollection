@@ -11,7 +11,7 @@
   flex-direction: column;
   position: relative;
   border: 1px solid var(--bc-shadow);
-  border-radius: 20px;
+  border-radius: 10px;
   box-shadow: var(--shadow-template);
 }
 
@@ -19,7 +19,7 @@
   font-size: xx-large;
   font-weight: bold;
   color: var(--bc-primary);
-  padding-left: 30px;
+  padding: 10px 30px;
   border-bottom: 1px solid var(--bc-shadow);
 }
 
@@ -27,9 +27,48 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 500px;
   padding: 30px;
   flex: 1;
+  object-fit: contain;
+}
+
+.svgWrapper2 {
+  aspect-ratio: 1/1;
+  overflow: auto;
+}
+
+.svgWrapper2 > svg {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.svgBack {
+  width: 100%;
+  height: 100%;
+  background-color: var(--bc-primary);
+}
+
+.svgBack > svg {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.bgToolsContainer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.bgTools {
+  display: flex;
+  flex-direction: column;
+  align-items: end;
+  width: 50%;
+  padding: 10px 20px;
+  gap: 10px;
 }
 
 .palletContainer {

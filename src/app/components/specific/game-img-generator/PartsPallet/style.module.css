@@ -8,7 +8,6 @@
   /* box-shadow: var(--shadow-template);
   border-left: 5px solid var(--bc-primary); */
   border-top: 1px solid var(--bc-shadow);
-  border-radius: 0 5px 5px 0;
 }
 
 .title {

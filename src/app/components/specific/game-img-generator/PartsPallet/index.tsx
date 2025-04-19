@@ -91,6 +91,7 @@ const ColorBox = memo(function ColorBox({
         // className={`${styles.colorBox} ${selected ? styles.selected : ""}`}
         style={{ backgroundColor: color }}
         onClick={onClick}
+        tabIndex={0}
       >
         <div
           className={`${styles.hoverCircle} ${selected ? styles.selected : ""}`}

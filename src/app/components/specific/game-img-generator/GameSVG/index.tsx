@@ -222,11 +222,11 @@ export default function GameSVG() {
         let w = 0;
         let h = 0;
         if (image.width > image.height) {
-          w = svg.clientHeight;
-          h = (image.height / image.width) * svg.clientHeight;
+          w = size;
+          h = (image.height / image.width) * size;
         } else {
-          w = (image.width / image.height) * svg.clientHeight;
-          h = svg.clientHeight;
+          w = (image.width / image.height) * size;
+          h = size;
         }
         const x = (size - w) / 2;
         const y = (size - h) / 2;

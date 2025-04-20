@@ -128,7 +128,15 @@ const GameNames: Record<GameType, { EN: GameType; JP: string }> = {
 
 export default function GameSVG() {
   const [gameType, setGameType] = useState<GameType>("GB");
-  const [styleColors, setStyleColors] = useState<StyleColor[]>(
+  const [styleColors, setStyleColors] = useState<
+    Record<GameType, StyleColor[]>
+  >(
+    Object.values(GameNames).reduce((acc, game) => {
+      acc[game.EN as GameType] = initialStyleColors[game.EN];
+      return acc;
+    }, {} as Record<GameType, StyleColor[]>)
+  );
+  const [styleColors3, setStyleColors3] = useState<StyleColor[]>(
     initialStyleColors[gameType]
   );
   const [_changePartsList, setChangePartsList] = useState<
@@ -139,7 +147,7 @@ export default function GameSVG() {
   // const svgRef = useRef<HTMLDivElement>(null);
 
   const getColor = (style: PartsStyles) => {
-    return styleColors.find((s) => s.style === style)?.color;
+    return styleColors[gameType].find((s) => s.style === style)?.color;
   };
 
   const [openColorPicker, setOpenColorPicker] = useState(false);
@@ -526,7 +534,7 @@ export default function GameSVG() {
           onChange={(_, value) => {
             if (!value) return;
             setGameType(value as GameType);
-            setStyleColors(initialStyleColors[value as GameType]);
+            // setStyleColors3(initialStyleColors[value as GameType]);
           }}
         >
           {Object.values(GameNames).map((game) => (
@@ -570,7 +578,7 @@ export default function GameSVG() {
                 </ToggleButton>
               </ToggleButtonGroup>
             </Tooltip>
-            <Tooltip title="背景の余白を変更" arrow>
+            <Tooltip title={`背景の余白を変更(${backgroundSize * 2}%)`} arrow>
               <Slider
                 disabled={!backgroundEnabled}
                 max={50}
@@ -609,7 +617,7 @@ export default function GameSVG() {
       {/* 右のコンテナ */}
       <div className={styles.palletContainer}>
         {[
-          ...initialStyleColors[gameType],
+          ...styleColors[gameType],
           { style: "background", color: backgroundColor } as StyleColor,
         ].map(
           (styleObject) =>
@@ -626,10 +634,17 @@ export default function GameSVG() {
                     return;
                   }
 
-                  const newStyleColors = styleColors.map((s) =>
-                    s.style === styleObject.style ? { ...s, color } : s
-                  );
-                  setStyleColors(newStyleColors);
+                  // スタイルのカラーを書き換える
+                  setStyleColors((prev) => {
+                    const newStyleColors = styleColors[gameType].map((s) =>
+                      s.style === styleObject.style ? { ...s, color } : s
+                    );
+                    return {
+                      ...prev,
+                      [gameType]: newStyleColors,
+                    };
+                  });
+                  // setStyleColors3(newStyleColors);
                   // 個別で変更した部品をリセットする
                   setChangePartsList((prev) => {
                     const resetParts = prev.filter(

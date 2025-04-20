@@ -216,7 +216,7 @@ export default function GameSVG() {
       if (backgroundEnabled) {
         canvas.width = size;
         canvas.height = size;
-        context.fillStyle = "#ffffff"; // 背景色を白に設定
+        context.fillStyle = backgroundColor;
         if (backgroundShape === "circle") {
           context.beginPath();
           context.arc(size / 2, size / 2, size / 2, 0, Math.PI * 2);

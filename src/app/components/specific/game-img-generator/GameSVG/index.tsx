@@ -228,6 +228,8 @@ export default function GameSVG() {
           w = (image.width / image.height) * size;
           h = size;
         }
+        w *= (100 - backgroundSize * 2) / 100;
+        h *= (100 - backgroundSize * 2) / 100;
         const x = (size - w) / 2;
         const y = (size - h) / 2;
         context.drawImage(image, x, y, w, h);
@@ -484,6 +486,30 @@ export default function GameSVG() {
 
   return (
     <div className={styles.container}>
+      <defs>
+        <style>
+          {`path:hover, rect:hover, circle:hover, polygon:hover, ellipse:hover, line:hover, polyline:hover {
+            animation-name: hover;
+            animation-duration: .5s;
+            animation-fill-mode: forwards;
+            animation-direction: alternate;
+            animation-iteration-count: infinite;
+            filter: ;
+            transition: 0.3s
+          }
+          
+            @keyframes hover {
+              0% {
+                filter: drop-shadow(0px 0px 0 rgb(0, 0, 0)) hue-rotate(0deg);
+              }
+              100% {
+                filter: drop-shadow(10px 10px 0 rgb(0, 0, 0)) hue-rotate(90deg);
+              }
+            }
+          `}
+        </style>
+      </defs>
+
       {/* 左のコンテナ */}
       <div className={styles.leftContainer}>
         <ToggleButtonGroup

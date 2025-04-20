@@ -136,9 +136,6 @@ export default function GameSVG() {
       return acc;
     }, {} as Record<GameType, StyleColor[]>)
   );
-  const [styleColors3, setStyleColors3] = useState<StyleColor[]>(
-    initialStyleColors[gameType]
-  );
   const [_changePartsList, setChangePartsList] = useState<
     { name: PartsStyles; element: SVGElement }[]
   >([]); // 個別に変更した部品のリスト

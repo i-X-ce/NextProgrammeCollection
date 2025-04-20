@@ -32,7 +32,8 @@ type PartsStyles =
   | "shadow"
   | "button"
   | "AB"
-  | "rubber";
+  | "rubber"
+  | "background";
 
 // スタイルとその色
 type StyleColor = {
@@ -51,6 +52,7 @@ const partsPalletes: Record<PartsStyles, string[]> = {
   shadow: ["#0000004c", "#f2f2f2"],
   AB: ["#c12750", "#f2f2f2"],
   rubber: ["#b3b3b3", "#f2f2f2"],
+  background: ["#f2f2f2", "#ed1c24", "#4d4d4d"],
 };
 
 // ゲーム機の色の初期値
@@ -83,6 +85,7 @@ const partsNames: Record<PartsStyles, string> = {
   button: "ボタン",
   AB: "ABボタン",
   rubber: "ラバーボタン",
+  background: "背景",
 };
 
 // ゲーム機の名前
@@ -150,6 +153,9 @@ export default function GameSVG() {
     "circle"
   ); // 背景の形
   const [backgroundSize, setBackgroundSize] = useState(0); // 背景のサイズ
+  const [backgroundColor, setBackgroundColor] = useState(
+    partsPalletes.background[0]
+  ); // 背景の色
 
   const handleSVGClick = (e: React.MouseEvent<SVGElement>) => {
     const target = e.target as SVGElement;
@@ -473,6 +479,7 @@ export default function GameSVG() {
             style={{
               padding: `${backgroundSize}%`,
               borderRadius: backgroundShape === "circle" ? "100%" : "0",
+              backgroundColor,
             }}
           >
             {svgs[gameType]}
@@ -489,13 +496,13 @@ export default function GameSVG() {
       <defs>
         <style>
           {`path:hover, rect:hover, circle:hover, polygon:hover, ellipse:hover, line:hover, polyline:hover {
-            animation-name: hover;
-            animation-duration: .5s;
-            animation-fill-mode: forwards;
-            animation-direction: alternate;
-            animation-iteration-count: infinite;
-            filter: ;
-            transition: 0.3s
+            // animation-name: hover;
+            // animation-duration: .5s;
+            // animation-fill-mode: forwards;
+            // animation-direction: alternate;
+            // animation-iteration-count: infinite;
+            // filter: ;
+            // transition: 0.3s
           }
           
             @keyframes hover {
@@ -580,6 +587,7 @@ export default function GameSVG() {
         </div>
       </div>
 
+      {/* カラーピッカー */}
       <PopoverWrapper
         open={openColorPicker}
         onClose={() => setOpenColorPicker(false)}
@@ -600,31 +608,45 @@ export default function GameSVG() {
 
       {/* 右のコンテナ */}
       <div className={styles.palletContainer}>
-        {initialStyleColors[gameType].map((styleObject) => (
-          <PartsPallet
-            key={`${gameType} ${styleObject.style}`}
-            title={partsNames[styleObject.style]}
-            colors={partsPalletes[styleObject.style]}
-            color={styleObject.color}
-            onChange={(color) => {
-              const newStyleColors = styleColors.map((s) =>
-                s.style === styleObject.style ? { ...s, color } : s
-              );
-              setStyleColors(newStyleColors);
-              // 個別で変更した部品をリセットする
-              setChangePartsList((prev) => {
-                const resetParts = prev.filter(
-                  (part) => part.name === styleObject.style
-                );
-                resetParts.forEach((part) => {
-                  const element = part.element;
-                  element.removeAttribute("style");
-                });
-                return prev.filter((part) => part.name !== styleObject.style);
-              });
-            }}
-          />
-        ))}
+        {[
+          ...initialStyleColors[gameType],
+          { style: "background", color: backgroundColor } as StyleColor,
+        ].map(
+          (styleObject) =>
+            (styleObject.style === "background" && !backgroundEnabled) || (
+              <PartsPallet
+                key={`${gameType} ${styleObject.style}`}
+                title={partsNames[styleObject.style]}
+                colors={partsPalletes[styleObject.style]}
+                color={styleObject.color}
+                onChange={(color) => {
+                  // バックグラウンドは別処理
+                  if (styleObject.style === "background") {
+                    setBackgroundColor(color);
+                    return;
+                  }
+
+                  const newStyleColors = styleColors.map((s) =>
+                    s.style === styleObject.style ? { ...s, color } : s
+                  );
+                  setStyleColors(newStyleColors);
+                  // 個別で変更した部品をリセットする
+                  setChangePartsList((prev) => {
+                    const resetParts = prev.filter(
+                      (part) => part.name === styleObject.style
+                    );
+                    resetParts.forEach((part) => {
+                      const element = part.element;
+                      element.removeAttribute("style");
+                    });
+                    return prev.filter(
+                      (part) => part.name !== styleObject.style
+                    );
+                  });
+                }}
+              />
+            )
+        )}
         <Button
           variant="contained"
           onClick={() => {

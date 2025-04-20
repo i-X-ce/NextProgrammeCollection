@@ -24,7 +24,7 @@
 }
 
 .colorBox {
-  height: 40px;
+  height: 35px;
   aspect-ratio: 1/1;
   border-radius: 500px;
   box-shadow: var(--shadow-template);

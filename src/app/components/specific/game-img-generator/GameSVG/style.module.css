@@ -5,11 +5,18 @@
   gap: 20px;
 }
 
+.leftContainer {
+  position: sticky;
+  top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
 .svgContainer {
   position: relative;
   display: flex;
   flex-direction: column;
-  position: relative;
   border: 1px solid var(--bc-shadow);
   border-radius: 10px;
   box-shadow: var(--shadow-template);
@@ -75,6 +82,6 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
-  width: 30%;
+  width: 40%;
   /* align-items: start; */
 }

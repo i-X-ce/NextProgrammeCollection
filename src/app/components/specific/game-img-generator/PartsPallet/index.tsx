@@ -18,11 +18,12 @@ const PartsPallet = memo(function PartsPallet({
   color,
   onChange,
 }: PartsPalletProps) {
-  colors.sort().reverse();
-  const [selectedColorIndex, setSelectedColorIndex] = useState(
-    colors.indexOf(color)
+  // colors.sort().reverse();
+  const colorIndex = colors.indexOf(color);
+  const [selectedColorIndex, setSelectedColorIndex] = useState(colorIndex);
+  const [createColor, setCreateColor] = useState(
+    colorIndex === -1 ? color : "#ffffff"
   );
-  const [createColor, setCreateColor] = useState("#ffffff");
   const [pickerVisible, setPickerVisible] = useState(false);
   // const colorInputRef = useRef<HTMLInputElement>(null);
 
@@ -85,7 +86,7 @@ const ColorBox = memo(function ColorBox({
   add?: boolean;
 }) {
   return (
-    <Tooltip title={add ? "自由に指定" : color} arrow>
+    <Tooltip title={add ? "自由に指定" : color?.toUpperCase()} arrow>
       <div
         className={`${styles.colorBox}`}
         // className={`${styles.colorBox} ${selected ? styles.selected : ""}`}

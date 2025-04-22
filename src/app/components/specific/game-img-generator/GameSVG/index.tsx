@@ -7,6 +7,7 @@ import { ChromePicker } from "react-color";
 import {
   Button,
   Checkbox,
+  IconButton,
   Slider,
   ToggleButton,
   ToggleButtonGroup,
@@ -14,8 +15,10 @@ import {
 } from "@mui/material";
 import {
   Circle,
+  Download,
   Landscape,
   LandscapeOutlined,
+  Replay,
   Square,
 } from "@mui/icons-material";
 
@@ -49,6 +52,7 @@ const baseColors = [
   "#ffa500", // オレンジ
   "#ffff00", // 黄色
   "#008000", // 緑
+  "#35FFF6", // 水色
   "#0000ff", // 青
   "#4b0082", // 藍（インディゴ）
   "#ee82ee", // 紫（バイオレット）
@@ -1828,7 +1832,6 @@ export default function GameSVG() {
           <style>
             {`.cls-1 {
               fill: none;
-              opacity: .3;
               stroke: ${getColor("shadow")};
               stroke-miterlimit: 10;
               stroke-width: 5px;
@@ -1997,9 +2000,9 @@ export default function GameSVG() {
     ),
   };
 
-  const currentSVGView = (size: number) => (
+  const currentSVGView = (
     <div className={styles.svgWrapper}>
-      <div className={styles.svgWrapper2} style={{ width: size }}>
+      <div className={styles.svgWrapper2}>
         {backgroundEnabled ? (
           <div
             className={styles.svgBack}
@@ -2019,178 +2022,206 @@ export default function GameSVG() {
   );
 
   return (
-    <div className={styles.container}>
-      <defs>
+    <div className={styles.containerWrapper}>
+      <div className={styles.container}>
+        {/* <defs>
         <style>
           {`path:hover, rect:hover, circle:hover, polygon:hover, ellipse:hover, line:hover, polyline:hover {
-            // animation-name: hover;
-            // animation-duration: .5s;
-            // animation-fill-mode: forwards;
-            // animation-direction: alternate;
-            // animation-iteration-count: infinite;
-            // filter: ;
-            // transition: 0.3s
-          }
-          
-            @keyframes hover {
-              0% {
-                filter: drop-shadow(0px 0px 0 rgb(0, 0, 0)) hue-rotate(0deg);
-              }
-              100% {
-                filter: drop-shadow(10px 10px 0 rgb(0, 0, 0)) hue-rotate(90deg);
-              }
+          // animation-name: hover;
+          // animation-duration: .5s;
+          // animation-fill-mode: forwards;
+          // animation-direction: alternate;
+          // animation-iteration-count: infinite;
+          // filter: ;
+          // transition: 0.3s
+        }
+        
+          @keyframes hover {
+            0% {
+              filter: drop-shadow(0px 0px 0 rgb(0, 0, 0)) hue-rotate(0deg);
             }
-          `}
+            100% {
+              filter: drop-shadow(10px 10px 0 rgb(0, 0, 0)) hue-rotate(90deg);
+            }
+          }
+        `}
         </style>
-      </defs>
+      </defs> */}
 
-      {/* 左のコンテナ */}
-      <div className={styles.leftContainer}>
-        <ToggleButtonGroup
-          value={gameType}
-          color="primary"
-          exclusive
-          onChange={(_, value) => {
-            if (!value) return;
-            setGameType(value as GameType);
-            // setStyleColors3(initialStyleColors[value as GameType]);
-          }}
-        >
-          {Object.values(GameNames).map((game) => (
-            <ToggleButton key={game.EN} value={game.EN}>
-              <img
-                src={`/gameSVG/${game.EN}.svg`}
-                style={{ width: "30px", aspectRatio: 1 }}
-              />
-            </ToggleButton>
-          ))}
-        </ToggleButtonGroup>
-        <div className={styles.svgContainer}>
-          <h2 className={styles.svgTitle}>{gameType}</h2>
-          {currentSVGView(500)}
-        </div>
-        <div className={styles.bgToolsContainer}>
-          <Tooltip
-            title={`背景を${backgroundEnabled ? "無" : "有"}効にする`}
-            arrow
+        {/* 左のコンテナ */}
+        <div className={styles.leftContainer}>
+          <ToggleButtonGroup
+            value={gameType}
+            color="primary"
+            exclusive
+            onChange={(_, value) => {
+              if (!value) return;
+              setGameType(value as GameType);
+              // setStyleColors3(initialStyleColors[value as GameType]);
+            }}
           >
-            <Checkbox
-              icon={<LandscapeOutlined />}
-              checkedIcon={<Landscape />}
-              size="large"
-              checked={backgroundEnabled}
-              onChange={(e) => setBackgroundEnabled(e.target.checked)}
-            />
-          </Tooltip>
-          <div className={styles.bgTools}>
-            <Tooltip title="背景の形を変更" arrow>
-              <ToggleButtonGroup
-                exclusive
-                value={backgroundEnabled ? backgroundShape : null}
-                disabled={!backgroundEnabled}
-                color="primary"
-                onChange={(_, value) => {
-                  if (value) setBackgroundShape(value);
-                }}
-              >
-                <ToggleButton value={"circle"}>
-                  <Circle />
-                </ToggleButton>
-                <ToggleButton value={"square"}>
-                  <Square />
-                </ToggleButton>
-              </ToggleButtonGroup>
-            </Tooltip>
-            <Tooltip title={`背景の余白を変更(${backgroundSize * 2}%)`} arrow>
-              <Slider
-                disabled={!backgroundEnabled}
-                max={50}
-                value={backgroundSize}
-                onChange={(_, value) => {
-                  setBackgroundSize(value as number);
-                }}
-              />
-            </Tooltip>
+            {Object.values(GameNames).map((game) => (
+              <ToggleButton key={game.EN} value={game.EN}>
+                <img
+                  src={`/gameSVG/${game.EN}.svg`}
+                  style={{ width: "30px", aspectRatio: 1 }}
+                />
+              </ToggleButton>
+            ))}
+          </ToggleButtonGroup>
+          <div className={styles.svgContainer}>
+            <div className={styles.svgTitleContainer}>
+              <Tooltip title="色をリセットする" arrow>
+                <IconButton
+                  color="primary"
+                  onClick={() => {
+                    setStyleColors((prev) => {
+                      return {
+                        ...prev,
+                        [gameType]: initialStyleColors[gameType],
+                      };
+                    });
+                    setChangePartsList([]);
+                  }}
+                >
+                  <Replay />
+                </IconButton>
+              </Tooltip>
+              <h2 className={styles.svgTitle}>{gameType}</h2>
+            </div>
+            {currentSVGView}
           </div>
         </div>
-      </div>
 
-      {/* カラーピッカー */}
-      <PopoverWrapper
-        open={openColorPicker}
-        onClose={() => setOpenColorPicker(false)}
-      >
-        <ChromePicker
-          color={createColor || "#ffffff"}
-          onChange={(color) => {
-            if (!targetElement.current) return;
-            const target = targetElement.current.target;
-            const targetStyle = targetElement.current.style;
-            if (!target || !targetStyle) return;
-            const rgba = `rgba(${color.rgb.r}, ${color.rgb.g}, ${color.rgb.b}, ${color.rgb.a})`;
-            setCreateColor(rgba);
-            target.setAttribute("style", `fill: ${rgba} !important;`);
-          }}
-        />
-      </PopoverWrapper>
-
-      {/* 右のコンテナ */}
-      <div className={styles.palletContainer}>
-        {[
-          ...styleColors[gameType],
-          { style: "background", color: backgroundColor } as StyleColor,
-        ].map(
-          (styleObject) =>
-            (styleObject.style === "background" && !backgroundEnabled) || (
-              <PartsPallet
-                key={`${gameType} ${styleObject.style}`}
-                title={partsNames[styleObject.style]}
-                colors={partsPalletes[styleObject.style]}
-                color={styleObject.color}
-                onChange={(color) => {
-                  // バックグラウンドは別処理
-                  if (styleObject.style === "background") {
-                    setBackgroundColor(color);
-                    return;
-                  }
-
-                  // スタイルのカラーを書き換える
-                  setStyleColors((prev) => {
-                    const newStyleColors = styleColors[gameType].map((s) =>
-                      s.style === styleObject.style ? { ...s, color } : s
-                    );
-                    return {
-                      ...prev,
-                      [gameType]: newStyleColors,
-                    };
-                  });
-                  // setStyleColors3(newStyleColors);
-                  // 個別で変更した部品をリセットする
-                  setChangePartsList((prev) => {
-                    const resetParts = prev.filter(
-                      (part) => part.name === styleObject.style
-                    );
-                    resetParts.forEach((part) => {
-                      const element = part.element;
-                      element.removeAttribute("style");
-                    });
-                    return prev.filter(
-                      (part) => part.name !== styleObject.style
-                    );
-                  });
-                }}
-              />
-            )
-        )}
-        <Button
-          variant="contained"
-          onClick={() => {
-            handleSVGDownload();
-          }}
+        {/* カラーピッカー */}
+        <PopoverWrapper
+          open={openColorPicker}
+          onClose={() => setOpenColorPicker(false)}
         >
-          ダウンロード
-        </Button>
+          <ChromePicker
+            color={createColor || "#ffffff"}
+            onChange={(color) => {
+              if (!targetElement.current) return;
+              const target = targetElement.current.target;
+              const targetStyle = targetElement.current.style;
+              if (!target || !targetStyle) return;
+              const rgba = `rgba(${color.rgb.r}, ${color.rgb.g}, ${color.rgb.b}, ${color.rgb.a})`;
+              setCreateColor(rgba);
+              target.setAttribute("style", `fill: ${rgba} !important;`);
+            }}
+          />
+        </PopoverWrapper>
+
+        {/* 右のコンテナ */}
+        <div className={styles.palletContainer}>
+          {/* 背景ツール */}
+          <div className={styles.bgToolsContainer}>
+            <div className={styles.bgToolsTitleContainer}>
+              <p className={styles.bgToolsTitle}>背景設定</p>
+              <Tooltip
+                title={`背景を${backgroundEnabled ? "無" : "有"}効にする`}
+                arrow
+              >
+                <Checkbox
+                  icon={<LandscapeOutlined />}
+                  checkedIcon={<Landscape />}
+                  size="large"
+                  checked={backgroundEnabled}
+                  onChange={(e) => setBackgroundEnabled(e.target.checked)}
+                />
+              </Tooltip>
+            </div>
+            <div className={styles.bgTools}>
+              <Tooltip title="背景の形を変更" arrow>
+                <ToggleButtonGroup
+                  fullWidth
+                  exclusive
+                  value={backgroundEnabled ? backgroundShape : null}
+                  disabled={!backgroundEnabled}
+                  color="primary"
+                  onChange={(_, value) => {
+                    if (value) setBackgroundShape(value);
+                  }}
+                >
+                  <ToggleButton value={"circle"}>
+                    <Circle />
+                  </ToggleButton>
+                  <ToggleButton value={"square"}>
+                    <Square />
+                  </ToggleButton>
+                </ToggleButtonGroup>
+              </Tooltip>
+              <Tooltip title={`背景の余白を変更(${backgroundSize * 2}%)`} arrow>
+                <Slider
+                  disabled={!backgroundEnabled}
+                  max={50}
+                  value={backgroundSize}
+                  onChange={(_, value) => {
+                    setBackgroundSize(value as number);
+                  }}
+                />
+              </Tooltip>
+            </div>
+          </div>
+          {/* パレット */}
+          {[
+            ...styleColors[gameType],
+            { style: "background", color: backgroundColor } as StyleColor,
+          ].map(
+            (styleObject) =>
+              (styleObject.style === "background" && !backgroundEnabled) || (
+                <PartsPallet
+                  key={`${gameType} ${styleObject.style}`}
+                  title={partsNames[styleObject.style]}
+                  colors={partsPalletes[styleObject.style]}
+                  color={styleObject.color}
+                  onChange={(color) => {
+                    // バックグラウンドは別処理
+                    if (styleObject.style === "background") {
+                      setBackgroundColor(color);
+                      return;
+                    }
+
+                    // スタイルのカラーを書き換える
+                    setStyleColors((prev) => {
+                      const newStyleColors = styleColors[gameType].map((s) =>
+                        s.style === styleObject.style ? { ...s, color } : s
+                      );
+                      return {
+                        ...prev,
+                        [gameType]: newStyleColors,
+                      };
+                    });
+                    // setStyleColors3(newStyleColors);
+                    // 個別で変更した部品をリセットする
+                    setChangePartsList((prev) => {
+                      const resetParts = prev.filter(
+                        (part) => part.name === styleObject.style
+                      );
+                      resetParts.forEach((part) => {
+                        const element = part.element;
+                        element.removeAttribute("style");
+                      });
+                      return prev.filter(
+                        (part) => part.name !== styleObject.style
+                      );
+                    });
+                  }}
+                />
+              )
+          )}
+        </div>
       </div>
+      <Button
+        variant="contained"
+        onClick={() => {
+          handleSVGDownload();
+        }}
+        size="large"
+        endIcon={<Download />}
+      >
+        ダウンロード
+      </Button>
     </div>
   );
 }

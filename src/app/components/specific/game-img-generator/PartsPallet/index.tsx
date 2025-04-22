@@ -1,7 +1,7 @@
 import { memo, useState } from "react";
 import styles from "./style.module.css";
-import { Palette } from "@mui/icons-material";
-import { Tooltip } from "@mui/material";
+import { ExpandMore, Palette } from "@mui/icons-material";
+import { Collapse, Tooltip } from "@mui/material";
 import PopoverWrapper from "@/app/components/common/PopoverWrapper";
 import { ChromePicker } from "react-color";
 
@@ -26,10 +26,27 @@ const PartsPallet = memo(function PartsPallet({
   );
   const [pickerVisible, setPickerVisible] = useState(false);
   // const colorInputRef = useRef<HTMLInputElement>(null);
+  const [open, setOpen] = useState(false);
 
   return (
-    <div className={styles.container}>
-      <h2 className={styles.title}>{title}</h2>
+    <div
+      className={styles.container}
+      onMouseEnter={() => setOpen(true)}
+      onMouseLeave={() => setOpen(false)}
+    >
+      <div className={styles.titleContainer}>
+        <span className={styles.titleWrapper}>
+          <div
+            className={styles.sampleColor}
+            style={{ backgroundColor: color }}
+          />
+          <h2 className={styles.title}>{title}</h2>
+        </span>
+        <ExpandMore
+          color="action"
+          sx={{ transform: `rotate(${open ? 180 : 0}deg)`, transition: "0.2s" }}
+        />
+      </div>
       <PopoverWrapper
         open={pickerVisible}
         onClose={() => setPickerVisible(false)}
@@ -43,31 +60,33 @@ const PartsPallet = memo(function PartsPallet({
           color={createColor}
         />
       </PopoverWrapper>
-      <div className={styles.colorBoxContainer}>
-        <ColorBox
-          add
-          color={createColor}
-          onClick={() => {
-            setSelectedColorIndex(-1);
-            setPickerVisible(!pickerVisible);
-            onChange?.(createColor);
-          }}
-          selected={selectedColorIndex === -1}
-        />
-        {colors.map((color, i) => {
-          return (
-            <ColorBox
-              key={i}
-              color={color}
-              selected={selectedColorIndex === i}
-              onClick={() => {
-                setSelectedColorIndex(i);
-                onChange?.(color);
-              }}
-            />
-          );
-        })}
-      </div>
+      <Collapse in={open} timeout={200}>
+        <div className={styles.colorBoxContainer}>
+          <ColorBox
+            add
+            color={createColor}
+            onClick={() => {
+              setSelectedColorIndex(-1);
+              setPickerVisible(!pickerVisible);
+              onChange?.(createColor);
+            }}
+            selected={selectedColorIndex === -1}
+          />
+          {colors.map((color, i) => {
+            return (
+              <ColorBox
+                key={i}
+                color={color}
+                selected={selectedColorIndex === i}
+                onClick={() => {
+                  setSelectedColorIndex(i);
+                  onChange?.(color);
+                }}
+              />
+            );
+          })}
+        </div>
+      </Collapse>
     </div>
   );
 });
@@ -86,7 +105,7 @@ const ColorBox = memo(function ColorBox({
   add?: boolean;
 }) {
   return (
-    <Tooltip title={add ? "自由に指定" : color?.toUpperCase()} arrow>
+    <Tooltip title={add ? "カラーピッカーで指定" : color?.toUpperCase()} arrow>
       <div
         className={`${styles.colorBox}`}
         // className={`${styles.colorBox} ${selected ? styles.selected : ""}`}

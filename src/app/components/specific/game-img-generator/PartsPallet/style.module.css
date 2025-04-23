@@ -99,3 +99,17 @@
 .colorBox:hover .hoverCircle {
   transform: scale(1);
 }
+
+@media (max-width: 700px) {
+  .container {
+    padding: 10px 5%;
+  }
+
+  .colorBox {
+    height: 25px;
+  }
+
+  .colorBoxContainer {
+    gap: 5px;
+  }
+}

@@ -2143,6 +2143,8 @@ export default function GameSVG() {
                 setGameType(value as GameType);
                 // setStyleColors3(initialStyleColors[value as GameType]);
               }}
+              size="small"
+              sx={{ backgroundColor: "var(--background)" }}
             >
               {Object.values(GameNames).map((game) => (
                 <ToggleButton key={game.EN} value={game.EN}>
@@ -2178,45 +2180,57 @@ export default function GameSVG() {
               </div>
               {currentSVGView}
             </div>
+
+            {/* カラーピッカー */}
+            <PopoverWrapper
+              open={openColorPicker}
+              onClose={() => setOpenColorPicker(false)}
+            >
+              <div
+                style={{
+                  position: "absolute",
+                  top: `${
+                    targetElement.current?.target?.getBoundingClientRect().top
+                  }px`,
+                  left: `${
+                    targetElement.current?.target?.getBoundingClientRect().left
+                  }px`,
+                }}
+              >
+                <ChromePicker
+                  color={createColor || "#ffffff"}
+                  onChange={(color) => {
+                    // if (!targetElement.current) return;
+                    // const target = targetElement.current.target;
+                    // const targetStyle = targetElement.current.style;
+                    // if (!target || !targetStyle) return;
+                    // const rgba = `rgba(${color.rgb.r}, ${color.rgb.g}, ${color.rgb.b}, ${color.rgb.a})`;
+                    // setCreateColor(rgba);
+                    // target.setAttribute("style", `fill: ${rgba} !important;`);
+
+                    if (!targetElement.current) return;
+                    const target = targetElement.current.target;
+                    const targetId = target?.getAttribute("id");
+                    if (!targetId) return;
+                    const rgba = `rgba(${color.rgb.r}, ${color.rgb.g}, ${color.rgb.b}, ${color.rgb.a})`;
+                    setCreateColor(rgba);
+                    setDiscreateColors((prev) => {
+                      return {
+                        ...prev,
+                        [gameType]: {
+                          ...prev[gameType],
+                          [targetId]: {
+                            ...prev[gameType]?.[targetId],
+                            color: rgba,
+                          },
+                        },
+                      };
+                    });
+                  }}
+                />
+              </div>
+            </PopoverWrapper>
           </div>
-
-          {/* カラーピッカー */}
-          <PopoverWrapper
-            open={openColorPicker}
-            onClose={() => setOpenColorPicker(false)}
-          >
-            <ChromePicker
-              color={createColor || "#ffffff"}
-              onChange={(color) => {
-                // if (!targetElement.current) return;
-                // const target = targetElement.current.target;
-                // const targetStyle = targetElement.current.style;
-                // if (!target || !targetStyle) return;
-                // const rgba = `rgba(${color.rgb.r}, ${color.rgb.g}, ${color.rgb.b}, ${color.rgb.a})`;
-                // setCreateColor(rgba);
-                // target.setAttribute("style", `fill: ${rgba} !important;`);
-
-                if (!targetElement.current) return;
-                const target = targetElement.current.target;
-                const targetId = target?.getAttribute("id");
-                if (!targetId) return;
-                const rgba = `rgba(${color.rgb.r}, ${color.rgb.g}, ${color.rgb.b}, ${color.rgb.a})`;
-                setCreateColor(rgba);
-                setDiscreateColors((prev) => {
-                  return {
-                    ...prev,
-                    [gameType]: {
-                      ...prev[gameType],
-                      [targetId]: {
-                        ...prev[gameType]?.[targetId],
-                        color: rgba,
-                      },
-                    },
-                  };
-                });
-              }}
-            />
-          </PopoverWrapper>
 
           {/* 右のコンテナ */}
           <div className={styles.palletContainer}>

@@ -13,7 +13,7 @@
 }
 
 .leftContainer {
-  position: sticky;
+  /* position: sticky; */
   top: 10px;
   display: flex;
   flex-direction: column;
@@ -38,7 +38,7 @@
 }
 
 .svgTitle {
-  font-size: xx-large;
+  font-size: x-large;
   font-weight: bold;
   color: var(--bc-primary);
 }
@@ -48,14 +48,12 @@
   justify-content: center;
   align-items: center;
   padding: 30px;
-  flex: 1;
-  object-fit: contain;
 }
 
 .svgWrapper2 {
   aspect-ratio: 1/1;
   overflow: auto;
-  width: 500px;
+  width: 30vw;
 }
 
 .svgWrapper2 > svg {
@@ -111,4 +109,35 @@
 
   /* width: 40%; */
   /* align-items: start; */
+}
+
+@media (max-width: 1500px) {
+  .containerWrapper {
+    padding: 20px 5%;
+  }
+}
+
+@media (max-width: 1000px) {
+  .container {
+    flex-direction: column;
+  }
+
+  .leftContainer {
+    position: sticky;
+    z-index: 10;
+  }
+
+  .svgContainer {
+    background-color: var(--background);
+  }
+}
+
+@media (max-width: 700px) {
+  .svgWrapper {
+    padding: 10px;
+  }
+
+  .svgWrapper2 {
+    width: 50vw;
+  }
 }

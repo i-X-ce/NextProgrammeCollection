@@ -267,7 +267,6 @@ export default function GameSVG() {
     const targetStyle = !targetName ? targetId : targetName;
     if (!targetId && !targetName) return;
     if (!targetStyle) return;
-    console.log({ target, style: targetStyle });
     setOpenColorPicker(true);
     targetElement.current = { target, style: targetStyle }; // クリックした要素を保存
     // targetの色を取得する
@@ -2004,20 +2003,20 @@ export default function GameSVG() {
   const currentSVGView = (
     <div key={gameType} className={styles.svgWrapper}>
       <div className={styles.svgWrapper2}>
-        {backgroundEnabled ? (
-          <div
-            className={styles.svgBack}
-            style={{
-              padding: `${backgroundSize}%`,
-              borderRadius: backgroundShape === "circle" ? "100%" : "0",
-              backgroundColor,
-            }}
-          >
-            {svgs[gameType]}
-          </div>
-        ) : (
-          svgs[gameType]
-        )}
+        <div
+          className={styles.svgBack}
+          style={
+            backgroundEnabled
+              ? {
+                  padding: `${backgroundSize}%`,
+                  borderRadius: backgroundShape === "circle" ? "100%" : "0",
+                  backgroundColor,
+                }
+              : {}
+          }
+        >
+          {svgs[gameType]}
+        </div>
       </div>
     </div>
   );
@@ -2052,7 +2051,7 @@ export default function GameSVG() {
         return prev.filter((part) => part.name !== style);
       });
     },
-    [gameType, styleColors, setChangePartsList, styleColors, setBackgroundColor]
+    [gameType, setChangePartsList, styleColors, setBackgroundColor]
   );
 
   //

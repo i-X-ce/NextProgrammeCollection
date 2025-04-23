@@ -1,4 +1,4 @@
-import { memo, useState } from "react";
+import { memo, useRef, useState } from "react";
 import styles from "./style.module.css";
 import { ExpandMore, Palette } from "@mui/icons-material";
 import { Collapse, Tooltip } from "@mui/material";
@@ -20,7 +20,8 @@ const PartsPallet = memo(function PartsPallet({
 }: PartsPalletProps) {
   // colors.sort().reverse();
   const colorIndex = colors.indexOf(color);
-  const [selectedColorIndex, setSelectedColorIndex] = useState(colorIndex);
+  // const selectedColorIndex = useRef(colorIndex);
+  // const [selectedColorIndex, setSelectedColorIndex] = useState(colorIndex);
   const [createColor, setCreateColor] = useState(
     colorIndex === -1 ? color : "#ffffff"
   );
@@ -49,7 +50,10 @@ const PartsPallet = memo(function PartsPallet({
       </div>
       <PopoverWrapper
         open={pickerVisible}
-        onClose={() => setPickerVisible(false)}
+        onClose={() => {
+          setPickerVisible(false);
+          setOpen(false);
+        }}
       >
         <ChromePicker
           onChange={(color) => {
@@ -60,26 +64,28 @@ const PartsPallet = memo(function PartsPallet({
           color={createColor}
         />
       </PopoverWrapper>
-      <Collapse in={open} timeout={200}>
+      <Collapse in={open}>
         <div className={styles.colorBoxContainer}>
           <ColorBox
             add
             color={createColor}
             onClick={() => {
-              setSelectedColorIndex(-1);
+              // setSelectedColorIndex(-1);
+              // selectedColorIndex.current = -1;
               setPickerVisible(!pickerVisible);
               onChange?.(createColor);
             }}
-            selected={selectedColorIndex === -1}
+            selected={colorIndex === -1}
           />
           {colors.map((color, i) => {
             return (
               <ColorBox
                 key={i}
                 color={color}
-                selected={selectedColorIndex === i}
+                selected={colorIndex === i}
                 onClick={() => {
-                  setSelectedColorIndex(i);
+                  // setSelectedColorIndex(i);
+                  // colorIndex = i;
                   onChange?.(color);
                 }}
               />

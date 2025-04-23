@@ -1,7 +1,7 @@
 "use client";
 import PartsPallet from "../PartsPallet";
 import styles from "./style.module.css";
-import { ReactNode, useRef, useState } from "react";
+import { ReactNode, useCallback, useMemo, useRef, useState } from "react";
 import PopoverWrapper from "@/app/components/common/PopoverWrapper";
 import { ChromePicker } from "react-color";
 import {
@@ -259,6 +259,7 @@ export default function GameSVG() {
     partsPalletes.background[0]
   ); // 背景の色
 
+  // 個別色の変更
   const handleSVGClick = (e: React.MouseEvent<SVGElement>) => {
     const target = e.target as SVGElement;
     const targetId = target.getAttribute("id");
@@ -2001,7 +2002,7 @@ export default function GameSVG() {
   };
 
   const currentSVGView = (
-    <div className={styles.svgWrapper}>
+    <div key={gameType} className={styles.svgWrapper}>
       <div className={styles.svgWrapper2}>
         {backgroundEnabled ? (
           <div
@@ -2020,6 +2021,48 @@ export default function GameSVG() {
       </div>
     </div>
   );
+
+  // パレットの色を変更する関数 再生成を防ぐためにCallBackでラップする
+  const handlePalletColorChange = useCallback(
+    (style: string, color: string) => {
+      // バックグラウンドは別処理
+      if (style === "background") {
+        setBackgroundColor(color);
+        return;
+      }
+
+      // スタイルのカラーを書き換える
+      setStyleColors((prev) => {
+        const newStyleColors = styleColors[gameType].map((s) =>
+          s.style === style ? { ...s, color } : s
+        );
+        return {
+          ...prev,
+          [gameType]: newStyleColors,
+        };
+      });
+      // setStyleColors3(newStyleColors);
+      // 個別で変更した部品をリセットする
+      setChangePartsList((prev) => {
+        const resetParts = prev.filter((part) => part.name === style);
+        resetParts.forEach((part) => {
+          const element = part.element;
+          element.removeAttribute("style");
+        });
+        return prev.filter((part) => part.name !== style);
+      });
+    },
+    [gameType, styleColors, setChangePartsList, styleColors, setBackgroundColor]
+  );
+
+  //
+  const palletHandlers = useMemo(() => {
+    const map: Record<string, (color: string) => void> = {};
+    Object.keys(partsPalletes).forEach((style) => {
+      map[style] = (color: string) => handlePalletColorChange(style, color);
+    });
+    return map;
+  }, [handlePalletColorChange]);
 
   return (
     <div className={styles.containerWrapper}>
@@ -2164,7 +2207,7 @@ export default function GameSVG() {
             </div>
           </div>
           {/* パレット */}
-          {[
+          {/* {[
             ...styleColors[gameType],
             { style: "background", color: backgroundColor } as StyleColor,
           ].map(
@@ -2207,6 +2250,21 @@ export default function GameSVG() {
                       );
                     });
                   }}
+                />
+              )
+          )} */}
+          {[
+            ...styleColors[gameType],
+            { style: "background", color: backgroundColor } as StyleColor,
+          ].map(
+            (styleObject) =>
+              (styleObject.style === "background" && !backgroundEnabled) || (
+                <PartsPallet
+                  key={`${gameType} ${styleObject.style}`}
+                  title={partsNames[styleObject.style]}
+                  colors={partsPalletes[styleObject.style]}
+                  color={styleObject.color}
+                  onChange={palletHandlers[styleObject.style]}
                 />
               )
           )}

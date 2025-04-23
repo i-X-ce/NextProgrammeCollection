@@ -266,9 +266,7 @@ export default function GameSVG() {
     "circle"
   ); // 背景の形
   const [backgroundSize, setBackgroundSize] = useState(20); // 背景のサイズ
-  const [backgroundColor, setBackgroundColor] = useState(
-    partsPalletes.background[0]
-  ); // 背景の色
+  const [backgroundColor, setBackgroundColor] = useState("#4d4d4d"); // 背景の色
 
   // 個別色の変更
   const handleSVGClick = (e: React.MouseEvent<SVGElement>) => {

@@ -7,7 +7,11 @@ import { ChromePicker } from "react-color";
 import {
   Button,
   Checkbox,
+  FormControl,
   IconButton,
+  InputLabel,
+  MenuItem,
+  Select,
   Slider,
   ToggleButton,
   ToggleButtonGroup,
@@ -16,6 +20,8 @@ import {
 import {
   Circle,
   Download,
+  KeyboardArrowLeft,
+  KeyboardArrowRight,
   Landscape,
   LandscapeOutlined,
   Replay,
@@ -213,16 +219,6 @@ const GameNames: Record<GameType, { EN: GameType; JP: string }> = {
   },
 };
 
-// // パレットを表示させるスタイルのセットを定義
-// const displayStyleSet: Record<GameType, PartsStyles[]> = {
-//   GB: ["shell", "AB", "rubber", "cross", "screen", "glass", "lamp", "shadow"],
-//   GBP: [],
-//   GBC: [],
-//   GBA: [],
-//   GC: [],
-//   SFC: [],
-// };
-
 export default function GameSVG() {
   const [gameType, setGameType] = useState<GameType>("GB");
   const [styleColors, setStyleColors] = useState<
@@ -268,6 +264,9 @@ export default function GameSVG() {
   const [backgroundSize, setBackgroundSize] = useState(20); // 背景のサイズ
   const [backgroundColor, setBackgroundColor] = useState("#4d4d4d"); // 背景の色
 
+  const [fileType, setFileType] = useState("png"); // 画像のファイル形式
+  const [imgSize, setImgSize] = useState(1000); // 画像のサイズ
+
   // 個別色の変更
   const handleSVGClick = (e: React.MouseEvent<SVGElement>) => {
     const target = e.target as SVGElement;
@@ -306,7 +305,7 @@ export default function GameSVG() {
 
   // 画像ダウンロードの処理
   const handleSVGDownload = () => {
-    const svg = svgRef.current;
+    const svg = svgRef.current?.cloneNode(true) as SVGSVGElement;
     if (!svg) return;
     const discreteStyle = document.createElement("style");
     discreteStyle.innerHTML = discreteColorsStyles;
@@ -324,7 +323,22 @@ export default function GameSVG() {
       const context = canvas.getContext("2d");
       if (!context) return;
       // 背景の有無で分岐
-      const size = 1000;
+      const size = imgSize;
+
+      // svgは分岐
+      if (fileType === "svg") {
+        const svgBlob = new Blob([svgData], {
+          type: "image/svg+xml;charset=utf-8",
+        });
+        const url = URL.createObjectURL(svgBlob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `${gameType}.${fileType}`;
+        a.click();
+        URL.revokeObjectURL(url);
+        return;
+      }
+
       if (backgroundEnabled) {
         canvas.width = size;
         canvas.height = size;
@@ -362,22 +376,14 @@ export default function GameSVG() {
         context.drawImage(image, 0, 0, canvas.width, canvas.height);
       }
 
-      const pngUrl = canvas.toDataURL("image/png");
+      const pngUrl = canvas.toDataURL(`image/${fileType}`, 1.0);
       const a = document.createElement("a");
       a.href = pngUrl;
-      a.download = `${gameType}.png`;
+      a.download = `${gameType}.${fileType}`;
       a.click();
       URL.revokeObjectURL(url);
     };
     image.src = url;
-
-    // const canvas = await html2canvas(target);
-    // const dataUrl = canvas.toDataURL("image/png");
-    // const link = document.createElement("a");
-    // link.href = dataUrl;
-    // link.download = `${gameType}.png`;
-    // link.click();
-    // console.log("ダウンロード完了");
   };
 
   // SVG追加ルール
@@ -2050,16 +2056,8 @@ export default function GameSVG() {
           [gameType]: newStyleColors,
         };
       });
-      // setStyleColors3(newStyleColors);
-      // 個別で変更した部品をリセットする
-      // setChangePartsList((prev) => {
-      //   const resetParts = prev.filter((part) => part.name === style);
-      //   resetParts.forEach((part) => {
-      //     const element = part.element;
-      //     element.removeAttribute("style");
-      //   });
-      //   return prev.filter((part) => part.name !== style);
-      // });
+
+      // スタイルのカラーを変更したら、個別色を削除する
       setDiscreateColors((prev) => {
         if (!prev[gameType]) return prev;
         const ids = Object.keys(prev[gameType] || {}).filter(
@@ -2133,6 +2131,7 @@ export default function GameSVG() {
           {/* 左のコンテナ */}
           <div className={styles.leftContainer}>
             <ToggleButtonGroup
+              fullWidth
               value={gameType}
               color="primary"
               exclusive
@@ -2285,52 +2284,6 @@ export default function GameSVG() {
               </div>
             </div>
             {/* パレット */}
-            {/* {[
-            ...styleColors[gameType],
-            { style: "background", color: backgroundColor } as StyleColor,
-          ].map(
-            (styleObject) =>
-              (styleObject.style === "background" && !backgroundEnabled) || (
-                <PartsPallet
-                  key={`${gameType} ${styleObject.style}`}
-                  title={partsNames[styleObject.style]}
-                  colors={partsPalletes[styleObject.style]}
-                  color={styleObject.color}
-                  onChange={(color) => {
-                    // バックグラウンドは別処理
-                    if (styleObject.style === "background") {
-                      setBackgroundColor(color);
-                      return;
-                    }
-
-                    // スタイルのカラーを書き換える
-                    setStyleColors((prev) => {
-                      const newStyleColors = styleColors[gameType].map((s) =>
-                        s.style === styleObject.style ? { ...s, color } : s
-                      );
-                      return {
-                        ...prev,
-                        [gameType]: newStyleColors,
-                      };
-                    });
-                    // setStyleColors3(newStyleColors);
-                    // 個別で変更した部品をリセットする
-                    setChangePartsList((prev) => {
-                      const resetParts = prev.filter(
-                        (part) => part.name === styleObject.style
-                      );
-                      resetParts.forEach((part) => {
-                        const element = part.element;
-                        element.removeAttribute("style");
-                      });
-                      return prev.filter(
-                        (part) => part.name !== styleObject.style
-                      );
-                    });
-                  }}
-                />
-              )
-          )} */}
             {[
               ...styleColors[gameType],
               { style: "background", color: backgroundColor } as StyleColor,
@@ -2348,16 +2301,61 @@ export default function GameSVG() {
             )}
           </div>
         </div>
-        <Button
-          variant="contained"
-          onClick={() => {
-            handleSVGDownload();
-          }}
-          size="large"
-          endIcon={<Download />}
-        >
-          ダウンロード
-        </Button>
+
+        {/* ダウンロード */}
+        <div className={styles.downloadContainer}>
+          <div className={styles.downloadToolContainer}>
+            <div className={styles.downloadTool} style={{ flex: 1 }}>
+              <h2>ファイル形式</h2>
+              <FormControl>
+                <InputLabel>ファイル形式</InputLabel>
+                <Select
+                  label="ファイル形式"
+                  fullWidth
+                  value={fileType}
+                  onChange={(e) => {
+                    setFileType(e.target.value);
+                  }}
+                >
+                  <MenuItem value={"png"}>PNG</MenuItem>
+                  <MenuItem value={"jpeg"}>JPG</MenuItem>
+                  <MenuItem value={"svg"}>SVG</MenuItem>
+                </Select>
+              </FormControl>
+            </div>
+            <div
+              className={`${styles.downloadTool} ${styles.downloadToolSliderContainer}`}
+            >
+              <h2>画像サイズ({imgSize}px)</h2>
+              <div className={styles.downloadSizeContainer}>
+                <IconButton onClick={() => setImgSize((prev) => prev - 1)}>
+                  <KeyboardArrowLeft />
+                </IconButton>
+                <Slider
+                  max={2000}
+                  value={imgSize}
+                  onChange={(_, value) => {
+                    setImgSize(value as number);
+                  }}
+                />
+                <IconButton onClick={() => setImgSize((prev) => prev + 1)}>
+                  <KeyboardArrowRight />
+                </IconButton>
+              </div>
+            </div>
+          </div>
+          <Button
+            variant="contained"
+            onClick={() => {
+              handleSVGDownload();
+            }}
+            size="large"
+            endIcon={<Download />}
+            fullWidth
+          >
+            ダウンロード
+          </Button>
+        </div>
       </div>
     </>
   );

@@ -88,7 +88,8 @@
   align-items: center;
 }
 
-.bgToolsTitle {
+.bgToolsTitle,
+.downloadTool > h2 {
   font-size: large;
   font-weight: bold;
   color: var(--bc-primary);
@@ -109,6 +110,37 @@
 
   /* width: 40%; */
   /* align-items: start; */
+}
+
+.downloadContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  border: 1px solid var(--bc-shadow);
+  padding: 20px;
+  border-radius: 10px;
+}
+
+.downloadToolContainer {
+  display: flex;
+  gap: 10px;
+}
+
+.downloadTool {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.downloadToolSliderContainer {
+  width: 70%;
+}
+
+.downloadSizeContainer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: auto 0;
 }
 
 @media (max-width: 1500px) {
@@ -139,5 +171,22 @@
 
   .svgWrapper2 {
     width: 50vw;
+  }
+
+  .downloadToolSliderContainer {
+    width: 100%;
+  }
+
+  .downloadToolContainer {
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .downloadContainer {
+    padding: 10px;
+  }
+
+  .downloadSizeContainer {
+    gap: 5px;
   }
 }

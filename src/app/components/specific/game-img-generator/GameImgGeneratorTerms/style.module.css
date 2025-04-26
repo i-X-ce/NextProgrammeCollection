@@ -1,0 +1,46 @@
+.container {
+  padding: 10px 15%;
+  color: var(--bc-detail);
+}
+
+.title {
+  font-size: x-large;
+  font-weight: bold;
+  color: var(--foreground);
+  margin-bottom: 10px;
+  border-bottom: 1px solid var(--bc-shadow);
+}
+
+.container ol {
+  list-style: decimal;
+}
+
+.container ul {
+  list-style: disc;
+}
+
+.container li {
+  margin: 0 1rem;
+  color: var(--bc-detail);
+}
+
+.section {
+  margin: 10px 0;
+}
+
+.sectionTitle {
+  font-size: large;
+  font-weight: bold;
+}
+
+.myname {
+  font-size: large;
+  font-weight: bold;
+  color: var(--bc-primary);
+}
+
+@media (max-width: 1500px) {
+  .container {
+    padding: 10px 5%;
+  }
+}

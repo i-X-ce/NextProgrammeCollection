@@ -1,4 +1,4 @@
-import { memo, useRef, useState } from "react";
+import { memo, useState } from "react";
 import styles from "./style.module.css";
 import { ExpandMore, Palette } from "@mui/icons-material";
 import { Collapse, Tooltip } from "@mui/material";
@@ -127,7 +127,7 @@ const ColorBox = memo(function ColorBox({
             selected ? styles.selected : ""
           }`}
         /> */}
-        {add && <Palette color="action" sx={{ zIndex: 2 }} />}
+        {add && <Palette color="info" sx={{ zIndex: 2 }} />}
       </div>
     </Tooltip>
   );

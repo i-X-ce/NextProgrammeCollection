@@ -2063,7 +2063,7 @@ export default function GameSVG() {
         const ids = Object.keys(prev[gameType] || {}).filter(
           (id) => prev[gameType]?.[id].style === style
         );
-        let newMap = prev[gameType];
+        const newMap = prev[gameType];
         ids.forEach((id) => {
           delete newMap[id];
         });

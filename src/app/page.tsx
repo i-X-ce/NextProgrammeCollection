@@ -5,9 +5,7 @@ export default function Home() {
     <>
       <Link href="./pages/hayamoji">はやもじ</Link>
       <Link href="./pages/mapimg">マップイメージ</Link>
-      <Link href="./pages/game-img-generator">
-        ゲームイメージジェネレーター
-      </Link>
+      <Link href="./pages/game-img-generator">ゲーム機風イラスト</Link>
     </>
   );
 }

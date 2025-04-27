@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="_3DS" data-name="3DS" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 981.59 1000">
+  <defs>
+    <style>
+      .cls-1, .cls-2, .cls-3 {
+        opacity: .3;
+      }
+
+      .cls-1, .cls-4 {
+        fill: red;
+      }
+
+      .cls-1, .cls-3 {
+        stroke: #000;
+        stroke-miterlimit: 10;
+        stroke-width: 3px;
+      }
+
+      .cls-3 {
+        fill: none;
+      }
+
+      .cls-5 {
+        fill: #333;
+      }
+
+      .cls-6 {
+        fill: #c80000;
+      }
+
+      .cls-7 {
+        fill: #1a1a1a;
+      }
+
+      .cls-8 {
+        fill: #ccc;
+      }
+
+      .cls-9 {
+        fill: #b3b3b3;
+      }
+
+      .cls-10 {
+        fill: #e6e6e6;
+      }
+    </style>
+  </defs>
+  <path id="shell" class="cls-4" d="M58.03,0h865.52c32.03,0,58.03,26,58.03,58.03v413.09H0V58.03C0,26,26,0,58.03,0Z"/>
+  <path id="glass" class="cls-5" d="M58.32,4.15h864.95c29.8,0,53.99,24.19,53.99,53.99v412.98H4.33V58.15C4.33,28.35,28.52,4.15,58.32,4.15Z"/>
+  <rect id="screen" class="cls-10" x="213.5" y="112.51" width="554.59" height="333.91"/>
+  <g>
+    <circle id="shadow" class="cls-2" cx="490.8" cy="51.53" r="15.09"/>
+    <circle id="camera" class="cls-7" cx="490.8" cy="51.53" r="9.4"/>
+  </g>
+  <g>
+    <circle id="shadow-2" data-name="shadow" class="cls-2" cx="108.02" cy="243.1" r="3.72"/>
+    <circle id="shadow-3" data-name="shadow" class="cls-2" cx="108.02" cy="219.78" r="3.72"/>
+    <circle id="shadow-4" data-name="shadow" class="cls-2" cx="108.02" cy="266.15" r="3.72"/>
+    <circle id="shadow-5" data-name="shadow" class="cls-2" cx="84.83" cy="243.1" r="3.72"/>
+    <circle id="shadow-6" data-name="shadow" class="cls-2" cx="131.21" cy="243.1" r="3.72"/>
+  </g>
+  <g>
+    <circle id="shadow-7" data-name="shadow" class="cls-2" cx="873.58" cy="243.1" r="3.72"/>
+    <circle id="shadow-8" data-name="shadow" class="cls-2" cx="873.58" cy="219.78" r="3.72"/>
+    <circle id="shadow-9" data-name="shadow" class="cls-2" cx="873.58" cy="266.15" r="3.72"/>
+    <circle id="shadow-10" data-name="shadow" class="cls-2" cx="850.39" cy="243.1" r="3.72"/>
+    <circle id="shadow-11" data-name="shadow" class="cls-2" cx="896.76" cy="243.1" r="3.72"/>
+  </g>
+  <path id="shell-2" data-name="shell" class="cls-4" d="M977.27,526.12v422.02c0,28.63-23.22,51.86-51.87,51.86H56.19c-28.64,0-51.87-23.22-51.87-51.86v-422.02c0-15.18,6.16-28.93,16.11-38.89,9.96-9.95,23.71-16.11,38.89-16.11h862.94c30.38,0,55,24.63,55,55Z"/>
+  <circle id="shadow-12" data-name="shadow" class="cls-2" cx="118.89" cy="660.45" r="86.54"/>
+  <circle id="slidepad" class="cls-9" cx="118.89" cy="660.45" r="54.07"/>
+  <path id="cross" class="cls-6" d="M182.51,827.04v36.05c0,1.6-1.31,2.9-2.91,2.9h-39.54v39.54c0,1.6-1.3,2.9-2.9,2.9h-36.05c-1.6,0-2.9-1.3-2.9-2.9v-39.54h-39.54c-1.6,0-2.9-1.3-2.9-2.9v-36.05c0-1.6,1.3-2.9,2.9-2.9h39.54v-39.54c0-1.6,1.3-2.91,2.9-2.91h36.05c1.6,0,2.9,1.31,2.9,2.91v39.54h39.54c1.6,0,2.91,1.3,2.91,2.9Z"/>
+  <circle id="button" class="cls-6" cx="857.05" cy="620.46" r="27.04"/>
+  <circle id="button-2" data-name="button" class="cls-6" cx="857.05" cy="733.79" r="27.04"/>
+  <circle id="button-3" data-name="button" class="cls-6" cx="800.38" cy="677.13" r="27.04"/>
+  <circle id="button-4" data-name="button" class="cls-6" cx="913.71" cy="677.13" r="27.04"/>
+  <rect id="button-5" data-name="button" class="cls-6" x="773.19" y="915.17" width="36.67" height="36.67" rx="3.88" ry="3.88"/>
+  <path id="shadow-13" data-name="shadow" class="cls-3" d="M738.97,982.47H242.62c-1.64,0-2.97-1.33-2.97-2.97v-440.4h502.3v440.4c0,1.64-1.33,2.97-2.97,2.97ZM239.65,927.02h502.3"/>
+  <rect id="glass-2" data-name="glass" class="cls-5" x="253.74" y="553.75" width="474.1" height="360.69"/>
+  <rect id="screen-2" data-name="screen" class="cls-10" x="259.74" y="559.75" width="462.1" height="348.69"/>
+  <path id="lamp" class="cls-8" d="M926.65,499.76h6.17c3.15,0,5.71,2.56,5.71,5.71v6.17h-11.88v-11.88h0Z"/>
+  <path id="shadow-14" data-name="shadow" class="cls-1" d="M4.32,526.12h972.94M877.83,470.44v55M100.11,470.89v55"/>
+  <polygon id="shadow-15" data-name="shadow" class="cls-2" points="213.5 446.42 768.09 112.51 768.09 446.42 213.5 446.42"/>
+  <polygon id="shadow-16" data-name="shadow" class="cls-2" points="721.85 559.75 259.74 908.43 721.85 908.43 721.85 559.75"/>
+</svg>

@@ -29,7 +29,7 @@ import {
 } from "@mui/icons-material";
 
 // 表示できるゲーム機の種類
-type GameType = "GB" | "GBP" | "GBC" | "GBA" | "GC" | "SFC";
+type GameType = "GB" | "GBP" | "GBC" | "GBA" | "GC" | "SFC" | "3DS";
 
 // 部品のスタイルの種類
 type PartsStyles =
@@ -45,7 +45,9 @@ type PartsStyles =
   | "AB"
   | "rubber"
   | "background"
-  | "LR";
+  | "LR"
+  | "slidepad"
+  | "camera";
 
 // スタイルとその色
 type StyleColor = {
@@ -93,7 +95,7 @@ const shellColors = [
   ...baseColors,
 ];
 
-const buttonColors = ["#c12750", ...baseColors];
+const buttonColors = ["#c12750", "#c80000", ...baseColors];
 
 const screenColors = ["#d9e021", "#ed1c24", ...baseColors];
 
@@ -112,6 +114,8 @@ const partsPalletes: Record<PartsStyles, string[]> = {
   shadow: ["#0000004c", "#ffffff4c"],
   shadow2: ["#00000098", "#ffffff98"],
   background: baseColors,
+  slidepad: buttonColors,
+  camera: screenColors,
 };
 
 // ゲーム機の色の初期値
@@ -172,6 +176,17 @@ const initialStyleColors: Record<GameType, StyleColor[]> = {
     { style: "lamp", color: "#ed1c24" },
     { style: "shadow", color: "#0000004c" },
   ],
+  "3DS": [
+    { style: "shell", color: "#de1021" },
+    { style: "button", color: "#c80000" },
+    { style: "cross", color: "#c80000" },
+    { style: "slidepad", color: "#b3b3b3" },
+    { style: "camera", color: "#1a1a1a" },
+    { style: "screen", color: "#e6e6e6" },
+    { style: "glass", color: "#333333" },
+    { style: "lamp", color: "#b3b3b3" },
+    { style: "shadow", color: "#0000004c" },
+  ],
 };
 
 // パーツの名前
@@ -189,6 +204,8 @@ const partsNames: Record<PartsStyles, string> = {
   LR: "LRボタン",
   rubber: "ラバーボタン",
   background: "背景",
+  slidepad: "スライドパッド",
+  camera: "カメラ",
 };
 
 // ゲーム機の名前
@@ -216,6 +233,10 @@ const GameNames: Record<GameType, { EN: GameType; JP: string }> = {
   SFC: {
     EN: "SFC",
     JP: "スーパーファミコン",
+  },
+  "3DS": {
+    EN: "3DS",
+    JP: "ニンテンドー3DS",
   },
 };
 
@@ -393,7 +414,7 @@ export default function GameSVG() {
   // -- svg/defs/styleの中身を``で囲み、fillの色をgetColor(部品名)で取得する
   // -- svgにrefを追加する
   // -- 同じ色で違うパーツパレットにしたい場合は少しだけカラーコードを変更してクラスをずらしておく
-  // -- 透明度がopacityで指定されている場合は、RGBAで指定する
+  // -- 透明度がopacityで指定されている場合は、RGBAで指定してopacityは消す
   // -- ?xmlタグは消す
   // -- classはclassNameに変更する
   const svgs: Record<GameType, ReactNode> = {
@@ -2011,6 +2032,293 @@ export default function GameSVG() {
           height="14.42"
           rx="7.21"
           ry="7.21"
+        />
+      </svg>
+    ),
+    "3DS": (
+      <svg
+        id="_3DS"
+        data-name="3DS"
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 981.59 1000"
+        onClick={handleSVGClick}
+        ref={svgRef}
+      >
+        <defs>
+          <style>
+            {` .cls-1 {
+        fill: ${getColor("cross")};
+      }
+
+      .cls-2, .cls-3, .cls-4 {
+        fill: ${getColor("shadow")};
+      }
+
+      .cls-2, .cls-5 {
+        fill: ${getColor("shell")};
+      }
+
+      .cls-2, .cls-4 {
+        stroke: ${getColor("shadow")};
+        stroke-miterlimit: 10;
+        stroke-width: 3px;
+      }
+
+      .cls-4 {
+        fill: none;
+      }
+
+      .cls-6 {
+        fill: ${getColor("glass")};
+      }
+
+      .cls-7 {
+        fill: ${getColor("button")};
+      }
+
+      .cls-8 {
+        fill: ${getColor("camera")};
+      }
+
+      .cls-9 {
+        fill: ${getColor("lamp")};
+      }
+
+      .cls-10 {
+        fill: ${getColor("slidepad")};
+      }
+
+      .cls-11 {
+        fill: ${getColor("screen")};
+      }`}
+          </style>
+        </defs>
+        <path
+          id="shell"
+          className="cls-5"
+          d="M58.03,0h865.52c32.03,0,58.03,26,58.03,58.03v413.09H0V58.03C0,26,26,0,58.03,0Z"
+        />
+        <path
+          id="glass"
+          className="cls-6"
+          d="M58.32,4.15h864.95c29.8,0,53.99,24.19,53.99,53.99v412.98H4.33V58.15C4.33,28.35,28.52,4.15,58.32,4.15Z"
+        />
+        <rect
+          id="screen"
+          className="cls-11"
+          x="213.5"
+          y="112.51"
+          width="554.59"
+          height="333.91"
+        />
+        <g>
+          <circle
+            id="shadow"
+            className="cls-3"
+            cx="490.8"
+            cy="51.53"
+            r="15.09"
+          />
+          <circle id="camera" className="cls-8" cx="490.8" cy="51.53" r="9.4" />
+        </g>
+        <g>
+          <circle
+            id="shadow-2"
+            data-name="shadow"
+            className="cls-3"
+            cx="108.02"
+            cy="243.1"
+            r="3.72"
+          />
+          <circle
+            id="shadow-3"
+            data-name="shadow"
+            className="cls-3"
+            cx="108.02"
+            cy="219.78"
+            r="3.72"
+          />
+          <circle
+            id="shadow-4"
+            data-name="shadow"
+            className="cls-3"
+            cx="108.02"
+            cy="266.15"
+            r="3.72"
+          />
+          <circle
+            id="shadow-5"
+            data-name="shadow"
+            className="cls-3"
+            cx="84.83"
+            cy="243.1"
+            r="3.72"
+          />
+          <circle
+            id="shadow-6"
+            data-name="shadow"
+            className="cls-3"
+            cx="131.21"
+            cy="243.1"
+            r="3.72"
+          />
+        </g>
+        <g>
+          <circle
+            id="shadow-7"
+            data-name="shadow"
+            className="cls-3"
+            cx="873.58"
+            cy="243.1"
+            r="3.72"
+          />
+          <circle
+            id="shadow-8"
+            data-name="shadow"
+            className="cls-3"
+            cx="873.58"
+            cy="219.78"
+            r="3.72"
+          />
+          <circle
+            id="shadow-9"
+            data-name="shadow"
+            className="cls-3"
+            cx="873.58"
+            cy="266.15"
+            r="3.72"
+          />
+          <circle
+            id="shadow-10"
+            data-name="shadow"
+            className="cls-3"
+            cx="850.39"
+            cy="243.1"
+            r="3.72"
+          />
+          <circle
+            id="shadow-11"
+            data-name="shadow"
+            className="cls-3"
+            cx="896.76"
+            cy="243.1"
+            r="3.72"
+          />
+        </g>
+        <path
+          id="shell-2"
+          data-name="shell"
+          className="cls-5"
+          d="M977.27,526.12v422.02c0,28.63-23.22,51.86-51.87,51.86H56.19c-28.64,0-51.87-23.22-51.87-51.86v-422.02c0-15.18,6.16-28.93,16.11-38.89,9.96-9.95,23.71-16.11,38.89-16.11h862.94c30.38,0,55,24.63,55,55Z"
+        />
+        <circle
+          id="shadow-12"
+          data-name="shadow"
+          className="cls-3"
+          cx="118.89"
+          cy="660.45"
+          r="86.54"
+        />
+        <circle
+          id="slidepad"
+          className="cls-10"
+          cx="118.89"
+          cy="660.45"
+          r="54.07"
+        />
+        <path
+          id="cross"
+          className="cls-1"
+          d="M182.51,827.04v36.05c0,1.6-1.31,2.9-2.91,2.9h-39.54v39.54c0,1.6-1.3,2.9-2.9,2.9h-36.05c-1.6,0-2.9-1.3-2.9-2.9v-39.54h-39.54c-1.6,0-2.9-1.3-2.9-2.9v-36.05c0-1.6,1.3-2.9,2.9-2.9h39.54v-39.54c0-1.6,1.3-2.91,2.9-2.91h36.05c1.6,0,2.9,1.31,2.9,2.91v39.54h39.54c1.6,0,2.91,1.3,2.91,2.9Z"
+        />
+        <circle
+          id="button"
+          className="cls-7"
+          cx="857.05"
+          cy="620.46"
+          r="27.04"
+        />
+        <circle
+          id="button-2"
+          data-name="button"
+          className="cls-7"
+          cx="857.05"
+          cy="733.79"
+          r="27.04"
+        />
+        <circle
+          id="button-3"
+          data-name="button"
+          className="cls-7"
+          cx="800.38"
+          cy="677.13"
+          r="27.04"
+        />
+        <circle
+          id="button-4"
+          data-name="button"
+          className="cls-7"
+          cx="913.71"
+          cy="677.13"
+          r="27.04"
+        />
+        <rect
+          id="button-5"
+          data-name="button"
+          className="cls-7"
+          x="773.19"
+          y="915.17"
+          width="36.67"
+          height="36.67"
+          rx="3.88"
+          ry="3.88"
+        />
+        <path
+          id="shadow-13"
+          data-name="shadow"
+          className="cls-4"
+          d="M738.97,982.47H242.62c-1.64,0-2.97-1.33-2.97-2.97v-440.4h502.3v440.4c0,1.64-1.33,2.97-2.97,2.97ZM239.65,927.02h502.3"
+        />
+        <rect
+          id="glass-2"
+          data-name="glass"
+          className="cls-6"
+          x="253.74"
+          y="553.75"
+          width="474.1"
+          height="360.69"
+        />
+        <rect
+          id="screen-2"
+          data-name="screen"
+          className="cls-11"
+          x="259.74"
+          y="559.75"
+          width="462.1"
+          height="348.69"
+        />
+        <path
+          id="lamp"
+          className="cls-9"
+          d="M926.65,499.76h6.17c3.15,0,5.71,2.56,5.71,5.71v6.17h-11.88v-11.88h0Z"
+        />
+        <path
+          id="shadow-14"
+          data-name="shadow"
+          className="cls-2"
+          d="M4.32,526.12h972.94M877.83,470.44v55M100.11,470.89v55"
+        />
+        <polygon
+          id="shadow-15"
+          data-name="shadow"
+          className="cls-3"
+          points="213.5 446.42 768.09 112.51 768.09 446.42 213.5 446.42"
+        />
+        <polygon
+          id="shadow-16"
+          data-name="shadow"
+          className="cls-3"
+          points="721.85 559.75 259.74 908.43 721.85 908.43 721.85 559.75"
         />
       </svg>
     ),

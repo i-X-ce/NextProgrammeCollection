@@ -1,5 +1,10 @@
+import { Suspense } from "react";
 import TopPageContent from "./components/specific/top/TopPageContent";
 
 export default function Home() {
-  return <TopPageContent />;
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <TopPageContent />
+    </Suspense>
+  );
 }

@@ -2,12 +2,10 @@
 
 import { Button, Divider, IconButton, Modal } from "@mui/material";
 import styles from "./style.module.css";
-import { useRouter } from "next/navigation";
 import { motion } from "motion/react";
 import { useState } from "react";
 import {
   CalendarMonth,
-  Cancel,
   Close,
   People,
   Person,
@@ -44,16 +42,16 @@ export default function ProgramCard({
   period?: string;
 }) {
   const [open, setOpen] = useState(false);
-  const router = useRouter();
+  // const router = useRouter();
   const getLayoutId: (title: string) => string = (name: string) => {
     return `${title}-${name}`;
   };
 
-  const handleShowClick = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.stopPropagation();
-    if (!url) return;
-    router.push(url);
-  };
+  // const handleShowClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+  //   e.stopPropagation();
+  //   if (!url) return;
+  //   router.push(url);
+  // };
 
   return (
     <motion.div whileHover="hover" onClick={() => setOpen(!open)}>

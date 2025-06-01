@@ -11,6 +11,7 @@
   --bc-shadow: #0000001a;
   --bc-action: rgba(0, 0, 0, 0.54);
   --bc-detail: #7e7e7e;
+  --bc-section: #f5f5f5;
 
   --shadow-template: 1px 1px 5px 1px var(--bc-shadow);
 }

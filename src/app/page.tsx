@@ -1,11 +1,5 @@
-import Link from "next/link";
+import TopPageContent from "./components/specific/top/TopPageContent";
 
 export default function Home() {
-  return (
-    <>
-      <Link href="./pages/hayamoji">はやもじ</Link>
-      <Link href="./pages/mapimg">マップイメージ</Link>
-      <Link href="./pages/game-img-generator">ゲーム機風イラスト</Link>
-    </>
-  );
+  return <TopPageContent />;
 }

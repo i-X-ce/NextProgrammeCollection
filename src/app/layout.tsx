@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Kiwi_Maru, Noto_Sans_JP } from "next/font/google";
 import "./globals.css";
 import ThemeProviderWrapper from "./components/common/ThemeProviderWrapper";
 
@@ -11,6 +11,18 @@ const geistSans = Geist({
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+});
+
+const noteSansJp = Noto_Sans_JP({
+  variable: "--font-noto-sans-jp",
+  subsets: ["latin"],
+  weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
+});
+
+const kiwiMaru = Kiwi_Maru({
+  variable: "--font-kiwi-maru",
+  subsets: ["latin"],
+  weight: "300",
 });
 
 export const metadata: Metadata = {
@@ -27,7 +39,7 @@ export default function RootLayout({
     <ThemeProviderWrapper>
       <html lang="ja">
         <body
-          className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+          className={`${geistSans.variable} ${geistMono.variable} ${kiwiMaru.variable} ${noteSansJp.variable} antialiased`}
         >
           {children}
         </body>

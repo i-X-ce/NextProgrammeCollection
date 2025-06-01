@@ -1,0 +1,118 @@
+.card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  justify-content: space-between;
+}
+
+.card,
+.modalCard {
+  background-color: var(--background);
+  box-shadow: var(--shadow-template);
+  border-radius: 10px;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.img {
+  height: 200px;
+  max-height: 200px;
+}
+
+.img,
+.modalImg {
+  background: linear-gradient(to bottom right, var(--bc-primary), #641dff);
+  background-size: cover;
+}
+
+.textContainer {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.title {
+  font-size: 1.5rem;
+  line-height: 1;
+  font-weight: 500;
+}
+
+.subTitle {
+  font-size: 1srem;
+  color: var(--bc-detail);
+  font-family: var(--font-geist-mono);
+}
+
+.description {
+  font-size: 1rem;
+  color: var(--bc-detail);
+  /* font-weight: 300; */
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.tag {
+  color: var(--bc-detail);
+  border: 1px solid var(--bc-detail);
+  font-size: 0.9rem;
+  border-radius: 500px;
+  padding: 5px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modalCard {
+  width: 50%;
+  height: 60%;
+  display: flex;
+  position: relative;
+}
+
+.modalImg {
+  width: 30%;
+  box-shadow: var(--shadow-template);
+}
+
+.modalTextContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  overflow: auto;
+}
+
+.modalTitle {
+  /* color: var(--bc-primary); */
+  font-size: 2rem;
+  font-weight: 500;
+  line-height: 1;
+}
+
+.modalData {
+  display: flex;
+  gap: 0.5rem;
+  color: var(--bc-detail);
+  align-items: center;
+}
+
+@media (max-width: 1024px) {
+  .modalCard {
+    flex-direction: column;
+    height: auto;
+    width: 90%;
+    max-height: 80%;
+    overflow: auto;
+    position: relative;
+  }
+
+  .modalImg {
+    width: 100%;
+    height: 300px;
+    flex-shrink: 0;
+  }
+}

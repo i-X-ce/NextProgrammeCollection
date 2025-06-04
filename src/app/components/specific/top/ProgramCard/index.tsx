@@ -25,6 +25,8 @@ export default function ProgramCard({
   description,
   detailDescription,
   img,
+  imgpos = "top left",
+  imgpos2 = "top left",
   tags,
   date,
   numberOfDevs = 1,
@@ -36,6 +38,8 @@ export default function ProgramCard({
   description: string;
   detailDescription?: string;
   img?: string;
+  imgpos?: string;
+  imgpos2?: string;
   tags: string[];
   date?: { start: string; end?: string };
   numberOfDevs?: number;
@@ -64,7 +68,11 @@ export default function ProgramCard({
         >
           <motion.div
             className={styles.img}
-            style={img ? { backgroundImage: `url(${img})` } : {}}
+            style={
+              img
+                ? { backgroundImage: `url(${img})`, backgroundPosition: imgpos }
+                : {}
+            }
             layoutId={getLayoutId("img")}
             transition={transition}
           />
@@ -89,7 +97,14 @@ export default function ProgramCard({
           </span>
           <div className="flex flex-col ">
             <Divider />
-            <Button href={url} sx={{ borderRadius: 0 }} disabled={!url}>
+            <Button
+              href={url}
+              sx={{ borderRadius: 0 }}
+              disabled={!url}
+              onClick={(e) => {
+                e.stopPropagation();
+              }}
+            >
               見てみる
             </Button>
           </div>
@@ -109,7 +124,14 @@ export default function ProgramCard({
         >
           <motion.div
             className={styles.modalImg}
-            style={img ? { backgroundImage: `url(${img})` } : {}}
+            style={
+              img
+                ? {
+                    backgroundImage: `url(${img})`,
+                    backgroundPosition: imgpos2,
+                  }
+                : {}
+            }
             layoutId={getLayoutId("img")}
             transition={transition}
           />

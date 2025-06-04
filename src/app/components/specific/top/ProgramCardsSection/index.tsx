@@ -66,6 +66,7 @@ export default function ProgramCardsSection() {
           title="バグポケクイズ"
           subTitle={"bugpokequiz"}
           img="img/specific/top/card/bugpokequiz.png"
+          imgpos2="center center"
           url={"https://bugpokequiz.vercel.app/"}
           description="ポケモンのバグに関するクイズを集めたサイトです。"
           tags={["ポケモン", "Webアプリ", "Next.js"]}
@@ -79,6 +80,7 @@ export default function ProgramCardsSection() {
           title="知恵の図"
           subTitle={"chienozu"}
           img="img/specific/top/card/chienozu.png"
+          imgpos2="center center"
           url={"https://unityroom.com/games/chienozu"}
           description="Unityで作成したパズルゲームです。"
           tags={["ゲーム制作", "C#", "Unity"]}
@@ -104,6 +106,8 @@ export default function ProgramCardsSection() {
           title="GBエミュレーター"
           subTitle="gbemulator"
           img="img/specific/top/card/gbemulator.png"
+          imgpos="center center"
+          imgpos2="center center"
           description="ゲームボーイのエミュレーターを作成しました。"
           tags={["GB", "C#", "Unity"]}
           date={{ start: "2024-1", end: "2024-2" }}

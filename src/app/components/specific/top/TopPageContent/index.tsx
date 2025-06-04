@@ -4,6 +4,7 @@
 import TopContent from "@/app/components/common/TopContent";
 import ProgramCardsSection from "../ProgramCardsSection";
 import { useSearchParams } from "next/navigation";
+import CopyrightFooter from "@/app/components/common/CopyrightFooter";
 
 export default function TopPageContent() {
   const searchParams = useSearchParams();
@@ -17,6 +18,7 @@ export default function TopPageContent() {
         description="どうもこんにちは。丹精込めて作ったプロダクト達です。"
       />
       <ProgramCardsSection />
+      <CopyrightFooter year={2025} />
     </div>
   );
 }

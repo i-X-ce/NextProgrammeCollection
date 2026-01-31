@@ -2,7 +2,7 @@
 
 import { Button, Divider, IconButton, Modal } from "@mui/material";
 import styles from "./style.module.css";
-import { motion } from "motion/react";
+import { motion, Transition } from "motion/react";
 import { useState } from "react";
 import {
   CalendarMonth,
@@ -12,7 +12,7 @@ import {
   Timer,
 } from "@mui/icons-material";
 
-const transition = {
+const transition: Transition = {
   type: "spring",
   stiffness: 300,
   damping: 25,
